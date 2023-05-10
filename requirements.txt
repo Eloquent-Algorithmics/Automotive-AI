@@ -12,7 +12,7 @@ datetime
 dateparser
 importlib
 pytz
-dateutil
+python-dateutil
 python-dotenv
 twilio
 speechrecognition
