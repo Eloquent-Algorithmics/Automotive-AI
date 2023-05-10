@@ -24,6 +24,8 @@ OBDlink MX+ Bluetooth ELM327
 
 `pip install -r requirements.txt`
 
+`pip install --upgrade pint`
+
 Then install the spacy NLP model by running the following command in the root directory:
 
 `python -m spacy download en_core_web_md`
