@@ -302,4 +302,4 @@ def send_email_with_attachments(to, subject, body, attachments=None):
 if __name__ == "__main__":
     user_principal_name = GRAPH_EMAIL_ADDRESS
     user_object_id = get_user_object_id(user_principal_name)
-    print(f"User object ID: {user_object_id}")
+
