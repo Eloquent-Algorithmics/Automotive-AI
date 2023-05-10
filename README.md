@@ -18,7 +18,7 @@ OBDlink MX+ Bluetooth ELM327
 
 ## Install by cloning the repository 
 
-`git clone`
+`git clone https://github.com/Explorergt92/Automotive-AI.git`
 
 ## Run the following commands in the root directory:
 
