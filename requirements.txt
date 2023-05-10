@@ -1,5 +1,5 @@
 openai
-serial
+pyserial
 gtts
 pygame
 obd
