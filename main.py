@@ -22,7 +22,6 @@ graph_api.perform_graph_api_request(authorization_code)
 
 initialize_audio()
 
-print(f"User object ID: {graph_api.user_object_id}")
 response_text = chat_gpt("Hello")
 print(response_text)
 

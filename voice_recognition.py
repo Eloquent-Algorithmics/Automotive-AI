@@ -81,7 +81,11 @@ def recognize_speech():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         print("Listening...")
-        audio = recognizer.listen(source, timeout=5, phrase_time_limit=10)
+        try:
+            audio = recognizer.listen(source, timeout=10, phrase_time_limit=30)
+        except sr.WaitTimeoutError:
+            print("Timeout: No speech detected")
+            return None
     try:
         text = recognizer.recognize_google(audio)
         print(f"You said: {text}")
