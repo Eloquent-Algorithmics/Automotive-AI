@@ -9027,3 +9027,90 @@
 2023-05-09 18:23:08,382  root       handle_request INFO     Unknown request: '0134', header=7E0
 2023-05-09 18:23:08,382  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
 2023-05-09 18:23:08,382  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-09 20:41:19,093  root       run        INFO     
+
+ELM327 OBD-II adapter emulator v3.0.0 started on serial COM port "COM6".
+
+2023-05-10 11:45:31,986  root       run        INFO     
+
+ELM327 OBD-II adapter emulator v3.0.0 started on serial COM port "COM6".
+
+2023-05-10 11:48:28,791  root       run        DEBUG    Received '0902'
+2023-05-10 11:48:28,791  root       handle_request DEBUG    Handling: '0902', header '7E0', ECU '7E0'
+2023-05-10 11:48:28,791  root       handle_request DEBUG    Instantiating ECU task "Default ECU Task module" for ECU "7E0"
+2023-05-10 11:48:28,792  root       handle_request DEBUG    Description: Vehicle Identification Number, PID VIN (0902)
+2023-05-10 11:48:28,792  root       handle_response DEBUG    Processing: '<pos_answer>01 31 46 41 48 50 36 30 4136 35 59 31 30 31 36 36 35</pos_answer>'
+2023-05-10 11:48:28,792  root       handle_response DEBUG    Write: '014\r0: 49 02 01 31 46 41 \r1: 48 50 36 30 41 36 35 \r2: 59 31 30 31 36 36 35 \r\r>'
+2023-05-10 11:48:56,525  root       run        DEBUG    Received '03'
+2023-05-10 11:48:56,525  root       handle_request DEBUG    Handling: '03', header '7E0', ECU '7E0'
+2023-05-10 11:48:56,526  root       handle_request DEBUG    UDS P3 timer expired: running stop() method for ECU task "Default ECU Task module", ECU="7E0".
+2023-05-10 11:48:56,529  root       handle_request INFO     Unknown request: '03', header=7E0
+2023-05-10 11:48:56,529  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 11:48:56,529  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 11:48:56,530  root       run        DEBUG    Received '0202'
+2023-05-10 11:48:56,531  root       handle_request DEBUG    Handling: '0202', header '7E0', ECU '7E0'
+2023-05-10 11:48:56,531  root       handle_request INFO     Unknown request: '0202', header=7E0
+2023-05-10 11:48:56,531  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 11:48:56,532  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 11:48:56,532  root       run        DEBUG    Received '07'
+2023-05-10 11:48:56,532  root       handle_request DEBUG    Handling: '07', header '7E0', ECU '7E0'
+2023-05-10 11:48:56,533  root       handle_request INFO     Unknown request: '07', header=7E0
+2023-05-10 11:48:56,533  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 11:48:56,533  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 11:48:56,533  root       run        DEBUG    Received '0904'
+2023-05-10 11:48:56,533  root       handle_request DEBUG    Handling: '0904', header '7E0', ECU '7E0'
+2023-05-10 11:48:56,534  root       handle_request INFO     Unknown request: '0904', header=7E0
+2023-05-10 11:48:56,534  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 11:48:56,534  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 12:05:19,279  root       run        DEBUG    Received '0902'
+2023-05-10 12:05:19,281  root       handle_request DEBUG    Handling: '0902', header '7E0', ECU '7E0'
+2023-05-10 12:05:19,281  root       handle_request DEBUG    UDS P3 timer expired: running stop() method for ECU task "Default ECU Task module", ECU="7E0".
+2023-05-10 12:05:19,281  root       handle_request DEBUG    Description: Vehicle Identification Number, PID VIN (0902)
+2023-05-10 12:05:19,281  root       handle_response DEBUG    Processing: '<pos_answer>01 31 46 41 48 50 36 30 4136 35 59 31 30 31 36 36 35</pos_answer>'
+2023-05-10 12:05:19,281  root       handle_response DEBUG    Write: '014\r0: 49 02 01 31 46 41 \r1: 48 50 36 30 41 36 35 \r2: 59 31 30 31 36 36 35 \r\r>'
+2023-05-10 12:05:19,898  root       run        DEBUG    Received '03'
+2023-05-10 12:05:19,898  root       handle_request DEBUG    Handling: '03', header '7E0', ECU '7E0'
+2023-05-10 12:05:19,898  root       handle_request INFO     Unknown request: '03', header=7E0
+2023-05-10 12:05:19,899  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 12:05:19,899  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 12:05:19,900  root       run        DEBUG    Received '0202'
+2023-05-10 12:05:19,900  root       handle_request DEBUG    Handling: '0202', header '7E0', ECU '7E0'
+2023-05-10 12:05:19,900  root       handle_request INFO     Unknown request: '0202', header=7E0
+2023-05-10 12:05:19,900  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 12:05:19,901  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 12:05:19,901  root       run        DEBUG    Received '07'
+2023-05-10 12:05:19,901  root       handle_request DEBUG    Handling: '07', header '7E0', ECU '7E0'
+2023-05-10 12:05:19,901  root       handle_request INFO     Unknown request: '07', header=7E0
+2023-05-10 12:05:19,901  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 12:05:19,902  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 12:05:19,902  root       run        DEBUG    Received '0904'
+2023-05-10 12:05:19,902  root       handle_request DEBUG    Handling: '0904', header '7E0', ECU '7E0'
+2023-05-10 12:05:19,902  root       handle_request INFO     Unknown request: '0904', header=7E0
+2023-05-10 12:05:19,902  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 12:05:19,903  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 12:19:21,523  root       run        DEBUG    Received '0902'
+2023-05-10 12:19:21,524  root       handle_request DEBUG    Handling: '0902', header '7E0', ECU '7E0'
+2023-05-10 12:19:21,524  root       handle_request DEBUG    UDS P3 timer expired: running stop() method for ECU task "Default ECU Task module", ECU="7E0".
+2023-05-10 12:19:21,524  root       handle_request DEBUG    Description: Vehicle Identification Number, PID VIN (0902)
+2023-05-10 12:19:21,524  root       handle_response DEBUG    Processing: '<pos_answer>01 31 46 41 48 50 36 30 4136 35 59 31 30 31 36 36 35</pos_answer>'
+2023-05-10 12:19:21,524  root       handle_response DEBUG    Write: '014\r0: 49 02 01 31 46 41 \r1: 48 50 36 30 41 36 35 \r2: 59 31 30 31 36 36 35 \r\r>'
+2023-05-10 12:19:21,744  root       run        DEBUG    Received '03'
+2023-05-10 12:19:21,744  root       handle_request DEBUG    Handling: '03', header '7E0', ECU '7E0'
+2023-05-10 12:19:21,744  root       handle_request INFO     Unknown request: '03', header=7E0
+2023-05-10 12:19:21,744  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 12:19:21,745  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 12:19:21,745  root       run        DEBUG    Received '0202'
+2023-05-10 12:19:21,745  root       handle_request DEBUG    Handling: '0202', header '7E0', ECU '7E0'
+2023-05-10 12:19:21,745  root       handle_request INFO     Unknown request: '0202', header=7E0
+2023-05-10 12:19:21,745  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 12:19:21,745  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 12:19:21,747  root       run        DEBUG    Received '07'
+2023-05-10 12:19:21,747  root       handle_request DEBUG    Handling: '07', header '7E0', ECU '7E0'
+2023-05-10 12:19:21,747  root       handle_request INFO     Unknown request: '07', header=7E0
+2023-05-10 12:19:21,747  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 12:19:21,747  root       handle_response DEBUG    Write: 'NO DATA\r\r>'
+2023-05-10 12:19:21,747  root       run        DEBUG    Received '0904'
+2023-05-10 12:19:21,747  root       handle_request DEBUG    Handling: '0904', header '7E0', ECU '7E0'
+2023-05-10 12:19:21,747  root       handle_request INFO     Unknown request: '0904', header=7E0
+2023-05-10 12:19:21,747  root       handle_response DEBUG    Processing: '<writeln>NO DATA</writeln>'
+2023-05-10 12:19:21,748  root       handle_response DEBUG    Write: 'NO DATA\r\r>'

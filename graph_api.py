@@ -79,7 +79,7 @@ def get_user_object_id(user_principal_name):
     if user_object_id is not None:  # Add this block
         return user_object_id
 
-    url = f"https://graph.microsoft.com/v1.0/users/{user_principal_name}"
+    url = f"https://graph.microsoft.com/v1.0/me"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
@@ -106,7 +106,7 @@ def get_next_appointment(user_object_id):
         dict: The next appointment details as a dictionary.
     """
     # Get the user's next appointment from their calendar
-    url = f"https://graph.microsoft.com/v1.0/users/{user_object_id}/calendarview"
+    url = f"https://graph.microsoft.com/v1.0/me/calendarview"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
@@ -177,7 +177,7 @@ def extract_date(text):
 
 def create_new_appointment(recognize_speech, tts_output):
     # Create a new appointment in the user's calendar
-    url = f"https://graph.microsoft.com/v1.0/users/{user_object_id}/events"
+    url = f"https://graph.microsoft.com/v1.0/me/events"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
@@ -228,7 +228,7 @@ def create_new_appointment(recognize_speech, tts_output):
 
 
 def get_emails():
-    url = f"https://graph.microsoft.com/v1.0/users/{user_object_id}/mailFolders/Inbox/messages"
+    url = f"https://graph.microsoft.com/v1.0/me/mailFolders/Inbox/messages"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
@@ -253,7 +253,7 @@ def get_emails():
 
 
 def send_email_with_attachments(to, subject, body, attachments=None):
-    url = f"https://graph.microsoft.com/v1.0/users/{user_object_id}/sendMail"
+    url = f"https://graph.microsoft.com/v1.0/me/sendMail"  # Updated URL
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",

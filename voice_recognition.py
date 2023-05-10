@@ -22,12 +22,12 @@ from graph_api import (
     user_object_id,
 )
 
-nlp = spacy.load("en_core_web_md")
+nlp = spacy.load("en_core_web_lg")
 
 
 def get_similarity_score(text1, text2):
     """
-    Compute the similarity score between two texts using spaCy's nlp pipeline.
+    Compute the similarity score between two texts using spacy nlp pipeline.
 
     Args:
         text1 (str): The first text to compare.

@@ -64,8 +64,10 @@ def send_diagnostic_report(ser):
     vehicle_data = get_vehicle_data_from_nhtsa(vin)
 
     # Get recall and complaint data
-    recall_data = get_recall_data(vehicle_data['Model Year'], vehicle_data['Make'])
-    complaint_data = get_complaint_data(vehicle_data['Model Year'], vehicle_data['Make'], vehicle_data['Model'])
+    recall_data = get_recall_data(
+        vehicle_data['Model Year'], vehicle_data['Make'])
+    complaint_data = get_complaint_data(
+        vehicle_data['Model Year'], vehicle_data['Make'], vehicle_data['Model'])
 
     trouble_codes_response = send_command(ser, "03")
 
@@ -76,8 +78,10 @@ def send_diagnostic_report(ser):
     calibration_ids_response = send_command(ser, "0904")
 
     # Extract relevant recall and complaint information
-    recalls = [recall['model'] for recall in recall_data['results'] if recall['model'].lower() == vehicle_data['Model'].lower()]
-    complaints = [complaint['summary'] for complaint in complaint_data['results']] if 'results' in complaint_data else []
+    recalls = [recall['model'] for recall in recall_data['results']
+               if recall['model'].lower() == vehicle_data['Model'].lower()]
+    complaints = [complaint['summary']
+                  for complaint in complaint_data['results']] if 'results' in complaint_data else []
 
     # Combine the data into a single string with proper formatting
     diagnostic_data = (

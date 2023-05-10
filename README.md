@@ -28,7 +28,7 @@ OBDlink MX+ Bluetooth ELM327
 
 Then install the spacy NLP model by running the following command in the root directory:
 
-`python -m spacy download en_core_web_md`
+`python -m spacy download en_core_web_lg`
 
 set your API keys and variables in the .env.template file and "save as" .env without a file extension.
 
