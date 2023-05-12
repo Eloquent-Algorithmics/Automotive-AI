@@ -41,7 +41,9 @@ with a elm327 device connected
 ```python main.py --device elm327```
 
 If you can find a 64-Bit driver for the Cardaq Plus 3, download 
-https://github.com/MCU-Innovations/J2534_cffi.git then `cd J2534_cffi' and 'pip install .'
+https://github.com/MCU-Innovations/J2534_cffi.git
+
+then `cd J2534_cffi` and 'pip install .`
 
 ```python main.py --device j2534```
 
