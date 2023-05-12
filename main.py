@@ -1,10 +1,10 @@
 import openai
 import serial
-from gpt_chat import chat_gpt
-import graph_api
-import ms_authserver
-from voice_recognition import handle_voice_commands_elm327, handle_voice_commands_j2534, handle_voice_commands_without_device
-from audio_output import tts_output, initialize_audio
+from api.gpt_chat import chat_gpt
+import api.graph_api as graph_api
+import api.ms_authserver as ms_authserver
+from voice.voice_recognition import handle_voice_commands_elm327, handle_voice_commands_j2534, handle_voice_commands_without_device
+from audio.audio_output import tts_output, initialize_audio
 from config import OPENAI_API_KEY, SERIAL_PORT, BAUD_RATE
 import argparse
 from j2534_cffi import find_j2534_passthru_dlls, J2534PassThru
