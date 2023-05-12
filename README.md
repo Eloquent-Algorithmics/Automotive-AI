@@ -1,4 +1,4 @@
-# This is a basic experiment to see what integrating LLMS, NLP, TTS and STT into the automobile environment may do to help to improve hands free operations of technology and the use of On-Board vehicle diagnostics.
+# This is a basic experiment in integrating LLMS, NLP, TTS and STT into the automobile environment may do to help to improve hands free operations of technology and the use of On-Board vehicle diagnostics.
 
 An experimental open-source application that integrates the following technologies: gpt-3.5-turbo or gpt-4, NLP, TTS, STT and an OBD-II ELM327 device to create a voice activated, hands free, vehicle diagnostic assistant.
 
@@ -39,6 +39,13 @@ without a vehicle communcation interface
 
 with a elm327 device connected
 ```python main.py --device elm327```
+
+If you can find a 64-Bit driver for the Cardaq Plus 3, download 
+https://github.com/MCU-Innovations/J2534_cffi.git
+
+then `cd J2534_cffi` and `pip install .`
+
+```python main.py --device j2534```
 
 Current voice commands include the following:
 
