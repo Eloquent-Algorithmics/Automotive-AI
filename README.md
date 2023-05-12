@@ -1,4 +1,4 @@
-# This is a basic experiment to see what integrating LLMS, NLP, TTS and STT into the automobile environment may do to help to improve hands free operations of technology and the use of On-Board vehicle diagnostics.
+# This is a basic experiment in integrating LLMS, NLP, TTS and STT into the automobile environment may do to help to improve hands free operations of technology and the use of On-Board vehicle diagnostics.
 
 An experimental open-source application that integrates the following technologies: gpt-3.5-turbo or gpt-4, NLP, TTS, STT and an OBD-II ELM327 device to create a voice activated, hands free, vehicle diagnostic assistant.
 
