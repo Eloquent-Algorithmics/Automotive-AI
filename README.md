@@ -32,9 +32,13 @@ Then install the spacy NLP model by running the following command in the root di
 
 set your API keys and variables in the .env.template file and "save as" .env without a file extension.
 
-## run the application by running the following command in the root directory:
+## run the application by running the following commands in the root directory:
 
+without a vehicle communcation interface
 ```python main.py```
+
+with a elm327 device connected
+```python main.py --device elm327```
 
 Current voice commands include the following:
 
