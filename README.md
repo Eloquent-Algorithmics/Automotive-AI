@@ -40,6 +40,11 @@ without a vehicle communcation interface
 with a elm327 device connected
 ```python main.py --device elm327```
 
+If you can find a 64-Bit driver for the Cardaq Plus 3, download 
+https://github.com/MCU-Innovations/J2534_cffi.git then `cd J2534_cffi' and 'pip install .'
+
+```python main.py --device j2534```
+
 Current voice commands include the following:
 
     "start a diagnostic report": "DIAGNOSTIC_REPORT",
