@@ -1,96 +1,109 @@
-# This is a basic experiment in integrating LLMS, NLP, TTS and STT into the automobile environment may do to help to improve hands free operations of technology and the use of On-Board vehicle diagnostics.
+# Automotive AI: Voice Activated Vehicle Diagnostic Assistant 🚗🗣️
 
-An experimental open-source application that integrates the following technologies: gpt-3.5-turbo or gpt-4, NLP, TTS, STT and an OBD-II ELM327 device to create a voice activated, hands free, vehicle diagnostic assistant.
+![Automotive AI Banner](banner.png)
 
-*** This is a work in progress ***
+An experimental open-source application that integrates GPT-3.5-turbo (or GPT-4), NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
 
-ElevenLabs TTS and Gmail and Google Calendar integration coming soon.
+⚠️ ***This is a work in progress*** ⚠️
 
-Built and tested using:
+🔜 ElevenLabs TTS, Gmail, and Google Calendar integration coming soon.
 
-Windows 11
+## 🛠️ Built and tested using:
 
-Python 3.11.3
+- Windows 11
+- Python 3.11.3
+- OBDlink MX+ Bluetooth ELM327
+- 2005 and 2021 Ford Vehicles
+- Desktop testing using an ELM327 emulator
 
-OBDlink MX+ Bluetooth ELM327
+## 🚀 Installation
 
-2005 and 2021 Ford Vehicles along with desktop testing using an ELM327 emulator.
+1. Clone the repository:
 
-## Install by cloning the repository 
+```bash
+git clone https://github.com/Explorergt92/Automotive-AI.git
+```
 
-`git clone https://github.com/Explorergt92/Automotive-AI.git`
+2. Run the following commands in the root directory:
 
-## Run the following commands in the root directory:
+```bash
+pip install -r requirements.txt
+pip install --upgrade pint
+```
 
-`pip install -r requirements.txt`
+3. Install the spacy NLP model:
 
-`pip install --upgrade pint`
+```bash
+python -m spacy download en_core_web_lg
+```
 
-Then install the spacy NLP model by running the following command in the root directory:
+4. Set your API keys and variables in the `.env.template` file and save it as `.env` without a file extension.
 
-`python -m spacy download en_core_web_lg`
+## 🏁 Running the Application
 
-set your API keys and variables in the .env.template file and "save as" .env without a file extension.
+Without a vehicle communication interface:
 
-## run the application by running the following commands in the root directory:
+```bash
+python main.py
+```
 
-without a vehicle communcation interface
-```python main.py```
+With an ELM327 device connected:
 
-with a elm327 device connected
-```python main.py --device elm327```
+```bash
+python main.py --device elm327
+```
 
-If you can find a 64-Bit driver for the Cardaq Plus 3, download 
-https://github.com/MCU-Innovations/J2534_cffi.git
+For Cardaq Plus 3 (64-Bit driver required), download [J2534_cffi](https://github.com/MCU-Innovations/J2534_cffi.git), then:
 
-then `cd J2534_cffi` and `pip install .`
+```bash
+cd J2534_cffi
+pip install .
+python main.py --device j2534
+```
 
-```python main.py --device j2534```
+## 🎙️ Voice Commands
 
-Current voice commands include the following:
+Current voice commands include:
 
-    "start a diagnostic report": "DIAGNOSTIC_REPORT",
-    "send a diagnostic report to my email": "send_diagnostic_report",
-    "engine rpm": "010C",
-    "intake air temperature": "010F",
-    "fuel tank level": "012F",
-    "time run with MIL on": "014D",
-    "engine coolant temperature": "0105",
-    "read trouble codes": "03",
-    "freeze frame data": "0202",
-    "pending trouble codes": "07",
-    "clear trouble codes": "04",
-    "service 9 supported pids": "0900",
-    "vehicle identification number": "0902",
-    "calibration verification numbers": "0906",
-    "in-use performance tracking message count": "0907",
-    "in-use performance tracking spark ignition": "0908",
-    "in-use performance tracking compression ignition": "090B",
-    "what's next on my calendar": "next_appointment",
-    "create a new appointment": "create_appointment",
-    "do I have any new emails": "check_outlook_email",
-    "send an email with an attachment": "send_email",
-    "I have a question": "ASK_CHATGPT_QUESTION"
+- "start a diagnostic report"
+- "send a diagnostic report to my email"
+- "engine rpm"
+- "intake air temperature"
+- "fuel tank level"
+- "time run with MIL on"
+- "engine coolant temperature"
+- "read trouble codes"
+- "freeze frame data"
+- "pending trouble codes"
+- "clear trouble codes"
+- "service 9 supported pids"
+- "vehicle identification number"
+- "calibration verification numbers"
+- "in-use performance tracking message count"
+- "in-use performance tracking spark ignition"
+- "in-use performance tracking compression ignition"
+- "what's next on my calendar"
+- "create a new appointment"
+- "do I have any new emails"
+- "send an email with an attachment"
+- "I have a question"
 
+## 📟 ELM Simulator
 
-### ELM Simulator
+ELM327 emulator: [GitHub](https://github.com/Ircama/ELM327-emulator), [SourceForge](https://sourceforge.net/projects/com0com/) (to create a virtual COM port pair).
 
-ELM327 emulator found here:
+After installing com0com, run:
 
-https://github.com/Ircama/ELM327-emulator 
+```bash
+elm -p COM6 -a 500000
+```
 
-https://sourceforge.net/projects/com0com/ to create a virtual COM port pair.
+Set the COM port in the `.env` file to `COM7`.
 
-*** in my testing the com port pair created was COM6 and COM7 ***
+## 📈 Data Stream (Under Construction)
 
-After installing com0com, run the following command to start the emulator:
+```bash
+python data_stream.py
+```
 
-`elm -p COM6 -a 500000`
-
-Set the COM port in the .env file to COM7
-
-## Data Stream *** Under Construction ***
-
-`python data_stream.py` 
-
-Streams data from the OBD-II ELM327 device to the console but there's currently no way to stop the stream other than to close the application.
+Streams data from the OBD-II ELM327 device to the console, but there's currently no way to stop the stream other than closing the application.

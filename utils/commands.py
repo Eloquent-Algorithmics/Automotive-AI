@@ -31,7 +31,6 @@ voice_commands = {
     "do I have any new emails": "check_outlook_email",
     "send an email with an attachment": "send_email",
     "I have a question": "ASK_CHATGPT_QUESTION",
-    "riddle me this batman": "ASK_CHATGPT_QUESTION",
 }
 
 # ELM327 commands set
