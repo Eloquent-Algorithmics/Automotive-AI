@@ -165,7 +165,13 @@ def get_next_appointment(user_object_id):
             subject = appointment["subject"]
             location = appointment.get("location", {}).get("displayName", "unknown")
             send_maps_link(location)
-            return f"Your next appointment is {subject} at {location} from {start_time.strftime('%I:%M %p')} to {end_time.strftime('%I:%M %p')}."
+            formatted_start_time = start_time.strftime('%I:%M %p')
+            formatted_end_time = end_time.strftime('%I:%M %p')
+            return (
+                f"Your next appointment is {subject} at {location} "
+                f"from {formatted_start_time} to {formatted_end_time}."
+            )
+
         else:
             return "You don't have any appointments scheduled for today."
     else:
