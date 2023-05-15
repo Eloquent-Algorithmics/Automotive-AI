@@ -1,3 +1,6 @@
+"""
+This is the main module.
+"""
 import argparse
 import openai
 import serial
@@ -20,8 +23,14 @@ response_text = chat_gpt("Hello")
 print(response_text)
 tts_output(response_text)
 
+
 def create_j2534_connection():
-    # Find the J2534 passthru DLLs
+    """
+    Creates a J2534 connection using the available passthru DLLs.
+
+    Returns:
+        A J2534 connection object or None if no suitable DLLs are found.
+    """
     passthru_dlls = find_j2534_passthru_dlls()
     if not passthru_dlls:
         raise Exception("No J2534 passthru DLL found")

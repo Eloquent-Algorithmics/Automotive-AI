@@ -207,7 +207,7 @@ def extract_date(text):
     Returns:
         Date object: The extracted date from the input text.
     """
-    nlp = importlib.import_module("voice_recognition").nlp
+    nlp = importlib.import_module("voice.voice_recognition").nlp
     doc = nlp(text)
     for ent in doc.ents:
         if ent.label_ == "DATE":
@@ -279,7 +279,7 @@ def create_new_appointment(recognize_speech, tts_output):
         return "Sorry, I couldn't create the appointment."
 
 
-def get_emails():
+def get_emails(user_object_id):
     """
     Retrieves emails from the user's inbox using Microsoft Graph API.
 
