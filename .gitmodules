@@ -1,0 +1,3 @@
+[submodule "J2534_cffi"]
+	path = J2534_cffi
+	url = https://github.com/MCU-Innovations/J2534_cffi.git
