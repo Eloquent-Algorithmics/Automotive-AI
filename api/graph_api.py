@@ -3,16 +3,15 @@ This module demonstrates how to work with OS, Base64, and DateTime libraries.
 """
 import os
 import base64
+import datetime
+import importlib
 import msal
 import requests
-import datetime
-from datetime import date, time
 import dateparser
-import importlib
 import pytz
 from dateutil.parser import isoparse
-import api.ms_authserver as ms_authserver
 from twilio.rest import Client
+import api.ms_authserver as ms_authserver
 from config import (
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
@@ -57,11 +56,24 @@ user_principal_name = GRAPH_EMAIL_ADDRESS
 
 
 def perform_graph_api_request(authorization_code):
+    """
+    Perform a Graph API request using the given authorization code.
+
+    Args:
+        authorization_code (str): The authorization code used for request.
+
+    Returns:
+        None: Just an example, modify return type based on implementation.
+    """
     # Your code to perform the Graph API request using the authorization_code
     pass
 
 
 def refresh_access_token():
+    """
+    Refreshes the access token using the global refresh_token and scope.
+    Updates the global access_token variable with the new token.
+    """
     global access_token
     result = app.acquire_token_by_refresh_token(refresh_token, scope)
     if "access_token" in result:
@@ -74,17 +86,26 @@ def refresh_access_token():
 
 
 def get_user_object_id(user_principal_name):
+    """
+    Retrieves the user object ID based on the given user principal name.
+
+    Args:
+        user_principal_name (str): email address of the user.
+
+    Returns:
+        str: The user object ID.
+    """
     global user_object_id
 
     if user_object_id is not None:  # Add this block
         return user_object_id
 
-    url = f"https://graph.microsoft.com/v1.0/me"
+    url = "https://graph.microsoft.com/v1.0/me"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
     }
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     if response.status_code == 200:
         user_data = response.json()
         return user_data["id"]
@@ -100,13 +121,13 @@ def get_user_object_id(user_principal_name):
 
 def get_next_appointment(user_object_id):
     """
-    Get the user's next appointment from their calendar using Microsoft Graph API.
+    Get the user's next calendar appointment using Microsoft Graph API.
 
     Returns:
         dict: The next appointment details as a dictionary.
     """
     # Get the user's next appointment from their calendar
-    url = f"https://graph.microsoft.com/v1.0/me/calendarview"
+    url = "https://graph.microsoft.com/v1.0/me/calendarview"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
@@ -123,7 +144,7 @@ def get_next_appointment(user_object_id):
     }
     print(f"URL: {url}")
     print(f"Params: {params}")
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params, timeout=10)
     if response.status_code == 200:
         data = response.json()
         if data["value"]:
@@ -154,6 +175,12 @@ def get_next_appointment(user_object_id):
 
 
 def send_maps_link(address):
+    """
+    Generates a Google Maps link for the given address and sends it.
+
+    :param address: The address to generate the Google Maps link for.
+    :type address: str
+    """
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     maps_link = f"https://www.google.com/maps?q={address.replace(' ', '+')}"
     message = client.messages.create(
@@ -165,6 +192,15 @@ def send_maps_link(address):
 
 
 def extract_date(text):
+    """
+    Extracts date from the given text using voice_recognition's NLP module.
+
+    Args:
+        text (str): The input text from which the date needs to be extracted.
+
+    Returns:
+        Date object: The extracted date from the input text.
+    """
     nlp = importlib.import_module("voice_recognition").nlp
     doc = nlp(text)
     for ent in doc.ents:
@@ -176,8 +212,18 @@ def extract_date(text):
 
 
 def create_new_appointment(recognize_speech, tts_output):
+    """
+    Creates a new appointment in the user's calendar using Microsoft Graph API.
+
+    Args:
+        recognize_speech (function): A function to recognize speech input.
+        tts_output (function): A function to output text-to-speech.
+
+    Returns:
+        None
+    """
     # Create a new appointment in the user's calendar
-    url = f"https://graph.microsoft.com/v1.0/me/events"
+    url = "https://graph.microsoft.com/v1.0/me/events"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
@@ -219,7 +265,7 @@ def create_new_appointment(recognize_speech, tts_output):
         "start": {"dateTime": start_time, "timeZone": local_timezone.zone},
         "end": {"dateTime": end_time, "timeZone": local_timezone.zone},
     }
-    response = requests.post(url, headers=headers, json=data)
+    response = requests.post(url, headers=headers, json=data, timeout=10)
 
     if response.status_code == 201:
         return "Appointment created successfully."
@@ -228,7 +274,13 @@ def create_new_appointment(recognize_speech, tts_output):
 
 
 def get_emails():
-    url = f"https://graph.microsoft.com/v1.0/me/mailFolders/Inbox/messages"
+    """
+    Retrieves emails from the user's inbox using Microsoft Graph API.
+
+    Returns:
+        list: A list of email messages.
+    """
+    url = "https://graph.microsoft.com/v1.0/me/mailFolders/Inbox/messages"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
@@ -238,7 +290,7 @@ def get_emails():
         "$select": "subject,from,receivedDateTime,body",
         "$orderby": "receivedDateTime desc",
     }
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params, timeout=10)
     if response.status_code == 200:
         data = response.json()
         return data["value"]
@@ -253,7 +305,19 @@ def get_emails():
 
 
 def send_email_with_attachments(to, subject, body, attachments=None):
-    url = f"https://graph.microsoft.com/v1.0/me/sendMail"  # Updated URL
+    """
+    Send an email with attachments using Microsoft Graph API.
+
+    :param to: The recipient's email address.
+    :type to: str
+    :param subject: The subject of the email.
+    :type subject: str
+    :param body: The body of the email.
+    :type body: str
+    :param attachments: A list of file paths to be attached to the email, defaults to None.
+    :type attachments: list, optional
+    """
+    url = "https://graph.microsoft.com/v1.0/me/sendMail"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
@@ -286,7 +350,7 @@ def send_email_with_attachments(to, subject, body, attachments=None):
         },
         "saveToSentItems": "true",
     }
-    response = requests.post(url, headers=headers, json=email_data)
+    response = requests.post(url, headers=headers, json=email_data, timeout=10)
 
     if response.status_code == 202:
         print("Email sent successfully")
@@ -302,4 +366,3 @@ def send_email_with_attachments(to, subject, body, attachments=None):
 if __name__ == "__main__":
     user_principal_name = GRAPH_EMAIL_ADDRESS
     user_object_id = get_user_object_id(user_principal_name)
-
