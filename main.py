@@ -1,12 +1,14 @@
+import argparse
 import openai
 import serial
 from api.gpt_chat import chat_gpt
 import api.graph_api as graph_api
 import api.ms_authserver as ms_authserver
-from voice.voice_recognition import handle_voice_commands_elm327, handle_voice_commands_j2534, handle_voice_commands_without_device
+from voice.elm327 import handle_voice_commands_elm327
+from voice.j2534 import handle_voice_commands_j2534
+from voice.no_device import handle_voice_commands_without_device
 from audio.audio_output import tts_output, initialize_audio
 from config import OPENAI_API_KEY, SERIAL_PORT, BAUD_RATE
-import argparse
 from j2534_cffi import find_j2534_passthru_dlls, J2534PassThru
 
 openai.api_key = OPENAI_API_KEY
@@ -41,6 +43,7 @@ def create_j2534_connection():
     # Connect to the J2534 device
     channel = device.connect(config)
     return channel
+
 
 # Add command-line argument parsing
 parser = argparse.ArgumentParser(description="Choose the device type")

@@ -4,7 +4,7 @@ including speech recognition
 and text-to-speech output.
 """
 
-from voice_recognition import (
+from voice.voice_recognition import (
     recognize_speech,
     recognize_command,
     tts_output,

@@ -4,9 +4,6 @@ and spacy.
 """
 import spacy
 import speech_recognition as sr
-from voice_commands.elm327 import handle_voice_commands_elm327
-from voice_commands.j2534 import handle_voice_commands_j2534
-from voice_commands.no_device import handle_voice_commands_without_device
 
 from api.gpt_chat import chat_gpt, chat_gpt_custom
 from api.graph_api import (create_new_appointment, get_emails,

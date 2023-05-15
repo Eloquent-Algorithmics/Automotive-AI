@@ -1,7 +1,7 @@
 """
 This module contains functions to handle voice commands using ELM327.
 """
-from voice_recognition import (
+from voice.voice_recognition import (
     recognize_speech,
     tts_output,
     voice_commands,

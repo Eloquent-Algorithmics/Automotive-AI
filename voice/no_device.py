@@ -8,7 +8,7 @@ This module provides voice recognition functionality for various tasks such as:
 - Interacting with GPT-based chat
 """
 
-from voice_recognition import (
+from voice.voice_recognition import (
     recognize_speech,
     recognize_command,
     tts_output,
