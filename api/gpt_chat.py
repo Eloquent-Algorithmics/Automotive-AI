@@ -50,9 +50,14 @@ def chat_gpt_custom(processed_data):
         vehicle_data = ast.literal_eval(decoded_data)
 
         if vehicle_data:
-            response = f"The VIN is {vin}. This is a {vehicle_data['Model Year']} {vehicle_data['Make']} {vehicle_data['Model']} with a {vehicle_data['Displacement (L)']} engine. The trim level is {vehicle_data['Trim'] if vehicle_data['Trim'] else 'unknown'}."
+            response = (
+                f"The VIN is {vin}. This is a {vehicle_data['Model Year']} "
+                f"{vehicle_data['Make']} {vehicle_data['Model']} with a "
+                f"{vehicle_data['Displacement (L)']} engine. The trim level is"
+                f"{vehicle_data['Trim'] if vehicle_data['Trim'] else 'unknown'}."
+            )
         else:
-            response = "I'm sorry, I couldn't retrieve vehicle information for the provided VIN. Please try again."
+            response = "couldn't retrieve information for the provided VIN."
     else:
         response = chat_gpt(processed_data)
 
