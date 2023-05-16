@@ -22,9 +22,35 @@ from voice.voice_recognition import (
 )
 
 
+def send_command_j2534(channel, cmd):
+    """
+    Send a command to the J2534 device using the channel.
+
+    Args:
+        channel: The J2534 channel object used to communicate with the device.
+        cmd (str): The command to send.
+
+    Returns:
+        str: The response from the J2534 device.
+    """
+    # Convert the command string to bytes
+    cmd_bytes = cmd.encode("ascii")
+
+    # Send the command using the J2534 channel
+    channel.write(cmd_bytes)
+
+    # Read the response
+    response_bytes = channel.read()
+
+    # Convert the response bytes to a string
+    response = response_bytes.decode("ascii")
+
+    return response
+
+
 def handle_voice_commands_j2534(channel, user_object_id):
     """
-    Listen for voice commands from the user and execute them using J2534 channel.
+    Listen for voice commands from the user and execute using J2534 channel.
 
     Args:
         channel: The J2534 channel object used to communicate with the device.

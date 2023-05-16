@@ -228,7 +228,6 @@ def create_new_appointment(recognize_speech, tts_output):
     Returns:
         None
     """
-    # Create a new appointment in the user's calendar
     url = "https://graph.microsoft.com/v1.0/me/events"
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -257,7 +256,7 @@ def create_new_appointment(recognize_speech, tts_output):
 
     local_timezone = pytz.timezone(
         "America/New_York"
-    )  # Replace with your local timezone
+    )
     start_time = local_timezone.localize(
         datetime.datetime.combine(appointment_date, start_time_obj.time())
     ).isoformat()

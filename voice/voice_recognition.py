@@ -74,6 +74,7 @@ def recognize_speech():
     """
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source, duration=2)
         print("Listening...")
         try:
             audio = recognizer.listen(source, timeout=10, phrase_time_limit=30)
@@ -90,29 +91,3 @@ def recognize_speech():
     except sr.RequestError as request_error:
         print(f"Could not request results; {request_error}")
         return None
-
-
-def send_command_j2534(channel, cmd):
-    """
-    Send a command to the J2534 device using the channel.
-
-    Args:
-        channel: The J2534 channel object used to communicate with the device.
-        cmd (str): The command to send.
-
-    Returns:
-        str: The response from the J2534 device.
-    """
-    # Convert the command string to bytes
-    cmd_bytes = cmd.encode("ascii")
-
-    # Send the command using the J2534 channel
-    channel.write(cmd_bytes)
-
-    # Read the response
-    response_bytes = channel.read()
-
-    # Convert the response bytes to a string
-    response = response_bytes.decode("ascii")
-
-    return response
