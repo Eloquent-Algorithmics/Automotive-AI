@@ -53,8 +53,8 @@ def chat_gpt_custom(processed_data):
             response = (
                 f"The VIN is {vin}. This is a {vehicle_data['Model Year']} "
                 f"{vehicle_data['Make']} {vehicle_data['Model']} with a "
-                f"{vehicle_data['Displacement (L)']} engine. The trim level is"
-                f"{vehicle_data['Trim'] if vehicle_data['Trim'] else 'unknown'}."
+                f"{vehicle_data['Displacement (L)']} engine. Trim level is "
+                f"{vehicle_data['Trim'] if vehicle_data['Trim'] else 'none'}."
             )
         else:
             response = "couldn't retrieve information for the provided VIN."

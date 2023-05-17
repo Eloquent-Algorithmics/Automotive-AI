@@ -3,8 +3,6 @@ from flask import Flask, render_template_string, jsonify
 import obd
 from config import SERIAL_PORT, BAUD_RATE
 
-# Connect to the ELM327 device
-connection = obd.OBD(portstr=SERIAL_PORT, baudrate=BAUD_RATE)
 
 app = Flask(__name__)
 
@@ -14,6 +12,7 @@ SENSOR_DATA = {}
 supported_sensors = []
 start_time = time.time()
 
+
 def check_and_add_sensor(sensor):
     if connection.query(sensor).is_null():
         return False
@@ -21,38 +20,12 @@ def check_and_add_sensor(sensor):
     SENSOR_DATA[sensor] = []
     return True
 
-# Check for supported sensors
-check_and_add_sensor(obd.commands.RPM)
-check_and_add_sensor(obd.commands.MAF)
-check_and_add_sensor(obd.commands.SHORT_FUEL_TRIM_1)
-check_and_add_sensor(obd.commands.LONG_FUEL_TRIM_1)
-check_and_add_sensor(obd.commands.SHORT_FUEL_TRIM_2)
-check_and_add_sensor(obd.commands.LONG_FUEL_TRIM_2)
-check_and_add_sensor(obd.commands.O2_B1S1)
-check_and_add_sensor(obd.commands.O2_B2S1)
-check_and_add_sensor(obd.commands.INTAKE_PRESSURE)
-check_and_add_sensor(obd.commands.THROTTLE_POS)
-check_and_add_sensor(obd.commands.O2_S1_WR_CURRENT)
-check_and_add_sensor(obd.commands.O2_S2_WR_VOLTAGE)
-check_and_add_sensor(obd.commands.O2_S2_WR_CURRENT)
-check_and_add_sensor(obd.commands.O2_S3_WR_VOLTAGE)
-check_and_add_sensor(obd.commands.O2_S3_WR_CURRENT)
-check_and_add_sensor(obd.commands.O2_S4_WR_VOLTAGE)
-check_and_add_sensor(obd.commands.O2_S4_WR_CURRENT)
-check_and_add_sensor(obd.commands.O2_S5_WR_VOLTAGE)
-check_and_add_sensor(obd.commands.O2_S5_WR_CURRENT)
-check_and_add_sensor(obd.commands.O2_S6_WR_VOLTAGE)
-check_and_add_sensor(obd.commands.O2_S6_WR_CURRENT)
-check_and_add_sensor(obd.commands.O2_S7_WR_VOLTAGE)
-check_and_add_sensor(obd.commands.O2_S7_WR_VOLTAGE)
-check_and_add_sensor(obd.commands.O2_S7_WR_CURRENT)
-check_and_add_sensor(obd.commands.O2_S8_WR_VOLTAGE)
-check_and_add_sensor(obd.commands.O2_S8_WR_CURRENT)
 
 @app.route("/")
 def index():
     supported_sensors_desc = [sensor.desc for sensor in supported_sensors]
-    return render_template_string('''
+    return render_template_string(
+        """
         <html>
             <head>
                 <title>OBD-II Live Data Stream</title>
@@ -160,7 +133,11 @@ def index():
                 </script>
             </body>
         </html>
-    ''', num_sensors=len(supported_sensors), supported_sensors=supported_sensors_desc)
+    """,
+        num_sensors=len(supported_sensors),
+        supported_sensors=supported_sensors_desc,
+    )
+
 
 @app.route("/data")
 def data():
@@ -176,11 +153,48 @@ def data():
 
     sensor_data_list = [SENSOR_DATA[sensor] for sensor in supported_sensors]
 
-    return jsonify({
-        "timestamps": timestamps,
-        "sensor_data": sensor_data_list,
-        "start_time": start_time
-    })
+    return jsonify(
+        {
+            "timestamps": timestamps,
+            "sensor_data": sensor_data_list,
+            "start_time": start_time,
+        }
+    )
 
-if __name__ == "__main__":
-    app.run(debug=False)
+
+def start_datastream():
+    global connection, supported_sensors, SENSOR_DATA
+    connection = obd.OBD(portstr=SERIAL_PORT, baudrate=BAUD_RATE)
+
+    # Move the sensor checking logic inside this function
+    supported_sensors = []
+    SENSOR_DATA = {}
+    check_and_add_sensor(obd.commands.RPM)
+    check_and_add_sensor(obd.commands.MAF)
+    check_and_add_sensor(obd.commands.SHORT_FUEL_TRIM_1)
+    check_and_add_sensor(obd.commands.LONG_FUEL_TRIM_1)
+    check_and_add_sensor(obd.commands.SHORT_FUEL_TRIM_2)
+    check_and_add_sensor(obd.commands.LONG_FUEL_TRIM_2)
+    check_and_add_sensor(obd.commands.O2_B1S1)
+    check_and_add_sensor(obd.commands.O2_B2S1)
+    check_and_add_sensor(obd.commands.INTAKE_PRESSURE)
+    check_and_add_sensor(obd.commands.THROTTLE_POS)
+    check_and_add_sensor(obd.commands.O2_S1_WR_CURRENT)
+    check_and_add_sensor(obd.commands.O2_S2_WR_VOLTAGE)
+    check_and_add_sensor(obd.commands.O2_S2_WR_CURRENT)
+    check_and_add_sensor(obd.commands.O2_S3_WR_VOLTAGE)
+    check_and_add_sensor(obd.commands.O2_S3_WR_CURRENT)
+    check_and_add_sensor(obd.commands.O2_S4_WR_VOLTAGE)
+    check_and_add_sensor(obd.commands.O2_S4_WR_CURRENT)
+    check_and_add_sensor(obd.commands.O2_S5_WR_VOLTAGE)
+    check_and_add_sensor(obd.commands.O2_S5_WR_CURRENT)
+    check_and_add_sensor(obd.commands.O2_S6_WR_VOLTAGE)
+    check_and_add_sensor(obd.commands.O2_S6_WR_CURRENT)
+    check_and_add_sensor(obd.commands.O2_S7_WR_VOLTAGE)
+    check_and_add_sensor(obd.commands.O2_S7_WR_VOLTAGE)
+    check_and_add_sensor(obd.commands.O2_S7_WR_CURRENT)
+    check_and_add_sensor(obd.commands.O2_S8_WR_VOLTAGE)
+    check_and_add_sensor(obd.commands.O2_S8_WR_CURRENT)
+
+    if __name__ == "__main__":
+        app.run(debug=False)
