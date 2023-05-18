@@ -31,6 +31,8 @@ voice_commands = {
     "do I have any new emails": "check_outlook_email",
     "send an email with an attachment": "send_email",
     "I have a question": "ASK_CHATGPT_QUESTION",
+    "start datastream": "START_DATASTREAM",
+    "stop datastream": "STOP_DATASTREAM",
 }
 
 # ELM327 commands set

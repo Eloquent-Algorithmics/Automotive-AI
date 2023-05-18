@@ -7,10 +7,6 @@ import obd
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from config import SERIAL_PORT, BAUD_RATE
-
-# Connect to the ELM327 device
-connection = obd.OBD(portstr=SERIAL_PORT, baudrate=BAUD_RATE)
 
 # Create a tkinter window
 root = Tk()

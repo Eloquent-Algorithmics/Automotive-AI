@@ -1,8 +1,10 @@
 """
 This module contains functions to handle voice commands using ELM327.
 """
+import subprocess
 from voice.voice_recognition import (
     recognize_speech,
+    recognize_command,
     tts_output,
     voice_commands,
     ELM327_COMMANDS,
@@ -21,19 +23,11 @@ from voice.voice_recognition import (
 
 
 def handle_voice_commands_elm327(ser, user_object_id):
-    """
-    Listen for voice commands from the user and execute them.
-
-    Args:
-        ser: The serial port object used to communicate with the device.
-
-    Returns:
-        None
-    """
     standby_phrases = ["enter standby mode", "go to sleep", "stop listening"]
     wakeup_phrases = ["wake up", "i need your help", "start listening"]
 
     standby_mode = False
+    datastream_process = None
 
     while True:
         if not standby_mode:
@@ -87,8 +81,8 @@ def handle_voice_commands_elm327(ser, user_object_id):
                             print(f"Body: {email['body']['content']}")
                     else:
                         print("No emails found.")
+
                 elif cmd == "send_email":
-                    # Use predefined values or ask the user for email details.
                     email_to = "example@example.com"
                     subject = "Test email"
                     body = "This is a test email."
@@ -105,10 +99,9 @@ def handle_voice_commands_elm327(ser, user_object_id):
                     else:
                         print("I didn't catch your question Please try again.")
 
-                elif (
-                    cmd in ELM327_COMMANDS
-                ):  # Check if the command is in the ELM327_COMMANDS set
+                elif cmd in ELM327_COMMANDS:
                     response = send_command(ser, cmd)
+                    print(f"Raw response: {response}")
                     if "NO DATA" not in response:
                         value = None
                         if cmd == "0105":
@@ -144,6 +137,32 @@ def handle_voice_commands_elm327(ser, user_object_id):
                         tts_output(chatgpt_response)
                     else:
                         print(f"{text} not available.")
+
+                elif cmd == "START_DATASTREAM":
+                    if datastream_process is None:
+                        print("Starting datastream...")
+                        tts_output("Starting datastream...")
+                        datastream_process = subprocess.Popen(
+                            ["python", "datastreams/air_fuel_datastream.py"],
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            text=True,
+                        )
+                    else:
+                        print("Datastream is already running.")
+                        tts_output("Datastream is already running.")
+
+                elif cmd == "STOP_DATASTREAM":
+                    if datastream_process is not None:
+                        print("Stopping datastream...")
+                        tts_output("Stopping datastream...")
+                        datastream_process.terminate()
+                        datastream_process = None
+                    else:
+                        print("Datastream is not running.")
+                        tts_output("Datastream is not running.")
+
             else:
                 print("Command not recognized. Please try again.")
         else:
