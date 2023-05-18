@@ -33,6 +33,11 @@ def handle_voice_commands_elm327(user_object_id):
     Returns:
         None
     """
+    ser = serial.Serial(
+        port=SERIAL_PORT,
+        baudrate=BAUD_RATE,
+        timeout=1,
+    )
     standby_phrases = ["enter standby mode", "go to sleep", "stop listening"]
     wakeup_phrases = ["wake up", "i need your help", "start listening"]
 
@@ -61,7 +66,7 @@ def handle_voice_commands_elm327(user_object_id):
             if standby_mode:
                 continue
 
-            cmd = handle_common_voice_commands(text, user_object_id)
+            cmd = handle_common_voice_commands(user_object_id)
 
             if cmd == "START_DATA_STREAM":
                 print("Starting data stream...")
