@@ -3,6 +3,8 @@ This module contains functions to handle voice commands using ELM327.
 """
 import threading
 import pandas as pd
+import serial
+from config import SERIAL_PORT, BAUD_RATE
 from datastreams.flask_air_fuel_datastream import start_datastream, app
 from voice.voice_recognition import (
     recognize_speech,
@@ -20,12 +22,11 @@ from utils.serial_commands import (
 from api.gpt_chat import chat_gpt_custom
 
 
-def handle_voice_commands_elm327(ser, user_object_id):
+def handle_voice_commands_elm327(user_object_id):
     """
     Listen for voice commands from the user and execute them.
 
     Args:
-        ser: The serial port object used to communicate with the device.
         user_object_id: The user object ID for Microsoft Graph API.
 
     Returns:
@@ -47,7 +48,9 @@ def handle_voice_commands_elm327(ser, user_object_id):
                 tts_output("Entering standby mode.")
                 continue
 
-            if standby_mode and any(phrase in text.lower() for phrase in wakeup_phrases):
+            if standby_mode and any(
+                phrase in text.lower() for phrase in wakeup_phrases
+            ):
                 standby_mode = False
                 print("Exiting standby mode.")
                 tts_output("Exiting standby mode.")
@@ -74,7 +77,7 @@ def handle_voice_commands_elm327(ser, user_object_id):
             elif cmd == "SAVE_DATA_TO_SPREADSHEET":
                 print("Saving data to spreadsheet...")
                 tts_output("Saving data to spreadsheet...")
-                data = app.view_functions['data']()
+                data = app.view_functions["data"]()
                 df = pd.DataFrame(data["sensor_data"]).T
                 df.columns = [sensor.name for sensor in supported_sensors]
                 df.to_excel("datastream_output.xlsx", index=False)
@@ -105,8 +108,7 @@ def handle_voice_commands_elm327(ser, user_object_id):
                             ) / 4
                             print(f"Engine RPM: {value}")
                             processed_data = (
-                                f"{text}: {response} - "
-                                f"Engine RPM: {value}"
+                                f"{text}: {response} - " f"Engine RPM: {value}"
                             )
                         elif cmd == "0902":
                             vin_response = parse_vin_response(response)
@@ -119,10 +121,7 @@ def handle_voice_commands_elm327(ser, user_object_id):
                             )
                         else:
                             processed_data = process_data(
-                                text,
-                                response,
-                                value
-                            )
+                                text, response, value)
 
                         chatgpt_response = chat_gpt_custom(processed_data)
                         print(f"ChatGPT Response: {chatgpt_response}")

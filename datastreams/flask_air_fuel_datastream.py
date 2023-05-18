@@ -163,8 +163,7 @@ def data():
 
 
 def start_datastream():
-    global connection, supported_sensors, SENSOR_DATA
-    connection = obd.OBD(portstr=SERIAL_PORT, baudrate=BAUD_RATE)
+    connection = obd.OBD(portstr=SERIAL_PORT, baudrate=BAUD_RATE, fast=False)
 
     # Move the sensor checking logic inside this function
     supported_sensors = []
