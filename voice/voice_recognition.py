@@ -5,16 +5,15 @@ and spacy.
 import spacy
 import speech_recognition as sr
 
-from api.gpt_chat import chat_gpt, chat_gpt_custom
-from api.graph_api import (create_new_appointment, get_emails,
-                           get_next_appointment, send_email_with_attachments,
-                           user_object_id)
-from api.vin_decoder import decode_vin, parse_vin_response
+from api.gpt_chat import chat_gpt
+from api.graph_api import (
+    create_new_appointment,
+    get_emails,
+    get_next_appointment,
+    send_email_with_attachments,
+)
 from audio.audio_output import tts_output
-from config import GRAPH_EMAIL_ADDRESS
-from utils.commands import ELM327_COMMANDS, voice_commands
-from utils.serial_commands import (process_data, send_command,
-                                   send_diagnostic_report)
+from utils.commands import voice_commands
 
 nlp = spacy.load("en_core_web_lg")
 
@@ -90,4 +89,58 @@ def recognize_speech():
         return None
     except sr.RequestError as request_error:
         print(f"Could not request results; {request_error}")
+        return None
+
+
+def handle_common_voice_commands(text, user_object_id):
+    """
+    Handles common voice commands by recognizing the command in the given text.
+    """
+    recognized_command = recognize_command(text, list(voice_commands.keys()))
+
+    if recognized_command:
+        cmd = voice_commands[recognized_command]
+
+        if cmd == "next_appointment":
+            next_appointment = get_next_appointment(user_object_id)
+            print(f"{next_appointment}")
+            tts_output(f"{next_appointment}")
+
+        elif cmd == "create_appointment":
+            create_new_appointment(recognize_speech, tts_output)
+            print("New appointment created.")
+            tts_output("New appointment has been created.")
+
+        elif cmd == "check_outlook_email":
+            emails = get_emails(user_object_id)
+            if emails:
+                for email in emails:
+                    print(f"\nSubject: {email['subject']}")
+                    print(f"From: {email['from']['emailAddress']['address']}")
+                    print(f"Date: {email['receivedDateTime']}")
+                    print(f"Body: {email['body']['content']}")
+            else:
+                print("No emails found.")
+        elif cmd == "send_email":
+            # Use predefined values or ask the user for email details.
+            email_to = "example@example.com"
+            subject = "Test email"
+            body = "This is a test email."
+            attachments = ["file1.txt", "file2.txt"]
+            send_email_with_attachments(email_to, subject, body, attachments)
+
+        elif cmd == "ASK_CHATGPT_QUESTION":
+            print("Please ask your question:")
+            question = recognize_speech()
+            if question:
+                chatgpt_response = chat_gpt(question)
+                print(f"Answer: {chatgpt_response}")
+                tts_output(chatgpt_response)
+            else:
+                print("I didn't catch your question Please try again.")
+                tts_output("I didn't catch your question Please try again.")
+        else:
+            return cmd
+    else:
+        print("Command not recognized. Please try again.")
         return None
