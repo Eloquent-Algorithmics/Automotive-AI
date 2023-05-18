@@ -8,6 +8,7 @@ from config import SERIAL_PORT, BAUD_RATE
 from datastreams.flask_air_fuel_datastream import start_datastream, app
 from voice.voice_recognition import (
     recognize_speech,
+    recognize_command,
     tts_output,
     handle_common_voice_commands,
 )
@@ -36,6 +37,7 @@ def handle_voice_commands_elm327(user_object_id):
     wakeup_phrases = ["wake up", "i need your help", "start listening"]
 
     standby_mode = False
+    datastream_process = None
 
     while True:
         if not standby_mode:
@@ -91,6 +93,7 @@ def handle_voice_commands_elm327(user_object_id):
                     tts_output("The report has been sent to your email.")
                 else:
                     response = send_command(ser, cmd)
+                    print(f"Raw response: {response}")
                     if "NO DATA" not in response:
                         value = None
                         if cmd == "0105":
@@ -128,6 +131,32 @@ def handle_voice_commands_elm327(user_object_id):
                         tts_output(chatgpt_response)
                     else:
                         print(f"{text} not available.")
+
+                elif cmd == "START_DATASTREAM":
+                    if datastream_process is None:
+                        print("Starting datastream...")
+                        tts_output("Starting datastream...")
+                        datastream_process = subprocess.Popen(
+                            ["python", "datastreams/air_fuel_datastream.py"],
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            text=True,
+                        )
+                    else:
+                        print("Datastream is already running.")
+                        tts_output("Datastream is already running.")
+
+                elif cmd == "STOP_DATASTREAM":
+                    if datastream_process is not None:
+                        print("Stopping datastream...")
+                        tts_output("Stopping datastream...")
+                        datastream_process.terminate()
+                        datastream_process = None
+                    else:
+                        print("Datastream is not running.")
+                        tts_output("Datastream is not running.")
+
             else:
                 print("Command not recognized. Please try again.")
         else:
