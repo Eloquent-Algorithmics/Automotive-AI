@@ -132,7 +132,7 @@ def handle_voice_commands_elm327(user_object_id):
                     else:
                         print(f"{text} not available.")
 
-                elif cmd == "START_DATASTREAM":
+                if cmd == "START_DATASTREAM":
                     if datastream_process is None:
                         print("Starting datastream...")
                         tts_output("Starting datastream...")
