@@ -1,6 +1,6 @@
 # Automotive AI: Voice Activated Vehicle Diagnostic Assistant 🚗🗣️
 
-![Automotive AI Banner](banner.png)
+Join the Discord Server (https://discord.gg/VsVuxche)
 
 An experimental open-source application that integrates GPT-3.5-turbo (or GPT-4), NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
 
