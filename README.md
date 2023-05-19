@@ -90,6 +90,14 @@ Current voice commands include:
 - "do I have any new emails"
 - "send an email with an attachment"
 - "I have a question"
+- "let's have a conversation"
+
+After a conversation has been started you can use the following voice commands to manage the conversation:
+
+-- "clear all history"
+-- "delete the last message"
+-- "end the conversation"
+
 
 ## 📟 ELM Simulator
 
