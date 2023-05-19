@@ -1,14 +1,15 @@
 """
 This module provides functions for working with OpenAI's API.
 """
-
+import json
+import os
 import ast
 import openai
 
 
 def chat_gpt(prompt):
     """
-    Generates a response to the given prompt using OpenAI's GPT-4 model.
+    Generates a response to the given prompt using OpenAI's GPT-3.5-turbo or gpt-4 model.
 
     Args:
         prompt (str): The prompt to generate a response for.
@@ -62,3 +63,19 @@ def chat_gpt_custom(processed_data):
         response = chat_gpt(processed_data)
 
     return response
+
+
+def chat_gpt_conversation(prompt, conversation_history):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=conversation_history +
+        [{"role": "user", "content": f"{prompt}"}],
+        max_tokens=200,
+        n=1,
+        stop=None,
+        temperature=0.5,
+        frequency_penalty=0,
+        presence_penalty=0,
+    )
+    response_text = response.choices[0].message["content"].strip()
+    return response_text

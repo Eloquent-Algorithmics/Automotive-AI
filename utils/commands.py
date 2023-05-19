@@ -34,6 +34,7 @@ voice_commands = {
     "start data stream": "START_DATA_STREAM",
     "stop data stream": "STOP_DATA_STREAM",
     "save data to spreadsheet": "SAVE_DATA_TO_SPREADSHEET",
+    "let's have a conversation": "START_CONVERSATION",
 }
 
 # ELM327 commands set

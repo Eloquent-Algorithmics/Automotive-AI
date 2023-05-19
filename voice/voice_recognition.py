@@ -2,10 +2,15 @@
 This module is responsible for handling voice commands using speech recognition
 and spacy.
 """
+import json
+import os
 import spacy
 import speech_recognition as sr
 
-from api.gpt_chat import chat_gpt
+from api.gpt_chat import (
+    chat_gpt,
+    chat_gpt_conversation,
+)
 from api.graph_api import (
     create_new_appointment,
     get_emails,
@@ -92,14 +97,27 @@ def recognize_speech():
         return None
 
 
+def save_conversation_history(conversation_history, file_path="conversation_history.json"):
+    with open(file_path, "w") as f:
+        json.dump(conversation_history, f)
+
+
+def load_conversation_history(file_path="conversation_history.json"):
+    if os.path.exists(file_path):
+        with open(file_path, "r") as f:
+            conversation_history = json.load(f)
+    else:
+        conversation_history = [
+            {"role": "system", "content": "You are an in car AI assistant."}]
+    return conversation_history
+
 def handle_common_voice_commands(user_object_id):
-    """
-    Handles common voice commands by recognizing the command in the given text.
-    """
     standby_phrases = ["enter standby mode", "go to sleep", "stop listening"]
     wakeup_phrases = ["wake up", "i need your help", "start listening"]
 
     standby_mode = False
+    conversation_history = load_conversation_history()
+    conversation_active = False
 
     while True:
         if not standby_mode:
@@ -112,15 +130,56 @@ def handle_common_voice_commands(user_object_id):
                 tts_output("Entering standby mode.")
                 continue
 
-            if standby_mode and any(
-                phrase in text.lower() for phrase in wakeup_phrases
-            ):
+            if standby_mode and any(phrase in text.lower() for phrase in wakeup_phrases):
                 standby_mode = False
                 print("Exiting standby mode.")
                 tts_output("Exiting standby mode.")
                 continue
 
             if standby_mode:
+                continue
+
+            if not standby_mode and conversation_active:
+                if "clear all history" in text.lower():
+                    conversation_history = [
+                        {"role": "system", "content": "You are an in car AI assistant."}]
+                    save_conversation_history(conversation_history)
+                    print("Conversation history cleared.")
+                    tts_output("Conversation history cleared.")
+                    continue
+
+                if "delete the last message" in text.lower():
+                    if len(conversation_history) > 1:
+                        conversation_history.pop()
+                        save_conversation_history(conversation_history)
+                        print("Last message removed.")
+                        tts_output("Last message removed.")
+                    else:
+                        print("No messages to remove.")
+                        tts_output("No messages to remove.")
+                    continue
+
+                if "end the conversation" in text.lower():
+                    conversation_active = False
+                    print("Ending the conversation.")
+                    tts_output("Ending the conversation.")
+                    continue
+
+            if not standby_mode and not conversation_active and "let's have a conversation" in text.lower():
+                conversation_active = True
+                print("Starting a conversation.")
+                tts_output("Starting a conversation.")
+                continue
+
+            if not standby_mode and conversation_active:
+                chatgpt_response = chat_gpt_conversation(
+                    text, conversation_history)
+                conversation_history.append({"role": "user", "content": text})
+                conversation_history.append(
+                    {"role": "assistant", "content": chatgpt_response})
+                save_conversation_history(conversation_history)
+                print(f"Assistant: {chatgpt_response}")
+                tts_output(chatgpt_response)
                 continue
 
             recognized_command = recognize_command(
@@ -150,8 +209,8 @@ def handle_common_voice_commands(user_object_id):
                             print(f"Body: {email['body']['content']}")
                     else:
                         print("No emails found.")
+
                 elif cmd == "send_email":
-                    # Use predefined values or ask the user for email details.
                     email_to = "example@example.com"
                     subject = "Test email"
                     body = "This is a test email."
@@ -167,9 +226,9 @@ def handle_common_voice_commands(user_object_id):
                         print(f"Answer: {chatgpt_response}")
                         tts_output(chatgpt_response)
                     else:
-                        print("I didn't catch your question Please try again.")
+                        print("I didn't catch your question. Please try again.")
                         tts_output(
-                            "I didn't catch your question Please try again.")
+                            "I didn't catch your question. Please try again.")
                 else:
                     return cmd
             else:
