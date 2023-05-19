@@ -103,7 +103,7 @@ Set the COM port in the `.env` file to `COM7`.
 ## 📈 Data Stream (Under Construction)
 
 ```bash
-python datastreams/misfire_datastream.py
+python air_fuel_datastream.py
 ```
 
 Streams data from the OBD-II ELM327 device to the console, but there's currently no way to stop the stream other than closing the application.
