@@ -53,7 +53,10 @@ With an ELM327 device connected:
 python main.py --device elm327
 ```
 
-For Cardaq Plus 3 (64-Bit driver required), download [J2534_cffi](https://github.com/MCU-Innovations/J2534_cffi.git), then:
+***COMING SOON***
+with a CarDAQ-Plus®3 (OPUS IVS is currently working on a 64-Bit version of the driver to enable j2534 use with this application)
+
+download [J2534_cffi](https://github.com/MCU-Innovations/J2534_cffi.git), then:
 
 ```bash
 cd J2534_cffi
@@ -90,7 +93,8 @@ Current voice commands include:
 
 ## 📟 ELM Simulator
 
-ELM327 emulator: [GitHub](https://github.com/Ircama/ELM327-emulator), [SourceForge](https://sourceforge.net/projects/com0com/) (to create a virtual COM port pair).
+ELM327 emulator: [GitHub](https://github.com/Ircama/ELM327-emulator)
+com0com virtual serial port driver: [SourceForge](https://sourceforge.net/projects/com0com/) (to create a virtual COM port pair).
 
 After installing com0com, run:
 
