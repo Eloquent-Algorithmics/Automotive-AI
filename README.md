@@ -54,7 +54,7 @@ python main.py --device elm327
 ```
 
 ***COMING SOON***
-with a CarDAQ-Plus®3 (OPUS IVS is currently working on a 64-Bit version of the driver to enable j2534 use with this application)
+with a CarDAQ-Plus®3 (OPUS IVS is currently working on a 64-Bit version of the driver needed to enable j2534 use with this application)
 
 download [J2534_cffi](https://github.com/MCU-Innovations/J2534_cffi.git), then:
 
