@@ -6,19 +6,25 @@ import json
 import os
 import spacy
 import speech_recognition as sr
-
-from api.gpt_chat import (
+from config import EMAIL_PROVIDER
+from api.openai_functions.gpt_chat import (
     chat_gpt,
     chat_gpt_conversation,
 )
-from api.graph_api import (
-    create_new_appointment,
-    get_emails,
-    get_next_appointment,
-    send_email_with_attachments,
-)
-from audio.audio_output import tts_output
+
+if EMAIL_PROVIDER == "Google":
+    from api.google_functions.google_api import get_emails_google, delete_email
+    
+if EMAIL_PROVIDER == "365":
+    from api.microsoft_functions.graph_api import (
+        create_new_appointment,
+        get_emails,
+        get_next_appointment,
+        send_email_with_attachments,
+    )
 from utils.commands import voice_commands
+from audio.audio_output import tts_output
+
 
 nlp = spacy.load("en_core_web_lg")
 
@@ -78,10 +84,10 @@ def recognize_speech():
     """
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source, duration=2)
+        recognizer.adjust_for_ambient_noise(source, duration=1)
         print("Listening...")
         try:
-            audio = recognizer.listen(source, timeout=10, phrase_time_limit=30)
+            audio = recognizer.listen(source, timeout=5, phrase_time_limit=20)
         except sr.WaitTimeoutError:
             print("Timeout: No speech detected")
             return None
@@ -111,7 +117,8 @@ def load_conversation_history(file_path="conversation_history.json"):
             {"role": "system", "content": "You are an in car AI assistant."}]
     return conversation_history
 
-def handle_common_voice_commands(user_object_id):
+
+def handle_common_voice_commands(args, user_object_id=None, email_provider=None):
     standby_phrases = ["enter standby mode", "go to sleep", "stop listening"]
     wakeup_phrases = ["wake up", "i need your help", "start listening"]
 
@@ -168,7 +175,7 @@ def handle_common_voice_commands(user_object_id):
             if not standby_mode and not conversation_active and "let's have a conversation" in text.lower():
                 conversation_active = True
                 print("Starting a conversation.")
-                tts_output("Starting a conversation.")
+                tts_output("What would you like to chat about?")
                 continue
 
             if not standby_mode and conversation_active:
@@ -188,17 +195,17 @@ def handle_common_voice_commands(user_object_id):
             if recognized_command:
                 cmd = voice_commands[recognized_command]
 
-                if cmd == "next_appointment":
+                if cmd == "next_appointment" and email_provider == "365":
                     next_appointment = get_next_appointment(user_object_id)
                     print(f"{next_appointment}")
                     tts_output(f"{next_appointment}")
 
-                elif cmd == "create_appointment":
+                elif cmd == "create_appointment" and email_provider == "365":
                     create_new_appointment(recognize_speech, tts_output)
                     print("New appointment created.")
                     tts_output("New appointment has been created.")
 
-                elif cmd == "check_outlook_email":
+                elif cmd == "check_outlook_email" and email_provider == "365":
                     emails = get_emails(user_object_id)
                     if emails:
                         for email in emails:
@@ -210,7 +217,7 @@ def handle_common_voice_commands(user_object_id):
                     else:
                         print("No emails found.")
 
-                elif cmd == "send_email":
+                elif cmd == "send_email" and email_provider == "365":
                     email_to = "example@example.com"
                     subject = "Test email"
                     body = "This is a test email."
@@ -229,6 +236,28 @@ def handle_common_voice_commands(user_object_id):
                         print("I didn't catch your question. Please try again.")
                         tts_output(
                             "I didn't catch your question. Please try again.")
+                elif cmd == "check_google_email" and email_provider == "Google":
+                    emails = get_emails_google(user_object_id=None)
+                    if emails:
+                        for email in emails:
+                            print(f"\nFrom: {email['from']}")
+                            print(f"Subject: {email['subject']}")
+                            snippet = email.get('snippet', 'N/A')
+                            print(f"Body: {snippet}")
+                            tts_output(
+                                f"From: {email['from']}, Subject: {email['subject']}, Body: {snippet}")
+                            tts_output("Would you like to delete this email?")
+                            response = recognize_speech()
+                            if response is not None and "yes" in response.lower():
+                                delete_email(email['id'])
+                                print("Email deleted.")
+                                tts_output("Email deleted.")
+                            else:
+                                print("Email not deleted.")
+                                tts_output("Email not deleted.")
+                    else:
+                        print("No emails found.")
+
                 else:
                     return cmd
             else:

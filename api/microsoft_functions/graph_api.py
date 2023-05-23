@@ -11,7 +11,7 @@ import dateparser
 import pytz
 from dateutil.parser import isoparse
 from twilio.rest import Client
-import api.ms_authserver as ms_authserver
+import api.microsoft_functions.ms_authserver as ms_authserver
 from config import (
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,

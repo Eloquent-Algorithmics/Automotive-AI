@@ -16,3 +16,7 @@ python-dateutil
 python-dotenv
 twilio
 speechrecognition
+google-api-python-client
+google-auth-httplib2
+google_auth_oauthlib
+beautifulsoup4

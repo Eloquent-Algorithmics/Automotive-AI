@@ -3,8 +3,6 @@ This module defines a dictionary for voice commands.
 """
 # voice commands dictionary
 voice_commands = {
-    "start a diagnostic report": "DIAGNOSTIC_REPORT",
-    "send a diagnostic report to my email": "send_diagnostic_report",
     "engine rpm": "010C",
     "intake air temperature": "010F",
     "fuel tank level": "012F",
@@ -14,18 +12,12 @@ voice_commands = {
     "freeze frame data": "0202",
     "pending trouble codes": "07",
     "clear trouble codes": "04",
-    "service 9 supported pids": "0900",
-    "vin message count": "0901",
     "vehicle identification number": "0902",
     "calibration id message count": "0903",
     "calibration id": "0904",
-    "cvn message count": "0905",
     "calibration verification numbers": "0906",
-    "in-use performance tracking message count": "0907",
-    "in-use performance tracking spark ignition": "0908",
-    "ecu name message count": "0909",
-    "ecu name": "090A",
-    "in-use performance tracking compression ignition": "090B",
+    "start a diagnostic report": "DIAGNOSTIC_REPORT",
+    "send a diagnostic report to my email": "send_diagnostic_report",
     "what's next on my calendar": "next_appointment",
     "create a new appointment": "create_appointment",
     "do I have any new emails": "check_outlook_email",
@@ -35,6 +27,8 @@ voice_commands = {
     "save data to spreadsheet": "SAVE_DATA_TO_SPREADSHEET",
     "I have a question": "ASK_CHATGPT_QUESTION",
     "let's have a conversation": "START_CONVERSATION",
+    "do I have any new emails from google": "check_google_email",
+    "what's next on my google calendar": "check_google_calendar",
 }
 
 # ELM327 commands set
