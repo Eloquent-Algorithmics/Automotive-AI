@@ -6,7 +6,7 @@ import http.server
 import socketserver
 import webbrowser
 import urllib.parse
-from config import GRAPH_CLIENT_ID
+from config import GRAPH_CLIENT_ID, EMAIL_PROVIDER
 
 PORT = 8000
 
@@ -69,7 +69,8 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(400)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-                self.wfile.write(b"<html><body><h1>Bad Request.</h1></body></html>")
+                self.wfile.write(
+                    b"<html><body><h1>Bad Request.</h1></body></html>")
         else:
             self.send_response(404)
             self.send_header("Content-type", "text/html")
@@ -89,14 +90,15 @@ class StoppableTCPServer(socketserver.TCPServer):
             self.handle_request()
 
 
-Handler = MyRequestHandler
-httpd = StoppableTCPServer(("", PORT), Handler)
-# print(f"Serving on port {PORT}")
+if EMAIL_PROVIDER == "365":
+    Handler = MyRequestHandler
+    httpd = StoppableTCPServer(("", PORT), Handler)
+    # print(f"Serving on port {PORT}")
 
-# Open the browser automatically
-webbrowser.open(
-    f"https://login.microsoftonline.com/bc56a593-6ce0-4fb1-bf21-ea810dbe4170/oauth2/v2.0/authorize?client_id={GRAPH_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:8000/&response_mode=query&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&state=12345"
-)
+    # Open the browser automatically
+    webbrowser.open(
+        f"https://login.microsoftonline.com/bc56a593-6ce0-4fb1-bf21-ea810dbe4170/oauth2/v2.0/authorize?client_id={GRAPH_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:8000/&response_mode=query&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&state=12345"
+    )
 
-httpd.serve_forever()
-httpd.server_close()
+    httpd.serve_forever()
+    httpd.server_close()

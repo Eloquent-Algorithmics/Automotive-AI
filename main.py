@@ -10,6 +10,7 @@ from audio.audio_output import tts_output, initialize_audio
 from config import OPENAI_API_KEY, EMAIL_PROVIDER
 
 load_dotenv()
+
 email_provider = EMAIL_PROVIDER
 
 openai.api_key = OPENAI_API_KEY
@@ -22,6 +23,7 @@ tts_output(response_text)
 if email_provider == "365":
     import api.microsoft_functions.graph_api as graph_api
     import api.microsoft_functions.ms_authserver as ms_authserver
+
     authorization_code = ms_authserver.get_auth_code()
     graph_api.perform_graph_api_request(authorization_code)
 
@@ -37,6 +39,7 @@ args = parser.parse_args()
 
 if email_provider == "Google":
     import api.google_functions.google_api as google_api
+
     graph_api = google_api
 
 if args.device == "none":
@@ -44,10 +47,13 @@ if args.device == "none":
         handle_common_voice_commands(
             args, graph_api.user_object_id, email_provider)
     elif email_provider == "Google":
-        handle_common_voice_commands(args, email_provider=email_provider)
+        handle_common_voice_commands(
+            args, email_provider=email_provider)
 elif args.device == "elm327":
-    handle_voice_commands_elm327(graph_api.user_object_id)
+    handle_voice_commands_elm327(
+        graph_api.user_object_id)
 elif args.device == "j2534":
     channel = create_j2534_connection()
-    handle_voice_commands_j2534(channel, graph_api.user_object_id)
+    handle_voice_commands_j2534(
+        channel, graph_api.user_object_id)
     channel.close()
