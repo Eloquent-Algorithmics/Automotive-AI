@@ -6,7 +6,7 @@ An experimental open-source application that integrates GPT-3.5-turbo (or GPT-4)
 
 ⚠️ ***This is a work in progress*** ⚠️
 
-🔜 ElevenLabs TTS, Gmail, and Google Calendar integration coming soon.
+🔜 ElevenLabs TTS, Google Calendar integration coming soon.
 
 ## 🛠️ Built and tested using:
 
@@ -68,35 +68,36 @@ python main.py --device j2534
 
 Current voice commands include:
 
-- "start a diagnostic report"
-- "send a diagnostic report to my email"
-- "engine rpm"
-- "intake air temperature"
-- "fuel tank level"
-- "time run with MIL on"
-- "engine coolant temperature"
-- "read trouble codes"
-- "freeze frame data"
-- "pending trouble codes"
-- "clear trouble codes"
-- "service 9 supported pids"
-- "vehicle identification number"
-- "calibration verification numbers"
-- "in-use performance tracking message count"
-- "in-use performance tracking spark ignition"
-- "in-use performance tracking compression ignition"
-- "what's next on my calendar"
-- "create a new appointment"
-- "do I have any new emails"
-- "send an email with an attachment"
-- "I have a question"
-- "let's have a conversation"
+"engine rpm": "010C",
+"intake air temperature"
+"fuel tank level"
+"time run with MIL on"
+"engine coolant temperature"
+"read trouble codes"
+"freeze frame data"
+"pending trouble codes"
+"clear trouble codes"
+"vehicle identification number"
+"calibration id message count"
+"calibration id"
+"calibration verification numbers"
+"start a diagnostic report"
+"send a diagnostic report"
+"next on outlook calendar"
+"create a new outlook appointment"
+"check outlook"
+"send an email with outlook"
+"ask question"
+"start conversation"
+"check gmail"
+"what's next on my google calendar"
 
 After a conversation has been started you can use the following voice commands to manage the conversation:
 
--- "clear all history"
--- "delete the last message"
--- "end the conversation"
+- "clear all history"
+- "delete the last message"
+- "end the conversation"
+- "summarize the conversation history"
 
 
 ## 📟 ELM Simulator
