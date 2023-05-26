@@ -108,7 +108,7 @@ def summarize_conversation_history_direct(conversation_history):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         prompt=summary_prompt,
-        max_tokens=200,
+        max_tokens=300,
         n=1,
         stop=None,
         temperature=0.5,
