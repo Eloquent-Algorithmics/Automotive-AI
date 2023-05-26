@@ -10,11 +10,16 @@ from config import EMAIL_PROVIDER
 from api.openai_functions.gpt_chat import (
     chat_gpt,
     chat_gpt_conversation,
+    summarize_conversation_history_direct,
 )
+from utils.commands import voice_commands
+from audio.audio_output import tts_output
 
 if EMAIL_PROVIDER == "Google":
-    from api.google_functions.google_api import get_emails_google, delete_email
-    
+    from api.google_functions.google_api import (
+        get_emails_google, delete_email
+    )
+
 if EMAIL_PROVIDER == "365":
     from api.microsoft_functions.graph_api import (
         create_new_appointment,
@@ -22,8 +27,6 @@ if EMAIL_PROVIDER == "365":
         get_next_appointment,
         send_email_with_attachments,
     )
-from utils.commands import voice_commands
-from audio.audio_output import tts_output
 
 
 nlp = spacy.load("en_core_web_lg")
@@ -104,13 +107,20 @@ def recognize_speech():
 
 
 def save_conversation_history(conversation_history, file_path="conversation_history.json"):
-    with open(file_path, "w") as f:
+    """
+    Save the conversation history to a JSON file.
+
+    Args:
+        conversation_history (list): A list of dictionaries representing the conversation history.
+        file_path (str, optional): The path to the JSON file where the conversation history is saved.
+    """
+    with open(file_path, "w", encoding="utf-8") as f:
         json.dump(conversation_history, f)
 
 
 def load_conversation_history(file_path="conversation_history.json"):
     if os.path.exists(file_path):
-        with open(file_path, "r") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             conversation_history = json.load(f)
     else:
         conversation_history = [
@@ -147,6 +157,14 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                 continue
 
             if not standby_mode and conversation_active:
+                if "summarize the conversation history" in text.lower():
+                    conversation_history = summarize_conversation_history_direct(
+                        conversation_history)
+                    save_conversation_history(conversation_history)
+                    print("Conversation history summarized.")
+                    tts_output("Conversation history summarized.")
+                    continue
+
                 if "clear all history" in text.lower():
                     conversation_history = [
                         {"role": "system", "content": "You are an in car AI assistant."}]

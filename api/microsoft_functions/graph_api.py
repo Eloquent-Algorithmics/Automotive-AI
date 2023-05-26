@@ -21,6 +21,7 @@ from config import (
     GRAPH_CLIENT_ID,
     GRAPH_CLIENT_SECRET,
     GRAPH_TENANT_ID,
+    EMAIL_PROVIDER,
 )
 
 # Set up authentication with Microsoft Graph API
@@ -30,29 +31,28 @@ client_secret = GRAPH_CLIENT_SECRET
 scope = ["https://graph.microsoft.com/.default"]
 redirect_uri = "http://localhost:8000"
 
-# Get the authorization code from ms_authserver
-authorization_code = ms_authserver.get_auth_code()
-
 user_object_id = None
 
-app = msal.ConfidentialClientApplication(
-    client_id=client_id, client_credential=client_secret, authority=authority
-)
 
-result = app.acquire_token_by_authorization_code(
-    authorization_code, scope, redirect_uri=redirect_uri
-)
+if EMAIL_PROVIDER == "365":
+    authorization_code = ms_authserver.get_auth_code()
 
-if "access_token" in result:
-    access_token = result["access_token"]
-    refresh_token = result["refresh_token"]
-else:
-    print(result.get("error"))
-    print(result.get("error_description"))
-    print(result.get("correlation_id"))
-    raise ValueError("Could not authenticate with Microsoft Graph API")
+    app = msal.ConfidentialClientApplication(
+        client_id=client_id, client_credential=client_secret, authority=authority
+    )
 
-user_principal_name = GRAPH_EMAIL_ADDRESS
+    result = app.acquire_token_by_authorization_code(
+        authorization_code, scope, redirect_uri=redirect_uri
+    )
+
+    if "access_token" in result:
+        access_token = result["access_token"]
+        refresh_token = result["refresh_token"]
+    else:
+        print(result.get("error"))
+        print(result.get("error_description"))
+        print(result.get("correlation_id"))
+        raise ValueError("Could not authenticate with Microsoft Graph API")
 
 
 def perform_graph_api_request(authorization_code):
@@ -65,7 +65,6 @@ def perform_graph_api_request(authorization_code):
     Returns:
         None: Just an example, modify return type based on implementation.
     """
-    # Your code to perform the Graph API request using the authorization_code
     pass
 
 
@@ -97,7 +96,7 @@ def get_user_object_id(user_principal_name):
     """
     global user_object_id
 
-    if user_object_id is not None:  # Add this block
+    if user_object_id is not None:
         return user_object_id
 
     url = "https://graph.microsoft.com/v1.0/me"
@@ -126,7 +125,7 @@ def get_next_appointment(user_object_id):
     Returns:
         dict: The next appointment details as a dictionary.
     """
-    # Get the user's next appointment from their calendar
+
     url = "https://graph.microsoft.com/v1.0/me/calendarview"
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -368,6 +367,6 @@ def send_email_with_attachments(to, subject, body, attachments=None):
             print(response.json())
 
 
-if __name__ == "__main__":
+if EMAIL_PROVIDER == "365":
     user_principal_name = GRAPH_EMAIL_ADDRESS
     user_object_id = get_user_object_id(user_principal_name)

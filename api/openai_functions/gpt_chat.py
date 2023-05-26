@@ -79,3 +79,46 @@ def chat_gpt_conversation(prompt, conversation_history):
     )
     response_text = response.choices[0].message["content"].strip()
     return response_text
+
+
+def load_conversation_history():
+    with open("conversation_history.json", "r") as f:
+        return json.load(f)
+
+
+def save_conversation_history(conversation_history):
+    with open("conversation_history.json", "w") as f:
+        json.dump(conversation_history, f, indent=2)
+
+
+def format_conversation_history_for_summary(conversation_history):
+    formatted_history = ""
+    for message in conversation_history:
+        role = message["role"].capitalize()
+        content = message["content"]
+        formatted_history += f"{role}: {content}\n"
+    return formatted_history
+
+
+def summarize_conversation_history_direct(conversation_history):
+    formatted_history = format_conversation_history_for_summary(
+        conversation_history)
+    summary_prompt = f"Please summarize the following conversation history and retain all important information:\n\n{formatted_history}\nSummary:"
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        prompt=summary_prompt,
+        max_tokens=200,
+        n=1,
+        stop=None,
+        temperature=0.5,
+        top_p=0.5,
+        frequency_penalty=0,
+        presence_penalty=0,
+    )
+
+    summary_text = response.choices[0].text.strip()
+    summarized_history = [
+        {"role": "system", "content": "You are an in car AI assistant."}]
+    summarized_history.append({"role": "assistant", "content": summary_text})
+    return summarized_history

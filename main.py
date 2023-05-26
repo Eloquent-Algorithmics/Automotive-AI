@@ -13,6 +13,7 @@ from audio.audio_output import tts_output, initialize_audio
 from config import OPENAI_API_KEY, EMAIL_PROVIDER
 
 load_dotenv()
+
 email_provider = EMAIL_PROVIDER
 
 openai.api_key = OPENAI_API_KEY
