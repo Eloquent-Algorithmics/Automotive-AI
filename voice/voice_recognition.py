@@ -190,7 +190,7 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                     tts_output("Ending the conversation.")
                     continue
 
-            if not standby_mode and not conversation_active and "let's have a conversation" in text.lower():
+            if not standby_mode and not conversation_active and "start a conversation" in text.lower():
                 conversation_active = True
                 print("Starting a conversation.")
                 tts_output("What would you like to chat about?")
