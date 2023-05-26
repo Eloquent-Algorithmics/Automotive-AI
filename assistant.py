@@ -10,10 +10,12 @@ from langchain.agents import initialize_agent
 from langchain.agents import AgentType, Tool
 from langchain.utilities import OpenWeatherMapAPIWrapper, GoogleSerperAPIWrapper, GoogleSearchAPIWrapper
 from langchain.agents.agent_toolkits import NLAToolkit
+from gtts import gTTS
+from io import BytesIO
 
 from config import OPENAI_API_KEY, GOOGLE_API_KEY, GOOGLE_CUSTOM_SEARCH_ID, SERPER_API_KEY
 from voice.voice_recognition import recognize_speech
-
+from audio.audio_output import initialize_audio, play_audio
 
 os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
 os.environ["GOOGLE_CSE_ID"] = GOOGLE_CUSTOM_SEARCH_ID
@@ -24,7 +26,8 @@ wikipedia = WikipediaAPIWrapper()
 
 chatopenai = OpenAI(temperature=0)
 llm = chatopenai
-speak_toolkit = NLAToolkit.from_llm_and_url(llm, "https://api.speak.com/openapi.yaml")
+speak_toolkit = NLAToolkit.from_llm_and_url(
+    llm, "https://api.speak.com/openapi.yaml")
 search = GoogleSearchAPIWrapper(k=10)
 serp_search = GoogleSerperAPIWrapper()
 
@@ -36,8 +39,14 @@ def handle_voice_commands():
         if text:
             response = run(text)
             print(f"Answer: {response}")
-            tts_output(response)
-
+            initialize_audio()  # Ensure the mixer is initialized
+            # Convert response text to speech
+            tts = gTTS(text=response, lang="en")
+            audio_data = BytesIO()  # Save generated speech to a BytesIO object
+            tts.write_to_fp(audio_data)
+            audio_data.seek(0)
+            # Play the speech using play_audio() from audio_output.py
+            play_audio(audio_data)
 
 openapi_format_instructions = """
 You are an AI assistant that will be helping a user named John with their questions and tasks utilizing the following format:
