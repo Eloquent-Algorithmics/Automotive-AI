@@ -1,5 +1,5 @@
 """
-This is the main script of the application.
+This is the main script of the application doc string.
 """
 import argparse
 import openai
