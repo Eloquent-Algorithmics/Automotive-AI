@@ -4,29 +4,24 @@ and spacy.
 """
 import json
 import os
+
 import spacy
 import speech_recognition as sr
-from config import EMAIL_PROVIDER
+
 from api.openai_functions.gpt_chat import (
-    chat_gpt,
-    chat_gpt_conversation,
-    summarize_conversation_history_direct,
-)
-from utils.commands import voice_commands
+    chat_gpt, chat_gpt_conversation, summarize_conversation_history_direct, load_conversation_history, save_conversation_history)
 from audio.audio_output import tts_output
+from config import EMAIL_PROVIDER
+from utils.commands import voice_commands
 
 if EMAIL_PROVIDER == "Google":
-    from api.google_functions.google_api import (
-        get_emails_google, delete_email
-    )
+    from api.google_functions.google_api import delete_email, get_emails_google
 
 if EMAIL_PROVIDER == "365":
-    from api.microsoft_functions.graph_api import (
-        create_new_appointment,
-        get_emails,
-        get_next_appointment,
-        send_email_with_attachments,
-    )
+    from api.microsoft_functions.graph_api import (create_new_appointment,
+                                                   get_emails,
+                                                   get_next_appointment,
+                                                   send_email_with_attachments)
 
 
 nlp = spacy.load("en_core_web_lg")
@@ -90,7 +85,7 @@ def recognize_speech():
         recognizer.adjust_for_ambient_noise(source, duration=1)
         print("Listening...")
         try:
-            audio = recognizer.listen(source, timeout=5, phrase_time_limit=20)
+            audio = recognizer.listen(source, timeout=30, phrase_time_limit=30)
         except sr.WaitTimeoutError:
             print("Timeout: No speech detected")
             return None
@@ -104,28 +99,6 @@ def recognize_speech():
     except sr.RequestError as request_error:
         print(f"Could not request results; {request_error}")
         return None
-
-
-def save_conversation_history(conversation_history, file_path="conversation_history.json"):
-    """
-    Save the conversation history to a JSON file.
-
-    Args:
-        conversation_history (list): A list of dictionaries representing the conversation history.
-        file_path (str, optional): The path to the JSON file where the conversation history is saved.
-    """
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(conversation_history, f)
-
-
-def load_conversation_history(file_path="conversation_history.json"):
-    if os.path.exists(file_path):
-        with open(file_path, "r", encoding="utf-8") as f:
-            conversation_history = json.load(f)
-    else:
-        conversation_history = [
-            {"role": "system", "content": "You are an in car AI assistant."}]
-    return conversation_history
 
 
 def handle_common_voice_commands(args, user_object_id=None, email_provider=None):
@@ -147,7 +120,9 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                 tts_output("Entering standby mode.")
                 continue
 
-            if standby_mode and any(phrase in text.lower() for phrase in wakeup_phrases):
+            if standby_mode and any(
+                phrase in text.lower() for phrase in wakeup_phrases
+            ):
                 standby_mode = False
                 print("Exiting standby mode.")
                 tts_output("Exiting standby mode.")
@@ -159,7 +134,8 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
             if not standby_mode and conversation_active:
                 if "summarize the conversation history" in text.lower():
                     conversation_history = summarize_conversation_history_direct(
-                        conversation_history)
+                        conversation_history
+                    )
                     save_conversation_history(conversation_history)
                     print("Conversation history summarized.")
                     tts_output("Conversation history summarized.")
@@ -167,7 +143,8 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
 
                 if "clear all history" in text.lower():
                     conversation_history = [
-                        {"role": "system", "content": "You are an in car AI assistant."}]
+                        {"role": "system", "content": "You are an in car AI assistant."}
+                    ]
                     save_conversation_history(conversation_history)
                     print("Conversation history cleared.")
                     tts_output("Conversation history cleared.")
@@ -190,25 +167,28 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                     tts_output("Ending the conversation.")
                     continue
 
-            if not standby_mode and not conversation_active and "let's have a conversation" in text.lower():
+            if (
+                not standby_mode
+                and not conversation_active
+                and "start a conversation" in text.lower()
+            ):
                 conversation_active = True
                 print("Starting a conversation.")
                 tts_output("What would you like to chat about?")
                 continue
 
             if not standby_mode and conversation_active:
-                chatgpt_response = chat_gpt_conversation(
-                    text, conversation_history)
+                chatgpt_response = chat_gpt_conversation(text, conversation_history)
                 conversation_history.append({"role": "user", "content": text})
                 conversation_history.append(
-                    {"role": "assistant", "content": chatgpt_response})
+                    {"role": "assistant", "content": chatgpt_response}
+                )
                 save_conversation_history(conversation_history)
                 print(f"Assistant: {chatgpt_response}")
                 tts_output(chatgpt_response)
                 continue
 
-            recognized_command = recognize_command(
-                text, list(voice_commands.keys()))
+            recognized_command = recognize_command(text, list(voice_commands.keys()))
 
             if recognized_command:
                 cmd = voice_commands[recognized_command]
@@ -228,8 +208,7 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                     if emails:
                         for email in emails:
                             print(f"\nSubject: {email['subject']}")
-                            print(
-                                f"From: {email['from']['emailAddress']['address']}")
+                            print(f"From: {email['from']['emailAddress']['address']}")
                             print(f"Date: {email['receivedDateTime']}")
                             print(f"Body: {email['body']['content']}")
                     else:
@@ -240,8 +219,7 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                     subject = "Test email"
                     body = "This is a test email."
                     attachments = ["file1.txt", "file2.txt"]
-                    send_email_with_attachments(
-                        email_to, subject, body, attachments)
+                    send_email_with_attachments(email_to, subject, body, attachments)
 
                 elif cmd == "ASK_CHATGPT_QUESTION":
                     print("Please ask your question:")
@@ -252,22 +230,22 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                         tts_output(chatgpt_response)
                     else:
                         print("I didn't catch your question. Please try again.")
-                        tts_output(
-                            "I didn't catch your question. Please try again.")
+                        tts_output("I didn't catch your question. Please try again.")
                 elif cmd == "check_google_email" and email_provider == "Google":
                     emails = get_emails_google(user_object_id=None)
                     if emails:
                         for email in emails:
                             print(f"\nFrom: {email['from']}")
                             print(f"Subject: {email['subject']}")
-                            snippet = email.get('snippet', 'N/A')
+                            snippet = email.get("snippet", "N/A")
                             print(f"Body: {snippet}")
                             tts_output(
-                                f"From: {email['from']}, Subject: {email['subject']}, Body: {snippet}")
+                                f"From: {email['from']}, Subject: {email['subject']}, Body: {snippet}"
+                            )
                             tts_output("Would you like to delete this email?")
                             response = recognize_speech()
                             if response is not None and "yes" in response.lower():
-                                delete_email(email['id'])
+                                delete_email(email["id"])
                                 print("Email deleted.")
                                 tts_output("Email deleted.")
                             else:
@@ -277,7 +255,13 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
                         print("No emails found.")
 
                 else:
-                    return cmd
+                    continue
             else:
-                print("Command not recognized. Please try again.")
-                return None
+                if not standby_mode and not conversation_active:
+                    print("Command not recognized. Please try again.")
+                    continue
+                elif conversation_active:
+                    print("Unrecognized input. Please try again.")
+                    continue
+                else:
+                    continue
