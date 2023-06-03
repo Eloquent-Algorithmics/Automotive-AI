@@ -2,8 +2,6 @@
 This module is responsible for handling voice commands using speech recognition
 and spacy.
 """
-import json
-import os
 
 import spacy
 import speech_recognition as sr
