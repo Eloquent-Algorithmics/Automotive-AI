@@ -131,10 +131,13 @@ def summarize_conversation_history_direct(conversation_history):
         conversation_history)
     summary_prompt = f"Please summarize the following conversation history and retain all important information:\n\n{formatted_history}\nSummary:"
 
+    messages = conversation_history + \
+        [{"role": "user", "content": summary_prompt}]
+
     response = openai.ChatCompletion.create(
-        model="gpt-4",
-        prompt=summary_prompt,
-        max_tokens=200,
+        model="gpt-4",  # Change this to "gpt-4" if you have access to the gpt-4 model
+        messages=messages,
+        max_tokens=300,
         n=1,
         stop=None,
         temperature=0.5,
@@ -143,7 +146,7 @@ def summarize_conversation_history_direct(conversation_history):
         presence_penalty=0,
     )
 
-    summary_text = response.choices[0].text.strip()
+    summary_text = response.choices[0].message["content"].strip()
     summarized_history = [
         {"role": "system", "content": "You are an in car AI assistant."}]
     summarized_history.append({"role": "assistant", "content": summary_text})
