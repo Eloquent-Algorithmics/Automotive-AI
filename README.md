@@ -50,13 +50,6 @@ With an ELM327 device connected:
 python main.py --device elm327
 ```
 
-***COMING SOON***
-with a CarDAQ-Plus®3 (OPUS IVS is currently working on a 64-Bit version of the driver needed to enable j2534 use with this application)
-
-```bash
-python main.py --device j2534
-```
-
 ## 🎙️ Voice Commands
 
 Current voice commands include:

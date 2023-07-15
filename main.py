@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 
 from api.openai_functions.gpt_chat import chat_gpt
 from voice.elm327 import handle_voice_commands_elm327
-from voice.j2534 import create_j2534_connection, handle_voice_commands_j2534
 from voice.voice_recognition import handle_common_voice_commands
 from audio.audio_output import tts_output, initialize_audio
 from config import OPENAI_API_KEY, EMAIL_PROVIDER
@@ -34,7 +33,7 @@ if email_provider == "365":
 parser = argparse.ArgumentParser(description="Choose the device type")
 parser.add_argument(
     "--device",
-    choices=["none", "elm327", "j2534"],
+    choices=["none", "elm327"],
     default="none",
     help="Select the device type (default: none)",
 )
@@ -56,8 +55,4 @@ if args.device == "none":
 elif args.device == "elm327":
     handle_voice_commands_elm327(
         graph_api.user_object_id)
-elif args.device == "j2534":
-    channel = create_j2534_connection()
-    handle_voice_commands_j2534(
-        channel, graph_api.user_object_id)
-    channel.close()
+
