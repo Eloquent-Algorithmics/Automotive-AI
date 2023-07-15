@@ -11,6 +11,10 @@ from voice.voice_recognition import handle_common_voice_commands
 from audio.audio_output import tts_output, initialize_audio
 from config import OPENAI_API_KEY, EMAIL_PROVIDER
 
+import api.microsoft_functions.graph_api as graph_api
+import api.microsoft_functions.ms_authserver as ms_authserver
+import api.google_functions.google_api as google_api
+
 load_dotenv()
 
 email_provider = EMAIL_PROVIDER
@@ -23,13 +27,6 @@ response_text = chat_gpt("Hello")
 print(response_text)
 tts_output(response_text)
 
-if email_provider == "365":
-    import api.microsoft_functions.graph_api as graph_api
-    import api.microsoft_functions.ms_authserver as ms_authserver
-
-    authorization_code = ms_authserver.get_auth_code()
-    graph_api.perform_graph_api_request(authorization_code)
-
 parser = argparse.ArgumentParser(description="Choose the device type")
 parser.add_argument(
     "--device",
@@ -40,19 +37,17 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-if email_provider == "Google":
-    import api.google_functions.google_api as google_api
+if email_provider == "365":
+    authorization_code = ms_authserver.get_auth_code()
+    graph_api.perform_graph_api_request(authorization_code)
 
+if email_provider == "Google":
     graph_api = google_api
 
 if args.device == "none":
     if email_provider == "365":
-        handle_common_voice_commands(
-            args, graph_api.user_object_id, email_provider)
+        handle_common_voice_commands(args, graph_api.user_object_id, email_provider)
     elif email_provider == "Google":
-        handle_common_voice_commands(
-            args, email_provider=email_provider)
+        handle_common_voice_commands(args, email_provider=email_provider)
 elif args.device == "elm327":
-    handle_voice_commands_elm327(
-        graph_api.user_object_id)
-
+    handle_voice_commands_elm327(graph_api.user_object_id)
