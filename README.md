@@ -24,20 +24,17 @@ An experimental open-source application that integrates GPT-3.5-turbo (or GPT-4)
 git clone https://github.com/Explorergt92/Automotive-AI.git
 ```
 
-2. Run the following commands in the root directory:
-
-```bash
-pip install -r requirements.txt
-pip install --upgrade pint
+2. Run the following command in the root directory:
+### Linux
+```
+./install.sh
+```
+### Windows
+```
+.\install.bat
 ```
 
-3. Install the spacy NLP model:
-
-```bash
-python -m spacy download en_core_web_lg
-```
-
-4. Set your API keys and variables in the `.env.template` file and save it as `.env` without a file extension.
+3. Set your API keys and variables in the `.env.template` file and save it as `.env` without a file extension.
 
 ## 🏁 Running the Application
 
@@ -56,11 +53,7 @@ python main.py --device elm327
 ***COMING SOON***
 with a CarDAQ-Plus®3 (OPUS IVS is currently working on a 64-Bit version of the driver needed to enable j2534 use with this application)
 
-download [J2534_cffi](https://github.com/MCU-Innovations/J2534_cffi.git), then:
-
 ```bash
-cd J2534_cffi
-pip install .
 python main.py --device j2534
 ```
 

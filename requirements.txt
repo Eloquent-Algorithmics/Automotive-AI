@@ -10,7 +10,9 @@ msal
 requests
 datetime
 dateparser
-importlib
+flask
+halo
+pandas
 pytz
 python-dateutil
 python-dotenv
