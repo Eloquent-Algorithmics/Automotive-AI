@@ -8,7 +8,6 @@ import pygame
 from gtts import gTTS
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
-os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 def initialize_audio():
     """

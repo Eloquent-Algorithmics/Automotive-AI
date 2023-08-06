@@ -135,7 +135,7 @@ def summarize_conversation_history_direct(conversation_history):
         [{"role": "user", "content": summary_prompt}]
 
     response = openai.ChatCompletion.create(
-        model="gpt-4",  # Change this to "gpt-4" if you have access to the gpt-4 model
+        model="gpt-4-0314",  # Set this to gpt-4, gpt-4-0314 or gpt-4-0613 model
         messages=messages,
         max_tokens=300,
         n=1,
