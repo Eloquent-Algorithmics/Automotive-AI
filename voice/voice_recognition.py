@@ -7,7 +7,8 @@ import spacy
 import speech_recognition as sr
 
 from api.openai_functions.gpt_chat import (
-    chat_gpt, chat_gpt_conversation, summarize_conversation_history_direct, load_conversation_history, save_conversation_history)
+    chat_gpt, chat_gpt_conversation, load_conversation_history,
+    save_conversation_history, summarize_conversation_history_direct)
 from audio.audio_output import tts_output
 from config import EMAIL_PROVIDER
 from utils.commands import voice_commands
@@ -100,6 +101,18 @@ def recognize_speech():
 
 
 def handle_common_voice_commands(args, user_object_id=None, email_provider=None):
+    """
+    Handle common voice commands.
+
+    Args:
+        args: [description of args]
+        user_object_id: [description of user_object_id]
+        email_provider: [description of email_provider]
+
+    Returns:
+        [description of the return value, if any]
+    """
+
     standby_phrases = ["enter standby mode", "go to sleep", "stop listening"]
     wakeup_phrases = ["wake up", "i need your help", "start listening"]
 
