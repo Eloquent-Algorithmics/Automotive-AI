@@ -8,7 +8,8 @@ import openai
 from halo import Halo
 
 spinner = Halo(text='Loading...', spinner='dots')
-    
+
+
 def chat_gpt(prompt):
     """
     Generates a response to the given prompt using OpenAI's GPT-3.5-turbo or gpt-4 model.
@@ -96,7 +97,7 @@ def load_conversation_history(file_path="conversation_history.json"):
         conversation_history = [
             {"role": "system", "content": "You are an in car AI assistant."}
         ]
-    spinner.stop()    
+    spinner.stop()
     return conversation_history
 
 
