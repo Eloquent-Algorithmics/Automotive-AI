@@ -9,6 +9,7 @@ from gtts import gTTS
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
+
 def initialize_audio():
     """
     Initialize the pygame mixer.
