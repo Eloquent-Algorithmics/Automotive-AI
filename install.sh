@@ -6,7 +6,4 @@ pip install -r requirements.txt
 echo "Downloading SpaCy model..."
 python -m spacy download en_core_web_lg
 
-echo "Returning to the original directory..."
-cd ..
-
 echo "Installation completed."
