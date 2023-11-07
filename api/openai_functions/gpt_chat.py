@@ -21,7 +21,7 @@ def chat_gpt(prompt):
         str: The generated response.
     """
     spinner.start()
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are an in car AI assistant."},
@@ -35,7 +35,7 @@ def chat_gpt(prompt):
         presence_penalty=0,
     )
     # Extract the text part of the response
-    response_text = response.choices[0].message["content"].strip()
+    response_text = response.choices[0].message.content.strip()
     spinner.stop()
     return response_text
 
@@ -72,7 +72,7 @@ def chat_gpt_custom(processed_data):
 
 def chat_gpt_conversation(prompt, conversation_history):
     spinner.start()
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model="gpt-4",
         messages=conversation_history +
         [{"role": "user", "content": f"{prompt}"}],
@@ -83,7 +83,7 @@ def chat_gpt_conversation(prompt, conversation_history):
         frequency_penalty=0,
         presence_penalty=0,
     )
-    response_text = response.choices[0].message["content"].strip()
+    response_text = response.choices[0].message.strip()
     spinner.stop()
     return response_text
 
@@ -135,7 +135,7 @@ def summarize_conversation_history_direct(conversation_history):
     messages = conversation_history + \
         [{"role": "user", "content": summary_prompt}]
 
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model="gpt-4-0314",  # Set this to gpt-4, gpt-4-0314 or gpt-4-0613 model
         messages=messages,
         max_tokens=300,
