@@ -5,7 +5,7 @@ import argparse
 from openai import OpenAI
 from dotenv import load_dotenv
 
-from api.openai_functions.gpt_chat_new import chat_gpt
+from api.openai_functions.gpt_chat import chat_gpt
 from voice.elm327 import handle_voice_commands_elm327
 from voice.voice_recognition import handle_common_voice_commands
 from audio.audio_output import tts_output, initialize_audio
