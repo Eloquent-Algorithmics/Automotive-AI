@@ -24,7 +24,7 @@ def chat_gpt(prompt):
     completion = openai.chat.completions.create(
         model="gpt-4-1106-preview",
         messages=[
-            {"role": "system", "content": "You are an in car AI assistant."},
+            {"role": "system", "content": "You are an AI assistant employed by a professional automotive repair technician."},
             {"role": "user", "content": f"{prompt}"},
         ],
         max_tokens=200,
