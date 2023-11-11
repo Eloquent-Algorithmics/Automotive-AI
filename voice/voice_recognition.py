@@ -6,7 +6,7 @@ and spacy.
 import spacy
 import speech_recognition as sr
 
-from api.openai_functions.gpt_chat import (
+from api.openai_functions.gpt_chat_new import (
     chat_gpt, chat_gpt_conversation, load_conversation_history,
     save_conversation_history, summarize_conversation_history_direct)
 from audio.audio_output import tts_output

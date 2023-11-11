@@ -20,7 +20,7 @@ from utils.serial_commands import (
     parse_vin_response,
     decode_vin,
 )
-from api.openai_functions.gpt_chat import chat_gpt_custom
+from api.openai_functions.gpt_chat_new import chat_gpt_custom
 
 
 def handle_voice_commands_elm327(user_object_id):
