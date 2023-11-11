@@ -2,7 +2,7 @@
 This is the main script of the application doc string.
 """
 import argparse
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 
 from api.openai_functions.gpt_chat import chat_gpt
@@ -19,7 +19,9 @@ load_dotenv()
 
 email_provider = EMAIL_PROVIDER
 
-openai.api_key = OPENAI_API_KEY
+# Instantiate OpenAI client
+client = OpenAI(api_key=OPENAI_API_KEY)
+
 
 initialize_audio()
 
