@@ -48,8 +48,12 @@ if email_provider == "Google":
 
 if args.device == "none":
     if email_provider == "365":
-        handle_common_voice_commands(args, graph_api.user_object_id, email_provider)
+        handle_common_voice_commands(
+            args, graph_api.user_object_id, email_provider
+        )
     elif email_provider == "Google":
-        handle_common_voice_commands(args, email_provider=email_provider)
+        handle_common_voice_commands(
+            args, email_provider=email_provider
+        )
 elif args.device == "elm327":
     handle_voice_commands_elm327(graph_api.user_object_id)

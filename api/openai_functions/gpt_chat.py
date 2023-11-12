@@ -1,22 +1,21 @@
 """
 This module provides functions for working with OpenAI's API.
 """
-import json
 import os
+import json
 import ast
-from config import OPENAI_API_KEY
+from rich.console import Console
 from openai import OpenAI, APIConnectionError, RateLimitError, APIStatusError
-from halo import Halo
-
-spinner = Halo(text='Loading...', spinner='dots')
+from config import OPENAI_API_KEY
 
 # Instantiate OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
+console = Console()
 
 
 def chat_gpt(prompt):
     """
-    Generates a response to the given prompt using OpenAI's GPT-3.5-turbo or gpt-4 model.
+    Generates a response using OpenAI's API.
 
     Args:
         prompt (str): The prompt to generate a response for.
@@ -24,43 +23,47 @@ def chat_gpt(prompt):
     Returns:
         str: The generated response.
     """
-    spinner.start()
-    try:
-        completion = client.chat.completions.create(
-            model="gpt-4-1106-preview",
-            messages=[
-                {"role": "system", "content": "You are an in car AI assistant."},
-                {"role": "user", "content": f"{prompt}"},
-            ],
-            max_tokens=200,
-            n=1,
-            stop=None,
-            temperature=0.5,
-            frequency_penalty=0,
-            presence_penalty=0,
-        )
-        # Extract the text part of the response
-        response_text = completion.choices[0].message.content.strip()
-    except APIConnectionError as e:
-        print("The server could not be reached")
-        print(e.__cause__)
-        response_text = "Error: The server could not be reached."
-    except RateLimitError as e:
-        print("A 429 status code was received; we should back off a bit.")
-        response_text = "Error: Rate limit exceeded. Please try again later."
-    except APIStatusError as e:
-        print("Another non-200-range status code was received")
-        print(e.status_code)
-        print(e.response)
-        response_text = f"Error: An API error occurred with status code {e.status_code}."
-    finally:
-        spinner.stop()
+    with console.status("[bold green]Generating...", spinner="dots"):
+        try:
+            completion = client.chat.completions.create(
+                model="gpt-4-1106-preview",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an in car AI assistant.",
+                    },
+                    {
+                        "role": "user",
+                        "content": f"{prompt}",
+                    },
+                ],
+                max_tokens=200,
+                n=1,
+                stop=None,
+                temperature=0.5,
+                frequency_penalty=0,
+                presence_penalty=0,
+            )
+            # Extract the text part of the response
+            response_text = completion.choices[0].message.content.strip()
+        except APIConnectionError as e:
+            console.print("[bold red]The server could not be reached")
+            console.print(e.__cause__)
+            response_text = "Error: The server could not be reached."
+        except RateLimitError as e:
+            console.print(f"[bold red]A 429 status code.{e}")
+            response_text = "Error: Rate limit exceeded. Try again later."
+        except APIStatusError as e:
+            console.print(f"[bold red]Error code was received{e}")
+            console.print(e.status_code)
+            console.print(e.response)
+            response_text = f"API error occurred status code {e.status_code}"
     return response_text
 
 
 def chat_gpt_custom(processed_data):
     """
-    Extracts VIN number from processed data or generates a response using OpenAI's API.
+    Extracts VIN number from processed data using OpenAI's API.
 
     Args:
         processed_data (str): The processed data containing the VIN response.
@@ -83,14 +86,59 @@ def chat_gpt_custom(processed_data):
         else:
             response = "couldn't retrieve information for the provided VIN."
     else:
-        spinner.start()
+        with console.status("[bold green]Processing", spinner="dots"):
+            try:
+                completion = client.chat.completions.create(
+                    model="gpt-4-1106-preview",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an in car AI assistant.",
+                        },
+                        {
+                            "role": "user",
+                            "content": f"{processed_data}",
+                        },
+                    ],
+                    max_tokens=200,
+                    n=1,
+                    stop=None,
+                    temperature=0.5,
+                    frequency_penalty=0,
+                    presence_penalty=0,
+                )
+                response = completion.choices[0].message.content.strip()
+            except APIConnectionError as e:
+                console.print("[bold red]The server could not be reached")
+                console.print(e.__cause__)
+                response = "Error: The server could not be reached."
+            except RateLimitError as e:
+                console.print(f"[bold red]429 status code was received.{e}")
+                response = "Error: Rate limit exceeded."
+            except APIStatusError as e:
+                console.print("[bold red]non-200-range status code received")
+                console.print(e.status_code)
+                console.print(e.response)
+                response = f"Error: An API error occurred {e.status_code}."
+
+    return response
+
+
+def chat_gpt_conversation(prompt, conversation_history):
+    """
+    This function generates a response for the given prompt using GPT model.
+
+    :param prompt: The input prompt for the GPT model.
+    :type prompt: str
+    :param conversation_history: The history of the conversation so far.
+    :type conversation_history: list
+    """
+    with console.status("[bold green]Generating...", spinner="dots"):
         try:
-            completion = client.chat.completions.create(
+            response = client.chat.completions.create(
                 model="gpt-4-1106-preview",
-                messages=[
-                    {"role": "system", "content": "You are an in car AI assistant."},
-                    {"role": "user", "content": f"{processed_data}"},
-                ],
+                messages=conversation_history
+                + [{"role": "user", "content": f"{prompt}"}],
                 max_tokens=200,
                 n=1,
                 stop=None,
@@ -98,74 +146,51 @@ def chat_gpt_custom(processed_data):
                 frequency_penalty=0,
                 presence_penalty=0,
             )
-            response = completion.choices[0].message.content.strip()
+            response_text = response.choices[0].message.content.strip()
         except APIConnectionError as e:
-            print("The server could not be reached")
-            print(e.__cause__)
-            response = "Error: The server could not be reached."
+            console.print("[bold red]The server could not be reached")
+            console.print(e.__cause__)
+            response_text = "Error: The server could not be reached."
         except RateLimitError as e:
-            print("A 429 status code was received; we should back off a bit.")
-            response = "Error: Rate limit exceeded. Please try again later."
+            console.print(f"[bold red]A 429 status code was received.{e}")
+            response_text = "Error: Rate limit exceeded."
         except APIStatusError as e:
-            print("Another non-200-range status code was received")
-            print(e.status_code)
-            print(e.response)
-            response = f"Error: An API error occurred with status code {e.status_code}."
-        finally:
-            spinner.stop()
-
-    return response
-
-
-def chat_gpt_conversation(prompt, conversation_history):
-    spinner.start()
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4-1106-preview",
-            messages=conversation_history +
-            [{"role": "user", "content": f"{prompt}"}],
-            max_tokens=200,
-            n=1,
-            stop=None,
-            temperature=0.5,
-            frequency_penalty=0,
-            presence_penalty=0,
-        )
-        response_text = response.choices[0].message.content.strip()
-    except APIConnectionError as e:
-        print("The server could not be reached")
-        print(e.__cause__)
-        response_text = "Error: The server could not be reached."
-    except RateLimitError as e:
-        print("A 429 status code was received; we should back off a bit.")
-        response_text = "Error: Rate limit exceeded. Please try again later."
-    except APIStatusError as e:
-        print("Another non-200-range status code was received")
-        print(e.status_code)
-        print(e.response)
-        response_text = f"Error: An API error occurred with status code {e.status_code}."
-    finally:
-        spinner.stop()
+            console.print(f"[bold red]non-200-range status code received{e}")
+            console.print(e.status_code)
+            console.print(e.response)
+            response_text = (
+                f"Error: API error occurred with status code {e.status_code}."
+            )
     return response_text
 
 
 def load_conversation_history(file_path="conversation_history.json"):
-    spinner.start()
-    try:
-        if os.path.exists(file_path):
-            with open(file_path, "r", encoding="utf-8") as f:
-                conversation_history = json.load(f)
-        else:
+    """
+    This function loads conversation history from a JSON file.
+
+    :param file_path: Defaults to "conversation_history.json".
+    :return: A list of conversation messages.
+    """
+    with console.status("[bold green]Loading...", spinner="dots"):
+        try:
+            if os.path.exists(file_path):
+                with open(file_path, "r", encoding="utf-8") as f:
+                    conversation_history = json.load(f)
+            else:
+                conversation_history = [
+                    {
+                        "role": "system",
+                        "content": "You are an in car AI assistant.",
+                    }
+                ]
+        except IOError as io_error:
+            console.print(f"[bold red]Error loading history: {io_error}")
             conversation_history = [
-                {"role": "system", "content": "You are an in car AI assistant."}
+                {
+                    "role": "system",
+                    "content": "You are an in car AI assistant."
+                }
             ]
-    except Exception as e:
-        print(f"An error occurred while loading the conversation history: {e}")
-        conversation_history = [
-            {"role": "system", "content": "You are an in car AI assistant."}
-        ]
-    finally:
-        spinner.stop()
     return conversation_history
 
 
@@ -182,59 +207,97 @@ def save_conversation_history(
     try:
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(conversation_history, f)
-    except Exception as e:
-        print(f"An error occurred while saving the conversation history: {e}")
+    except IOError as io_error:
+        print(f"An error occurred saving conversation history: {io_error}")
 
 
 def format_conversation_history_for_summary(conversation_history):
-    spinner.start()
-    formatted_history = ""
-    for message in conversation_history:
-        role = message["role"].capitalize()
-        content = message["content"]
-        formatted_history += f"{role}: {content}\n"
-    spinner.stop()
+    """
+    Format the conversation history for summary display.
+
+    Args:
+        conversation_history (str): The conversation history as a string.
+
+    Returns:
+        str: The formatted conversation history.
+    """
+    with console.status("[bold green]Formatting...", spinner="dots"):
+        formatted_history = ""
+        for message in conversation_history:
+            role = message["role"].capitalize()
+            content = message["content"]
+            formatted_history += f"{role}: {content}\n"
     return formatted_history
 
 
 def summarize_conversation_history_direct(conversation_history):
-    spinner.start()
-    try:
-        formatted_history = format_conversation_history_for_summary(conversation_history)
-        summary_prompt = f"Please summarize the following conversation history and retain all important information:\n\n{formatted_history}\nSummary:"
+    """
+    This function summarizes the conversation history provided as input.
 
-        messages = conversation_history + \
-            [{"role": "user", "content": summary_prompt}]
+    :param conversation_history: A list of conversation messages.
+    :return: None
+    """
+    with console.status("[bold green]Summarizing..", spinner="dots"):
+        try:
+            formatted_history = format_conversation_history_for_summary(
+                conversation_history
+            )
+            summary_prompt = (
+                "Please summarize the following conversation history and "
+                "retain all important information:\n\n"
+                f"{formatted_history}\nSummary:"
+            )
+            messages = conversation_history + [
+                {"role": "user", "content": summary_prompt}
+            ]
 
-        response = client.chat.completions.create(
-            model="gpt-4-1106-preview",  # Set this to gpt-4, gpt-4-0314 or gpt-4-0613 model
-            messages=messages,
-            max_tokens=300,
-            n=1,
-            stop=None,
-            temperature=0.5,
-            top_p=0.5,
-            frequency_penalty=0,
-            presence_penalty=0,
-        )
+            response = client.chat.completions.create(
+                model="gpt-4-1106-preview",
+                messages=messages,
+                max_tokens=300,
+                n=1,
+                stop=None,
+                temperature=0.5,
+                top_p=0.5,
+                frequency_penalty=0,
+                presence_penalty=0,
+            )
 
-        summary_text = response.choices[0].message.content.strip()
-        summarized_history = [
-            {"role": "system", "content": "You are an in car AI assistant."}
-        ]
-        summarized_history.append({"role": "assistant", "content": summary_text})
-    except APIConnectionError as e:
-        print("The server could not be reached")
-        print(e.__cause__)
-        summarized_history = [{"role": "assistant", "content": "Error: The server could not be reached."}]
-    except RateLimitError as e:
-        print("A 429 status code was received; we should back off a bit.")
-        summarized_history = [{"role": "assistant", "content": "Error: Rate limit exceeded. Please try again later."}]
-    except APIStatusError as e:
-        print("Another non-200-range status code was received")
-        print(e.status_code)
-        print(e.response)
-        summarized_history = [{"role": "assistant", "content": f"Error: An API error occurred with status code {e.status_code}."}]
-    finally:
-        spinner.stop()
+            summary_text = response.choices[0].message.content.strip()
+            summarized_history = [
+                {"role": "system", "content": "You are an in car AI assistant"}
+            ]
+            summarized_history.append(
+                {
+                    "role": "assistant",
+                    "content": summary_text
+                }
+            )
+        except APIConnectionError as e:
+            console.print("[bold red]The server could not be reached")
+            console.print(e.__cause__)
+            summarized_history = [
+                {
+                    "role": "assistant",
+                    "content": "Error: The server could not be reached.",
+                }
+            ]
+        except RateLimitError as e:
+            console.print(f"[bold red]A 429 status code was received.{e}")
+            summarized_history = [
+                {
+                    "role": "assistant",
+                    "content": "Error: Rate limit exceeded. Try again later.",
+                }
+            ]
+        except APIStatusError as e:
+            console.print("[bold red]non-200-range status code received")
+            console.print(e.status_code)
+            console.print(e.response)
+            summarized_history = [
+                {
+                    "role": "assistant",
+                    "content": f"Error: API error {e.status_code}.",
+                }
+            ]
     return summarized_history

@@ -14,7 +14,10 @@ from config import EMAIL_PROVIDER
 from utils.commands import voice_commands
 
 if EMAIL_PROVIDER == "Google":
-    from api.google_functions.google_api import delete_email, get_emails_google
+    from api.google_functions.google_api import (
+        delete_email,
+        get_emails_google,
+    )
 
 if EMAIL_PROVIDER == "365":
     from api.microsoft_functions.graph_api import (create_new_appointment,
@@ -100,7 +103,8 @@ def recognize_speech():
         return None
 
 
-def handle_common_voice_commands(args, user_object_id=None, email_provider=None):
+def handle_common_voice_commands(
+        args, user_object_id=None, email_provider=None):
     """
     Handle common voice commands.
 
