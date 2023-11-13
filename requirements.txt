@@ -12,7 +12,7 @@ openai==1.2.3
 pandas==2.1.2
 pygame==2.5.2
 pyserial==3.5
-PyAudio==0.2.13
+PyAudio==0.2.14
 python-dotenv==1.0.0
 pytz==2023.3.*
 requests==2.31.0
