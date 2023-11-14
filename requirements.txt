@@ -8,7 +8,7 @@ gTTS==2.4.0
 matplotlib==3.8.1
 msal==1.25.0
 obd==0.7.2
-openai==1.2.3
+openai==1.2.4
 pandas==2.1.2
 pygame==2.5.2
 pyserial==3.5
