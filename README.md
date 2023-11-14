@@ -66,7 +66,7 @@ python main.py --device elm327
 
 Current voice commands include:
 
-- "engine rpm": "010C",
+- "engine rpm"
 - "intake air temperature"
 - "fuel tank level"
 - "time run with MIL on"
@@ -86,7 +86,7 @@ Current voice commands include:
 - "check outlook"
 - "send an email with outlook"
 - "ask question"
-- "start conversation"
+- "start a conversation"
 - "check gmail"
 - "what's next on my google calendar"
 
