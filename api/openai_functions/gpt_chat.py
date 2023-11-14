@@ -30,7 +30,7 @@ def chat_gpt(prompt):
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an in car AI assistant.",
+                        "content": "You are an AI assistant.",
                     },
                     {
                         "role": "user",
@@ -93,7 +93,7 @@ def chat_gpt_custom(processed_data):
                     messages=[
                         {
                             "role": "system",
-                            "content": "You are an in car AI assistant.",
+                            "content": "You are an AI assistant.",
                         },
                         {
                             "role": "user",
@@ -180,7 +180,7 @@ def load_conversation_history(file_path="conversation_history.json"):
                 conversation_history = [
                     {
                         "role": "system",
-                        "content": "You are an in car AI assistant.",
+                        "content": "You are an AI assistant.",
                     }
                 ]
         except IOError as io_error:
@@ -188,7 +188,7 @@ def load_conversation_history(file_path="conversation_history.json"):
             conversation_history = [
                 {
                     "role": "system",
-                    "content": "You are an in car AI assistant."
+                    "content": "You are an AI assistant."
                 }
             ]
     return conversation_history
@@ -265,7 +265,7 @@ def summarize_conversation_history_direct(conversation_history):
 
             summary_text = response.choices[0].message.content.strip()
             summarized_history = [
-                {"role": "system", "content": "You are an in car AI assistant"}
+                {"role": "system", "content": "You are an AI assistant"}
             ]
             summarized_history.append(
                 {
