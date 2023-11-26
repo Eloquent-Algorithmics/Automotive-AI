@@ -4,10 +4,9 @@ This module provides functionality related to audio playback.
 import os
 from typing import Union
 from io import BytesIO
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 from gtts import gTTS
-
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
 
 def initialize_audio():
