@@ -6,7 +6,7 @@ An experimental open-source application that integrates the OpenAi gpt-3.5-turbo
 
 ⚠️ ***This is a work in progress*** ⚠️
 
-11/12/2023: Updated to use [OpenAI v1.2.3](https://github.com/openai/openai-python/releases/)
+11/12/2023: Updated to use [OpenAI v1](https://github.com/openai/openai-python/releases/)
 
 🔜 ElevenLabs TTS, Google Calendar integration coming soon.
 
