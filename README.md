@@ -31,11 +31,9 @@ git clone https://github.com/Explorergt92/Automotive-AI.git
 2. Create a conda environment and activate it: [Download Conda](https://conda.io/projects/conda/en/latest/user-guide/install/download.html)
 ### Linux or Windows
 ```bash or PowerShell
-conda create -n autoai python=3.11
+conda create -n automotive-ai -c conda-forge python=3.11
 
-conda install -n autoai -c conda-forge python=3.11
-
-conda activate autoai
+conda activate automotive-ai
 ```
 
 3. Run the following command in the root directory:
