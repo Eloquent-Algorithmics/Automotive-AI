@@ -26,7 +26,7 @@ if EMAIL_PROVIDER == "365":
                                                    send_email_with_attachments)
 
 
-nlp = spacy.load("en_core_web_lg")
+nlp = spacy.load("en_core_web_md")
 
 
 def get_similarity_score(text1, text2):
@@ -122,7 +122,7 @@ def handle_common_voice_commands(
 
     standby_mode = False
     conversation_history = load_conversation_history()
-    conversation_active = False
+    conversation_active = True
 
     while True:
         if not standby_mode:
