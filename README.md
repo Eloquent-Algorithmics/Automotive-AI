@@ -6,7 +6,7 @@ An experimental open-source application that integrates the OpenAi gpt-3.5-turbo
 
 ⚠️ ***This is a work in progress*** ⚠️
 
-03/17/2024: Updated to use the [OpenAI v1.14.2](https://github.com/openai/openai-python/releases/)
+03/17/2024: Updated to use [OpenAI v1.14.2](https://github.com/openai/openai-python/releases/)
 
 11/14/2023: Added "development" branch with the option to use text input in the terminal instead of voice commands.
 
