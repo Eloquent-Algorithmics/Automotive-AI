@@ -14,7 +14,7 @@ An experimental open-source application that integrates the OpenAi gpt-3.5-turbo
 
 - Windows 11 & Ubuntu 22.04
 - Python 3.12
-- Requires [Miniconda](https://conda.io/projects/conda/en/latest/user-guide/install/download.html)
+- Requires [Miniconda](https://docs.anaconda.com/free/miniconda/#latest-miniconda-installer-links)
 - [OBDlink MX+ Bluetooth ELM327](https://www.obdlink.com/products/obdlink-mxp/)
 - Desktop testing is possible using an [ELM327 emulator](https://github.com/Ircama/ELM327-emulator)
 
