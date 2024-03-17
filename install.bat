@@ -14,7 +14,4 @@ call python -m spacy download en_core_web_md
 
 echo Installation completed.
 
-echo To activate the Conda environment, run: conda activate auto_ai
-
-echo To start the app run: python -m main
 pause
