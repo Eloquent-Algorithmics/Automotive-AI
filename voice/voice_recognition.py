@@ -122,7 +122,7 @@ def handle_common_voice_commands(
 
     standby_mode = False
     conversation_history = load_conversation_history()
-    conversation_active = False
+    conversation_active = True
 
     while True:
         if not standby_mode:
