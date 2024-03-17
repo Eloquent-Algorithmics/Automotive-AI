@@ -26,7 +26,7 @@ if EMAIL_PROVIDER == "365":
                                                    send_email_with_attachments)
 
 
-nlp = spacy.load("en_core_web_lg")
+nlp = spacy.load("en_core_web_md")
 
 
 def get_similarity_score(text1, text2):
