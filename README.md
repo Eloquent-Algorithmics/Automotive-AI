@@ -1,12 +1,12 @@
 # Automotive AI: Voice Activated Vehicle Diagnostic Assistant 🚗🗣️
 
-Join the Discord Server (https://discord.gg/VsVuxche)
+Join the [Discord Server](https://discord.gg/VsVuxche)
 
 An experimental open-source application that integrates the OpenAi gpt-3.5-turbo-1106 or gpt-4-1106-preview models via API, NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
 
 ⚠️ ***This is a work in progress*** ⚠️
 
-03/17/2024: Updated to use the [OpenAI v1.14.2]https://github.com/openai/openai-python/releases/)
+03/17/2024: Updated to use the [OpenAI v1.14.2](https://github.com/openai/openai-python/releases/)
 
 11/14/2023: Added "development" branch with the option to use text input in the terminal instead of voice commands.
 
