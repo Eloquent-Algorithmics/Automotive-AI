@@ -1,10 +1,10 @@
 import os
 from typing import Union
 from io import BytesIO
+import pyttsx4
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
 import pygame
 from gtts import gTTS
-import pyttsx4
 
 from config import TTS_ENGINE, TTS_VOICE_ID, TTS_RATE
 
@@ -58,7 +58,13 @@ def tts_output_pyttsx4(text):
     else:
         print("TTS_VOICE_ID not set, using default voice")
 
-    engine.setProperty('rate', TTS_RATE)
+    try:
+        rate = int(TTS_RATE)
+    except ValueError:
+        print("Invalid TTS_RATE value. Using default rate.")
+        rate = 150
+
+    engine.setProperty('rate', rate)
 
     engine.say(text)
     engine.runAndWait()

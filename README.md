@@ -6,49 +6,40 @@ An experimental open-source application that integrates the OpenAi gpt-3.5-turbo
 
 ⚠️ ***This is a work in progress*** ⚠️
 
-11/16/2023: Updated to use [OpenAI v1](https://github.com/openai/openai-python/releases/)
+03/17/2024: Updated to use the [OpenAI v1.14.2]https://github.com/openai/openai-python/releases/)
 
 11/14/2023: Added "development" branch with the option to use text input in the terminal instead of voice commands.
-
-🔜 ElevenLabs TTS, Google Calendar integration coming soon.
 
 ## 🛠️ Built and tested using:
 
 - Windows 11 & Ubuntu 22.04
-- Python 3.11.6
-- OBDlink MX+ Bluetooth ELM327
-- 2005 and 2021 Ford Vehicles
-- Desktop testing using an ELM327 emulator
+- Python 3.12
+- Requires [Miniconda](https://conda.io/projects/conda/en/latest/user-guide/install/download.html)
+- [OBDlink MX+ Bluetooth ELM327](https://www.obdlink.com/products/obdlink-mxp/)
+- Desktop testing is possible using an [ELM327 emulator](https://github.com/Ircama/ELM327-emulator)
 
 ## 🚀 Installation
 
-1. Clone the repository:
+1. Fork the repository and clone it to your local machine:
 
 ```bash
-git clone https://github.com/Explorergt92/Automotive-AI.git
+git clone https://github.com/<your_username>/Automotive-AI.git
 ```
 
-2. Create a conda environment and activate it: [Download Conda](https://conda.io/projects/conda/en/latest/user-guide/install/download.html)
-### Linux or Windows
-```bash or PowerShell
-conda create -n automotive-ai -c conda-forge python=3.11
+<details>
+<summary>Linux Installation and use Instructions</summary>
 
-conda activate automotive-ai
-```
-
-3. Run the following command in the root directory:
-### Linux
 ```bash
 ./install.sh
 ```
-### Windows
-```PowerShell
-.\install.bat
+
+Set your API keys and variables in `.env.template` and save it as `.env`
+
+```bash
+cp .env.template .env
 ```
 
-4. Set your API keys and variables in the `.env.template` file and save it as `.env` without a file extension.
-
-## 🏁 Running the Application
+#### Running the Application on Linux
 
 Without a vehicle communication interface:
 
@@ -62,9 +53,36 @@ With an ELM327 device connected:
 python main.py --device elm327
 ```
 
+</details>
+<br>
+
+<details>
+
+<summary>Windows Installation an Use Instructions</summary>
+
+```PowerShell
+.\install.bat
+```
+
+Set your API keys and variables in `.env.template` and save it as `.env`
+
+```pwsh
+copy .env.template .env
+```
+
+#### Running the Application on Windows
+
+```PowerShell
+./start.bat
+```
+
+</details>
+
 ## 🎙️ Voice Commands
 
-Current voice commands include:
+<details>
+
+<summary>Current voice commands include:</summary>
 
 - "engine rpm"
 - "intake air temperature"
@@ -90,16 +108,20 @@ Current voice commands include:
 - "check gmail"
 - "what's next on my google calendar"
 
-After a conversation has been started you can use the following voice commands to manage the conversation:
+To start a conversation that uses JSON for conversation history, use the "start a conversation" command.
+
+After a conversation has been started you can use the following voice commands to manage the conversation history:
 
 - "clear all history"
 - "delete the last message"
-- "end the conversation"
 - "summarize the conversation history"
+- "end the conversation"
 
+</details>
 
-## 📟 ELM Simulator
+## 📟 Using an ELM Simulator
 
+<details>
 ELM327 emulator: [GitHub](https://github.com/Ircama/ELM327-emulator)
 com0com virtual serial port driver: [SourceForge](https://sourceforge.net/projects/com0com/) (to create a virtual COM port pair).
 
@@ -118,3 +140,4 @@ python air_fuel_datastream.py
 ```
 
 Streams data from the OBD-II ELM327 device to the console, but there's currently no way to stop the stream other than closing the application.
+</details>
