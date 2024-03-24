@@ -73,7 +73,7 @@ copy .env.template .env
 #### Running the Application on Windows
 
 ```PowerShell
-./start.bat
+.\start.bat
 ```
 
 </details>
