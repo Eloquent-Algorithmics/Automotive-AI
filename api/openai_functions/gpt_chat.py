@@ -4,11 +4,12 @@ This module provides functions for working with OpenAI's API.
 import os
 import json
 import ast
+import inspect
 from rich.console import Console
 from openai import OpenAI, APIConnectionError, RateLimitError, APIStatusError
 from config import OPENAI_API_KEY
+from utils.functions import tools, available_functions
 
-# Instantiate OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
 console = Console()
 
@@ -46,99 +47,24 @@ def chat_gpt(prompt):
             )
             # Extract the text part of the response
             response_text = completion.choices[0].message.content.strip()
-        except APIConnectionError as e:
-            console.print("[bold red]The server could not be reached")
-            console.print(e.__cause__)
-            response_text = "Error: The server could not be reached."
-        except RateLimitError as e:
-            console.print(f"[bold red]A 429 status code.{e}")
-            response_text = "Error: Rate limit exceeded. Try again later."
-        except APIStatusError as e:
-            console.print(f"[bold red]Error code was received{e}")
-            console.print(e.status_code)
-            console.print(e.response)
-            response_text = f"API error occurred status code {e.status_code}"
-    return response_text
+
+            return response_text
+        
+        except:
+            pass
 
 
-def chat_gpt_custom(processed_data):
-    """
-    Extracts VIN number from processed data using OpenAI's API.
+def chat_gpt_conversation(prompt, conversation_history, available_functions, client, console, tools):
 
-    Args:
-        processed_data (str): The processed data containing the VIN response.
+    messages = conversation_history + [{"role": "user", "content": f"{prompt}"}]
 
-    Returns:
-        str: The extracted VIN number or the generated response.
-    """
-    if "VIN response:" in processed_data:
-        vin = processed_data.split("VIN response: ")[1].split("\n")[0].strip()
-        decoded_data = processed_data.split("Decoded VIN: ")[1].strip()
-        vehicle_data = ast.literal_eval(decoded_data)
-
-        if vehicle_data:
-            response = (
-                f"The VIN is {vin}. This is a {vehicle_data['Model Year']} "
-                f"{vehicle_data['Make']} {vehicle_data['Model']} with a "
-                f"{vehicle_data['Displacement (L)']} engine. Trim level is "
-                f"{vehicle_data['Trim'] if vehicle_data['Trim'] else 'none'}."
-            )
-        else:
-            response = "couldn't retrieve information for the provided VIN."
-    else:
-        with console.status("[bold green]Processing", spinner="dots"):
-            try:
-                completion = client.chat.completions.create(
-                    model="gpt-4-1106-preview",
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are an AI assistant.",
-                        },
-                        {
-                            "role": "user",
-                            "content": f"{processed_data}",
-                        },
-                    ],
-                    max_tokens=200,
-                    n=1,
-                    stop=None,
-                    temperature=0.5,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                )
-                response = completion.choices[0].message.content.strip()
-            except APIConnectionError as e:
-                console.print("[bold red]The server could not be reached")
-                console.print(e.__cause__)
-                response = "Error: The server could not be reached."
-            except RateLimitError as e:
-                console.print(f"[bold red]429 status code was received.{e}")
-                response = "Error: Rate limit exceeded."
-            except APIStatusError as e:
-                console.print("[bold red]non-200-range status code received")
-                console.print(e.status_code)
-                console.print(e.response)
-                response = f"Error: An API error occurred {e.status_code}."
-
-    return response
-
-
-def chat_gpt_conversation(prompt, conversation_history):
-    """
-    This function generates a response for the given prompt using GPT model.
-
-    :param prompt: The input prompt for the GPT model.
-    :type prompt: str
-    :param conversation_history: The history of the conversation so far.
-    :type conversation_history: list
-    """
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
             response = client.chat.completions.create(
                 model="gpt-4-1106-preview",
-                messages=conversation_history
-                + [{"role": "user", "content": f"{prompt}"}],
+                messages=messages,
+                tools=tools,
+                tool_choice="auto",
                 max_tokens=200,
                 n=1,
                 stop=None,
@@ -147,21 +73,57 @@ def chat_gpt_conversation(prompt, conversation_history):
                 presence_penalty=0,
             )
             response_text = response.choices[0].message.content.strip()
-        except APIConnectionError as e:
-            console.print("[bold red]The server could not be reached")
-            console.print(e.__cause__)
-            response_text = "Error: The server could not be reached."
-        except RateLimitError as e:
-            console.print(f"[bold red]A 429 status code was received.{e}")
-            response_text = "Error: Rate limit exceeded."
-        except APIStatusError as e:
-            console.print(f"[bold red]non-200-range status code received{e}")
-            console.print(e.status_code)
-            console.print(e.response)
-            response_text = (
-                f"Error: API error occurred with status code {e.status_code}."
-            )
-    return response_text
+
+            tool_calls = response.choices[0].tool_calls if hasattr(response.choices[0], "tool_calls") else []
+
+            if tool_calls:
+                messages.append({"role": "system", "content": response_text})
+                executed_tool_call_ids = []
+
+                for tool_call in tool_calls:
+                    function_name = tool_call.function.name
+
+                    if function_name not in available_functions:
+                        continue
+
+                    function_to_call = available_functions[function_name]
+                    function_args = json.loads(tool_call.function.arguments)
+
+                    if inspect.iscoroutinefunction(function_to_call):
+                        function_response = function_to_call(**function_args)
+                    else:
+                        function_response = function_to_call(**function_args)
+
+                    if function_response is None:
+                        function_response = "No response received from the function."
+                    elif not isinstance(function_response, str):
+                        function_response = json.dumps(function_response)
+
+                    function_response_message = {
+                        "role": "tool",
+                        "name": function_name,
+                        "content": function_response,
+                        "tool_call_id": tool_call.id,
+                    }
+                    executed_tool_call_ids.append(tool_call.id)
+                    messages.append(function_response_message)
+
+                second_response = client.chat.completions.create(
+                    model="gpt-4-1106-preview",
+                    messages=messages,
+                    tools=tools,
+                    tool_choice="auto",
+                    temperature=0.5,
+                    top_p=0.5,
+                    max_tokens=1024,
+                )
+
+                return second_response
+            else:
+                return response_text
+        except Exception as e:
+            console.log(f"An error occurred: {e}")
+            return "An error occurred while generating the response."
 
 
 def load_conversation_history(file_path="conversation_history.json"):
@@ -175,7 +137,13 @@ def load_conversation_history(file_path="conversation_history.json"):
         try:
             if os.path.exists(file_path):
                 with open(file_path, "r", encoding="utf-8") as f:
-                    conversation_history = json.load(f)
+                    file_content = f.read().strip()
+                    # Check if the file is not empty and contains valid JSON
+                    if file_content:
+                        conversation_history = json.loads(file_content)
+                    else:
+                        # File is empty or contains only whitespace
+                        raise ValueError("File is empty or contains invalid JSON.")
             else:
                 conversation_history = [
                     {
@@ -183,8 +151,8 @@ def load_conversation_history(file_path="conversation_history.json"):
                         "content": "You are an AI assistant.",
                     }
                 ]
-        except IOError as io_error:
-            console.print(f"[bold red]Error loading history: {io_error}")
+        except (IOError, ValueError) as error:
+            console.print(f"[bold red]Error loading history: {error}")
             conversation_history = [
                 {
                     "role": "system",
@@ -194,9 +162,7 @@ def load_conversation_history(file_path="conversation_history.json"):
     return conversation_history
 
 
-def save_conversation_history(
-    conversation_history, file_path="conversation_history.json"
-):
+def save_conversation_history(conversation_history, file_path="conversation_history.json"):
     """
     Save the conversation history to a JSON file.
 
@@ -301,3 +267,66 @@ def summarize_conversation_history_direct(conversation_history):
                 }
             ]
     return summarized_history
+
+
+def chat_gpt_custom(processed_data):
+    """
+    Extracts VIN number from processed data using OpenAI's API.
+
+    Args:
+        processed_data (str): The processed data containing the VIN response.
+
+    Returns:
+        str: The extracted VIN number or the generated response.
+    """
+    if "VIN response:" in processed_data:
+        vin = processed_data.split("VIN response: ")[1].split("\n")[0].strip()
+        decoded_data = processed_data.split("Decoded VIN: ")[1].strip()
+        vehicle_data = ast.literal_eval(decoded_data)
+
+        if vehicle_data:
+            response = (
+                f"The VIN is {vin}. This is a {vehicle_data['Model Year']} "
+                f"{vehicle_data['Make']} {vehicle_data['Model']} with a "
+                f"{vehicle_data['Displacement (L)']} engine. Trim level is "
+                f"{vehicle_data['Trim'] if vehicle_data['Trim'] else 'none'}."
+            )
+        else:
+            response = "couldn't retrieve information for the provided VIN."
+    else:
+        with console.status("[bold green]Processing", spinner="dots"):
+            try:
+                completion = client.chat.completions.create(
+                    model="gpt-4-1106-preview",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an AI assistant.",
+                        },
+                        {
+                            "role": "user",
+                            "content": f"{processed_data}",
+                        },
+                    ],
+                    max_tokens=200,
+                    n=1,
+                    stop=None,
+                    temperature=0.5,
+                    frequency_penalty=0,
+                    presence_penalty=0,
+                )
+                response = completion.choices[0].message.content.strip()
+            except APIConnectionError as e:
+                console.print("[bold red]The server could not be reached")
+                console.print(e.__cause__)
+                response = "Error: The server could not be reached."
+            except RateLimitError as e:
+                console.print(f"[bold red]429 status code was received.{e}")
+                response = "Error: Rate limit exceeded."
+            except APIStatusError as e:
+                console.print("[bold red]non-200-range status code received")
+                console.print(e.status_code)
+                console.print(e.response)
+                response = f"Error: An API error occurred {e.status_code}."
+
+    return response

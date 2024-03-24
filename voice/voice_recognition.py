@@ -8,10 +8,11 @@ import speech_recognition as sr
 
 from api.openai_functions.gpt_chat import (
     chat_gpt, chat_gpt_conversation, load_conversation_history,
-    save_conversation_history, summarize_conversation_history_direct)
+    save_conversation_history, summarize_conversation_history_direct, client, console)
 from audio.audio_output import tts_output
 from config import EMAIL_PROVIDER
 from utils.commands import voice_commands
+from utils.functions import available_functions, tools
 
 if EMAIL_PROVIDER == "Google":
     from api.google_functions.google_api import (
@@ -193,7 +194,7 @@ def handle_common_voice_commands(
                 continue
 
             if not standby_mode and conversation_active:
-                chatgpt_response = chat_gpt_conversation(text, conversation_history)
+                chatgpt_response = chat_gpt_conversation(text, conversation_history, available_functions, client, console, tools)
                 conversation_history.append({"role": "user", "content": text})
                 conversation_history.append(
                     {"role": "assistant", "content": chatgpt_response}

@@ -19,9 +19,7 @@ load_dotenv()
 
 email_provider = EMAIL_PROVIDER
 
-# Instantiate OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
-
 
 initialize_audio()
 

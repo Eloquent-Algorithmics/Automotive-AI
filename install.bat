@@ -1,5 +1,11 @@
 @echo off
 
+echo Creating a new Conda environment...
+call conda create -n auto_ai python=3.12 -y
+
+echo Activating the new Conda environment...
+call conda activate auto_ai
+
 echo Installing Python requirements...
 pip install -r requirements.txt
 

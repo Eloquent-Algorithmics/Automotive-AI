@@ -43,9 +43,11 @@ if not creds or not creds.valid:
 gmail_service = build("gmail", "v1", credentials=creds)
 calendar_service = build("calendar", "v3", credentials=creds)
 
+
 def send_email(subject, body, to=GMAIL_ADDRESS):
     message = {"subject": subject, "body": body, "to": to}
     create_message_and_send(message)
+
 
 def create_message_and_send(message):
     to = message["to"]
@@ -61,6 +63,7 @@ def create_message_and_send(message):
         gmail_service.users().messages().send(userId="me", body=raw_message).execute()
     )
     print(F"Message Id: {send_message['id']}")
+
 
 def get_next_google_calendar_event():
     now = datetime.datetime.utcnow().isoformat() + "Z"
