@@ -2,9 +2,9 @@
 This module is responsible for handling voice commands using speech recognition
 and spacy.
 """
-
+import time
 import spacy
-import speech_recognition as sr
+import azure.cognitiveservices.speech as speechsdk
 
 from api.openai_functions.gpt_chat import (
     chat_gpt,
@@ -12,13 +12,15 @@ from api.openai_functions.gpt_chat import (
     load_conversation_history,
     save_conversation_history,
     summarize_conversation_history_direct,
-    client,
     console,
 )
 from audio.audio_output import tts_output
-from config import EMAIL_PROVIDER
 from utils.commands import voice_commands
-from utils.functions import available_functions, tools
+from utils.config import (
+    EMAIL_PROVIDER,
+    AZURE_AI_SERVICES_KEY,
+    AZURE_AI_SERVICES_REGION,
+)
 
 if EMAIL_PROVIDER == "Google":
     from api.google_functions.google_api import (
@@ -84,31 +86,33 @@ def recognize_command(text, commands):
 
 
 def recognize_speech():
-    """
-    Recognizes speech using the default microphone as the audio source.
+    speech_key, service_region = AZURE_AI_SERVICES_KEY, AZURE_AI_SERVICES_REGION
+    speech_config = speechsdk.SpeechConfig(
+        subscription=speech_key,
+        region=service_region
+    )
 
-    Returns:
-        str: The recognized text if successful, otherwise None.
-    """
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source, duration=1)
-        print("Listening...")
-        try:
-            audio = recognizer.listen(source, timeout=30, phrase_time_limit=30)
-        except sr.WaitTimeoutError:
-            print("Timeout: No speech detected")
-            return None
+    speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
+
+    recognized_text = None
+
+    def handle_final_result(evt):
+        nonlocal recognized_text
+        recognized_text = evt.result.text
+
+    speech_recognizer.recognized.connect(handle_final_result)
+
+    console.print("I'm listening ... \n")
     try:
-        text = recognizer.recognize_google(audio)
-        print(f"You said: {text}")
-        return text
-    except sr.UnknownValueError:
-        print("Could not understand audio")
-        return None
-    except sr.RequestError as request_error:
-        print(f"Could not request results; {request_error}")
-        return None
+        speech_recognizer.start_continuous_recognition()
+        while recognized_text is None:
+            time.sleep(0.5)
+        speech_recognizer.stop_continuous_recognition()
+    except Exception as e:
+        console.print(f"Error: {e}")
+        return
+
+    return recognized_text
 
 
 def handle_common_voice_commands(args, user_object_id=None, email_provider=None):
@@ -129,7 +133,7 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
 
     standby_mode = False
     conversation_history = load_conversation_history()
-    conversation_active = True
+    conversation_active = False
 
     while True:
         if not standby_mode:
@@ -202,11 +206,7 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
             if not standby_mode and conversation_active:
                 chatgpt_response = chat_gpt_conversation(
                     text,
-                    conversation_history,
-                    available_functions,
-                    client,
-                    console,
-                    tools,
+                    conversation_history
                 )
                 conversation_history.append({"role": "user", "content": text})
                 conversation_history.append(

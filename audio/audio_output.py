@@ -6,7 +6,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
 import pygame
 from gtts import gTTS
 
-from config import TTS_ENGINE, TTS_VOICE_ID, TTS_RATE
+from utils.config import TTS_ENGINE, TTS_VOICE_ID, TTS_RATE
 
 
 def initialize_audio():

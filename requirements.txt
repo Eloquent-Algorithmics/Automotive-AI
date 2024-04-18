@@ -1,3 +1,4 @@
+azure-cognitiveservices-speech>=1.37.0
 beautifulsoup4>=4.12.3
 dateparser>=1.2.0
 flask>=3.0.3
@@ -19,5 +20,4 @@ pytz>=2024.1
 requests>=2.31.0
 rich>=13.7.1
 spacy>=3.7.4
-SpeechRecognition>=3.10.3
 twilio>=9.0.4

@@ -1,7 +1,7 @@
 import time
 from flask import Flask, render_template_string, jsonify
 import obd
-from config import SERIAL_PORT, BAUD_RATE
+from utils.config import SERIAL_PORT, BAUD_RATE
 
 # Connect to the ELM327 device
 connection = obd.OBD(portstr=SERIAL_PORT, baudrate=BAUD_RATE)

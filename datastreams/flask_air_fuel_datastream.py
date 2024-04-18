@@ -1,7 +1,7 @@
 import time
 from flask import Flask, render_template_string, jsonify
 import obd
-from config import SERIAL_PORT, BAUD_RATE
+from utils.config import SERIAL_PORT, BAUD_RATE
 
 
 app = Flask(__name__)

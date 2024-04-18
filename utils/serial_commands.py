@@ -2,7 +2,7 @@ import serial
 import requests
 from api.nhtsa_functions.vin_decoder import parse_vin_response, decode_vin, get_vehicle_data_from_nhtsa
 from api.microsoft_functions.graph_api import send_email_with_attachments
-from config import GRAPH_EMAIL_ADDRESS
+from utils.config import GRAPH_EMAIL_ADDRESS
 
 
 def process_data(command, response, value):

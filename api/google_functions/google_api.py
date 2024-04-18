@@ -1,12 +1,14 @@
 import base64
 import os
+import datetime
 import binascii
 from bs4 import BeautifulSoup
+
 from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from config import (
+from utils.config import (
     EMAIL_PROVIDER,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
@@ -18,42 +20,54 @@ from config import (
 SCOPES = ["https://mail.google.com/",
           "https://www.googleapis.com/auth/calendar"]
 
-print("GOOGLE_REDIRECT_URI:", GOOGLE_REDIRECT_URI)
+if EMAIL_PROVIDER == "Google":
 
-creds = None
-if os.path.exists("token.json"):
-    creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-    else:
-        flow = InstalledAppFlow.from_client_config(
-            {
-                "installed": {
-                    "client_id": GOOGLE_CLIENT_ID,
-                    "client_secret": GOOGLE_CLIENT_SECRET,
-                    "redirect_uris": [GOOGLE_REDIRECT_URI],
-                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                    "token_uri": "https://oauth2.googleapis.com/token",
-                }
-            },
-            SCOPES,
-        )
-        print("Flow object:", flow)
-        creds = flow.run_local_server(port=8080)
-    with open("token.json", "w") as token:
-        token.write(creds.to_json())
+    creds = None
+    if os.path.exists("token.json"):
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_config(
+                {
+                    "installed": {
+                        "client_id": GOOGLE_CLIENT_ID,
+                        "client_secret": GOOGLE_CLIENT_SECRET,
+                        "redirect_uris": [GOOGLE_REDIRECT_URI],
+                        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                        "token_uri": "https://oauth2.googleapis.com/token",
+                    }
+                },
+                SCOPES,
+            )
+            print("Flow object:", flow)
+            creds = flow.run_local_server(port=8080)
+        with open("token.json", "w", encoding="utf-8") as token:
+            token.write(creds.to_json())
 
-gmail_service = build("gmail", "v1", credentials=creds)
-calendar_service = build("calendar", "v3", credentials=creds)
-
-
-def send_email(subject, body, to=GMAIL_ADDRESS):
-    message = {"subject": subject, "body": body, "to": to}
-    create_message_and_send(message)
+    gmail_service = build("gmail", "v1", credentials=creds)
+    calendar_service = build("calendar", "v3", credentials=creds)
 
 
 def create_message_and_send(message):
+    """
+    Creates a message and sends it using the Gmail API.
+
+    Args:
+        message (dict): A dictionary containing the message details.
+            The dictionary should have the following keys:
+            - "to": The recipient's email address.
+            - "subject": The subject of the email.
+            - "body": The body of the email.
+
+    Returns:
+        None
+
+    Raises:
+        Any exceptions raised by the Gmail API.
+
+    """
     to = message["to"]
     subject = message["subject"]
     body = message["body"]
@@ -69,7 +83,29 @@ def create_message_and_send(message):
     print(F"Message Id: {send_message['id']}")
 
 
+def send_email(subject, body, to=GMAIL_ADDRESS):
+    """
+    Sends an email with the specified subject and body to the given recipient.
+
+    Args:
+        subject (str): The subject of the email.
+        body (str): The body of the email.
+        to (str, optional): The recipient's email address. Defaults to GMAIL_ADDRESS.
+
+    Returns:
+        None
+    """
+    message = {"subject": subject, "body": body, "to": to}
+    create_message_and_send(message)
+
+
 def get_next_google_calendar_event():
+    """
+    Retrieves the next upcoming event from the user's Google Calendar.
+
+    Returns:
+        str: A string representing the next event and its start time, or a message if no upcoming events are found.
+    """
     now = datetime.datetime.utcnow().isoformat() + "Z"
     events_result = (
         calendar_service.events()

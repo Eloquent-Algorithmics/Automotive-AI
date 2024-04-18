@@ -12,7 +12,7 @@ import pytz
 from dateutil.parser import isoparse
 from twilio.rest import Client
 import api.microsoft_functions.ms_authserver as ms_authserver
-from config import (
+from utils.config import (
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
     TWILIO_FROM_PHONE_NUMBER,

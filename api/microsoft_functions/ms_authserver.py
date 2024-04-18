@@ -6,7 +6,7 @@ import http.server
 import socketserver
 import webbrowser
 import urllib.parse
-from config import GRAPH_CLIENT_ID, EMAIL_PROVIDER
+from utils.config import GRAPH_CLIENT_ID, EMAIL_PROVIDER
 
 PORT = 8000
 

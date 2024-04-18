@@ -18,7 +18,7 @@ voice_commands = {
     "calibration verification numbers": "0906",
     "start a diagnostic report": "DIAGNOSTIC_REPORT",
     "send a diagnostic report": "send_diagnostic_report",
-    "next on outlook calendar": "next_appointment",
+    "next on my outlook calendar": "next_appointment",
     "create a new outlook appointment": "create_appointment",
     "check outlook": "check_outlook_email",
     "send an email with outlook": "send_email",

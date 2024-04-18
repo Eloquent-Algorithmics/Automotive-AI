@@ -7,8 +7,8 @@ import ast
 import inspect
 from rich.console import Console
 from openai import OpenAI, APIConnectionError, RateLimitError, APIStatusError
-from config import OPENAI_API_KEY
-from utils.functions import tools, available_functions
+from utils.config import OPENAI_API_KEY
+from utils.functions import search_google_synchronous
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 console = Console()
@@ -27,7 +27,7 @@ def chat_gpt(prompt):
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
             completion = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-3.5-turbo-0125",
                 messages=[
                     {
                         "role": "system",
@@ -42,33 +42,77 @@ def chat_gpt(prompt):
                 n=1,
                 stop=None,
                 temperature=0.5,
+                top_p=0.95,
                 frequency_penalty=0,
                 presence_penalty=0,
             )
-            # Extract the text part of the response
+
             response_text = completion.choices[0].message.content.strip()
 
             return response_text
-        
+
         except:
             pass
 
 
-def chat_gpt_conversation(prompt, conversation_history, available_functions, client, console, tools):
+def chat_gpt_conversation(prompt, conversation_history):
 
     messages = conversation_history + [{"role": "user", "content": f"{prompt}"}]
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "search_google_asynchronous",
+                "description": "This function allows you to use the Google custom search engine API.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "Query to perform the search on.",
+                        },
+                        "num": {
+                            "type": "integer",
+                            "description": "Number of search results to return.",
+                        },
+                        "start": {
+                            "type": "integer",
+                            "description": "The first result to retrieve (starts at 1).",
+                        },
+                        "fileType": {
+                            "type": "string",
+                            "description": "Filter results to a specific file type.",
+                        },
+                        "lr": {
+                            "type": "string",
+                            "description": "Restricts the search to documents written in a particular language.",
+                        },
+                        "safe": {
+                            "type": "string",
+                            "description": "Search safety level.",
+                        },
+                    },
+                    "required": ["query"],
+                },
+            },
+        },
+    ]
+
+    available_functions = {
+        "search_google_synchronous": search_google_synchronous,
+    }
+
 
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-3.5-turbo-0125",
                 messages=messages,
                 tools=tools,
                 tool_choice="auto",
-                max_tokens=200,
-                n=1,
-                stop=None,
+                max_tokens=512,
                 temperature=0.5,
+                top_p=0.95,
                 frequency_penalty=0,
                 presence_penalty=0,
             )
@@ -109,7 +153,7 @@ def chat_gpt_conversation(prompt, conversation_history, available_functions, cli
                     messages.append(function_response_message)
 
                 second_response = client.chat.completions.create(
-                    model="gpt-4-1106-preview",
+                    model="gpt-3.5-turbo-0125",
                     messages=messages,
                     tools=tools,
                     tool_choice="auto",

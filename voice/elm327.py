@@ -4,7 +4,7 @@ This module contains functions to handle voice commands using ELM327.
 import threading
 import pandas as pd
 import serial
-from config import SERIAL_PORT, BAUD_RATE
+from utils.config import SERIAL_PORT, BAUD_RATE
 from datastreams.flask_air_fuel_datastream import start_datastream, app
 from voice.voice_recognition import (
     recognize_speech,

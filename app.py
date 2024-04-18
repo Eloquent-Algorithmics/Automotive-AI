@@ -13,7 +13,7 @@ import api.google_functions.google_api as google_api
 from voice.elm327 import handle_voice_commands_elm327
 from voice.voice_recognition import handle_common_voice_commands
 from audio.audio_output import tts_output, initialize_audio
-from config import EMAIL_PROVIDER
+from utils.config import EMAIL_PROVIDER
 
 
 def main():
