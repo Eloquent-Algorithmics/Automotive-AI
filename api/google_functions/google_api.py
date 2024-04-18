@@ -7,6 +7,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from config import (
+    EMAIL_PROVIDER,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
     GOOGLE_REDIRECT_URI,
@@ -16,6 +17,8 @@ from config import (
 # If modifying these SCOPES, delete the file token.json.
 SCOPES = ["https://mail.google.com/",
           "https://www.googleapis.com/auth/calendar"]
+
+print("GOOGLE_REDIRECT_URI:", GOOGLE_REDIRECT_URI)
 
 creds = None
 if os.path.exists("token.json"):
@@ -36,7 +39,8 @@ if not creds or not creds.valid:
             },
             SCOPES,
         )
-        creds = flow.run_local_server(port=0)
+        print("Flow object:", flow)
+        creds = flow.run_local_server(port=8080)
     with open("token.json", "w") as token:
         token.write(creds.to_json())
 

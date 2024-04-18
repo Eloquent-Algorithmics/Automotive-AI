@@ -7,8 +7,14 @@ import spacy
 import speech_recognition as sr
 
 from api.openai_functions.gpt_chat import (
-    chat_gpt, chat_gpt_conversation, load_conversation_history,
-    save_conversation_history, summarize_conversation_history_direct, client, console)
+    chat_gpt,
+    chat_gpt_conversation,
+    load_conversation_history,
+    save_conversation_history,
+    summarize_conversation_history_direct,
+    client,
+    console,
+)
 from audio.audio_output import tts_output
 from config import EMAIL_PROVIDER
 from utils.commands import voice_commands
@@ -21,11 +27,12 @@ if EMAIL_PROVIDER == "Google":
     )
 
 if EMAIL_PROVIDER == "365":
-    from api.microsoft_functions.graph_api import (create_new_appointment,
-                                                   get_emails,
-                                                   get_next_appointment,
-                                                   send_email_with_attachments)
-
+    from api.microsoft_functions.graph_api import (
+        create_new_appointment,
+        get_emails,
+        get_next_appointment,
+        send_email_with_attachments,
+    )
 
 nlp = spacy.load("en_core_web_md")
 
@@ -104,8 +111,7 @@ def recognize_speech():
         return None
 
 
-def handle_common_voice_commands(
-        args, user_object_id=None, email_provider=None):
+def handle_common_voice_commands(args, user_object_id=None, email_provider=None):
     """
     Handle common voice commands.
 
@@ -119,7 +125,7 @@ def handle_common_voice_commands(
     """
 
     standby_phrases = ["enter standby mode", "go to sleep", "stop listening"]
-    wakeup_phrases = ["wake up", "i need your help", "start listening"]
+    wakeup_phrases = ["wake up", "I need your help", "start listening"]
 
     standby_mode = False
     conversation_history = load_conversation_history()
@@ -194,7 +200,14 @@ def handle_common_voice_commands(
                 continue
 
             if not standby_mode and conversation_active:
-                chatgpt_response = chat_gpt_conversation(text, conversation_history, available_functions, client, console, tools)
+                chatgpt_response = chat_gpt_conversation(
+                    text,
+                    conversation_history,
+                    available_functions,
+                    client,
+                    console,
+                    tools,
+                )
                 conversation_history.append({"role": "user", "content": text})
                 conversation_history.append(
                     {"role": "assistant", "content": chatgpt_response}

@@ -2,11 +2,11 @@
 
 Join the [Discord Server](https://discord.gg/VsVuxche)
 
-An experimental open-source application that integrates the OpenAi gpt-3.5-turbo-1106 or gpt-4-1106-preview models via API, NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
+An experimental open-source application that integrates the OpenAi gpt-3.5-turbo-0125 or gpt-4-turbo models via API, NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
 
 ⚠️ ***This is a work in progress*** ⚠️
 
-03/17/2024: Updated to use [OpenAI v1.14.2](https://github.com/openai/openai-python/releases/)
+03/17/2024: Updated to use [OpenAI v1](https://github.com/openai/openai-python/releases/)
 
 11/14/2023: Added "development" branch with the option to use text input in the terminal instead of voice commands.
 
@@ -39,18 +39,18 @@ Set your API keys and variables in `.env.template` and save it as `.env`
 cp .env.template .env
 ```
 
-#### Running the Application on Linux
+#### Running the Application
 
 Without a vehicle communication interface:
 
 ```bash
-python main.py
+python -m app
 ```
 
 With an ELM327 device connected:
 
 ```bash
-python main.py --device elm327
+python -m app --device elm327
 ```
 
 </details>
@@ -69,11 +69,18 @@ Set your API keys and variables in `.env.template` and save it as `.env`
 ```pwsh
 copy .env.template .env
 ```
+#### Running the Application
 
-#### Running the Application on Windows
+Without a vehicle communication interface:
 
-```PowerShell
-.\start.bat
+```bash
+python -m app
+```
+
+With an ELM327 device connected:
+
+```bash
+python -m app --device elm327
 ```
 
 </details>

@@ -54,6 +54,7 @@ def search_google_synchronous(query: str, num: [int] = 10, start: [int] = 1, fil
     except requests.exceptions.RequestException:
         return []
 
+
 tools = [
     {
         "type": "function",
