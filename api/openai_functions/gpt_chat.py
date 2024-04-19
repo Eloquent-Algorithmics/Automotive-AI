@@ -51,7 +51,7 @@ def chat_gpt(prompt):
 
             return response_text
 
-        except:
+        except Exception:
             pass
 
 
@@ -101,7 +101,6 @@ def chat_gpt_conversation(prompt, conversation_history):
     available_functions = {
         "search_google_synchronous": search_google_synchronous,
     }
-
 
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
@@ -182,11 +181,9 @@ def load_conversation_history(file_path="conversation_history.json"):
             if os.path.exists(file_path):
                 with open(file_path, "r", encoding="utf-8") as f:
                     file_content = f.read().strip()
-                    # Check if the file is not empty and contains valid JSON
                     if file_content:
                         conversation_history = json.loads(file_content)
                     else:
-                        # File is empty or contains only whitespace
                         raise ValueError("File is empty or contains invalid JSON.")
             else:
                 conversation_history = [

@@ -162,3 +162,5 @@ cython_debug/
 elm.log
 .vscode
 .idea/
+mypy.ini
+.flake8
