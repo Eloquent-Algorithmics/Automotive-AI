@@ -1,12 +1,12 @@
-import os
-from typing import Union
+
 from io import BytesIO
-import pyttsx4
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
+from typing import Union
+
 import pygame
+import pyttsx4
 from gtts import gTTS
 
-from config import TTS_ENGINE, TTS_VOICE_ID, TTS_RATE
+from config import TTS_ENGINE, TTS_RATE, TTS_VOICE_ID
 
 
 def initialize_audio():
