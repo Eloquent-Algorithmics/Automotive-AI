@@ -1,6 +1,7 @@
 """
 This module provides functions for working with OpenAI's API.
 """
+
 import os
 import json
 import ast
@@ -27,7 +28,7 @@ def chat_gpt(prompt):
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
             completion = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o-mini",
                 messages=[
                     {
                         "role": "system",
@@ -49,19 +50,22 @@ def chat_gpt(prompt):
             response_text = completion.choices[0].message.content.strip()
 
             return response_text
-        
-        except:
-            pass
+
+        except APIConnectionError as e:
+            console.log(f"An error occurred: {e}")
+            return "An error occurred while generating the response."
 
 
-def chat_gpt_conversation(prompt, conversation_history, available_functions, client, console, tools):
+def chat_gpt_conversation(
+    prompt, conversation_history, available_functions, client, console, tools
+):
 
     messages = conversation_history + [{"role": "user", "content": f"{prompt}"}]
 
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o-mini",
                 messages=messages,
                 tools=tools,
                 tool_choice="auto",
@@ -74,7 +78,11 @@ def chat_gpt_conversation(prompt, conversation_history, available_functions, cli
             )
             response_text = response.choices[0].message.content.strip()
 
-            tool_calls = response.choices[0].tool_calls if hasattr(response.choices[0], "tool_calls") else []
+            tool_calls = (
+                response.choices[0].tool_calls
+                if hasattr(response.choices[0], "tool_calls")
+                else []
+            )
 
             if tool_calls:
                 messages.append({"role": "system", "content": response_text})
@@ -109,7 +117,7 @@ def chat_gpt_conversation(prompt, conversation_history, available_functions, cli
                     messages.append(function_response_message)
 
                 second_response = client.chat.completions.create(
-                    model="gpt-4-1106-preview",
+                    model="gpt-4o-mini",
                     messages=messages,
                     tools=tools,
                     tool_choice="auto",
@@ -121,7 +129,7 @@ def chat_gpt_conversation(prompt, conversation_history, available_functions, cli
                 return second_response
             else:
                 return response_text
-        except Exception as e:
+        except APIConnectionError as e:
             console.log(f"An error occurred: {e}")
             return "An error occurred while generating the response."
 
@@ -154,15 +162,14 @@ def load_conversation_history(file_path="conversation_history.json"):
         except (IOError, ValueError) as error:
             console.print(f"[bold red]Error loading history: {error}")
             conversation_history = [
-                {
-                    "role": "system",
-                    "content": "You are an AI assistant."
-                }
+                {"role": "system", "content": "You are an AI assistant."}
             ]
     return conversation_history
 
 
-def save_conversation_history(conversation_history, file_path="conversation_history.json"):
+def save_conversation_history(
+    conversation_history, file_path="conversation_history.json"
+):
     """
     Save the conversation history to a JSON file.
 
@@ -218,7 +225,7 @@ def summarize_conversation_history_direct(conversation_history):
             ]
 
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o-mini",
                 messages=messages,
                 max_tokens=300,
                 n=1,
@@ -233,12 +240,7 @@ def summarize_conversation_history_direct(conversation_history):
             summarized_history = [
                 {"role": "system", "content": "You are an AI assistant"}
             ]
-            summarized_history.append(
-                {
-                    "role": "assistant",
-                    "content": summary_text
-                }
-            )
+            summarized_history.append({"role": "assistant", "content": summary_text})
         except APIConnectionError as e:
             console.print("[bold red]The server could not be reached")
             console.print(e.__cause__)
@@ -297,7 +299,7 @@ def chat_gpt_custom(processed_data):
         with console.status("[bold green]Processing", spinner="dots"):
             try:
                 completion = client.chat.completions.create(
-                    model="gpt-4-1106-preview",
+                    model="gpt-4o-mini",
                     messages=[
                         {
                             "role": "system",
