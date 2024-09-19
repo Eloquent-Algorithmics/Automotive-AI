@@ -1,3 +1,6 @@
+"""
+This module contains functions for audio output using text-to-speech (TTS) engines.
+"""
 import os
 from io import BytesIO
 from typing import Union
@@ -20,13 +23,22 @@ def initialize_audio():
     - Channels: 2 (stereo)
     - Buffer size: 4096
 
-    It first pre-initializes the mixer with the specified settings and then initializes it.
+    It first pre-initializes the mixer with the specified settings
+    and then initializes it.
     """
     pygame.mixer.pre_init(44100, -16, 2, 4096)
     pygame.mixer.init()
 
 
 def play_audio(audio: Union[bytes, BytesIO]):
+    """
+    Plays audio from a bytes object or a BytesIO stream using pygame.
+    Args:
+        audio (Union[bytes, BytesIO]): The audio data to be played.
+        It can be either a bytes object or a BytesIO stream.
+    Returns:
+        None
+    """
     if not isinstance(audio, (bytes, BytesIO)):
         return
     if isinstance(audio, bytes):
@@ -39,6 +51,18 @@ def play_audio(audio: Union[bytes, BytesIO]):
 
 
 def tts_output(response_text):
+    """
+    Generates text-to-speech (TTS) output using the specified TTS engine.
+
+    This function selects the appropriate TTS engine based on the global
+    TTS_ENGINE variable and generates speech from the provided response text.
+
+    Args:
+        response_text (str): The text to be converted to speech.
+
+    Raises:
+        ValueError: If the TTS_ENGINE value is not recognized.
+    """
     if TTS_ENGINE == "gtts":
         tts_output_gtts(response_text)
     elif TTS_ENGINE == "pyttsx4":
@@ -50,6 +74,14 @@ def tts_output(response_text):
 
 
 def tts_output_gtts(response_text):
+    """
+    Converts the given text to speech using the Google Text-to-Speech (gTTS) library
+    and plays the audio.
+    Args:
+        response_text (str): The text to be converted to speech.
+    Returns:
+        None
+    """
     tts = gTTS(text=response_text, lang="en")
 
     audio_data = BytesIO()
@@ -60,6 +92,21 @@ def tts_output_gtts(response_text):
 
 
 def tts_output_pyttsx4(response_text):
+    """
+    Converts text to speech using the pyttsx4 library.
+    This function initializes the pyttsx4 engine with the "sapi5" driver,
+    sets the voice and rate properties,
+    and then speaks the provided response text.
+    Args:
+        response_text (str): The text to be converted to speech.
+    Environment Variables:
+        TTS_VOICE_ID (str): The name of the voice to be used.
+        If not set, the default voice is used.
+        TTS_RATE (str): The rate of speech. If not set or invalid,
+        the default rate of 150 is used.
+    Raises:
+        ValueError: If the TTS_RATE environment variable is not a valid integer.
+    """
     engine = pyttsx4.init("sapi5")
 
     voices = engine.getProperty("voices")
@@ -85,6 +132,19 @@ def tts_output_pyttsx4(response_text):
 
 
 def tts_output_azure(response_text):
+    """
+    Converts the given text to speech using Azure's Text-to-Speech service.
+    Args:
+        response_text (str): The text to be converted to speech.
+    Environment Variables:
+        AZURE_SPEECH_KEY (str): The subscription key for Azure Speech service.
+        AZURE_SPEECH_REGION (str): The region for the Azure Speech service.
+        AZURE_SPEECH_VOICE (str): The voice name to be used for speech synthesis.
+    Returns:
+        None
+    Raises:
+        Prints error details if speech synthesis is canceled or fails.
+    """
 
     speech_key = os.getenv("AZURE_SPEECH_KEY")
     service_region = os.getenv("AZURE_SPEECH_REGION")
