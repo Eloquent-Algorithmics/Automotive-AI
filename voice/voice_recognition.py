@@ -92,7 +92,7 @@ def recognize_speech():
     """
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source, duration=1)
+        recognizer.adjust_for_ambient_noise(source, duration=3)
         print("Listening...")
         try:
             audio = recognizer.listen(source, timeout=30, phrase_time_limit=30)

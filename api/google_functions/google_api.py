@@ -1,5 +1,6 @@
 import base64
 import os
+import datetime
 import binascii
 from bs4 import BeautifulSoup
 from google.auth.transport.requests import Request
@@ -17,8 +18,6 @@ from config import (
 # If modifying these SCOPES, delete the file token.json.
 SCOPES = ["https://mail.google.com/",
           "https://www.googleapis.com/auth/calendar"]
-
-print("GOOGLE_REDIRECT_URI:", GOOGLE_REDIRECT_URI)
 
 creds = None
 if os.path.exists("token.json"):
