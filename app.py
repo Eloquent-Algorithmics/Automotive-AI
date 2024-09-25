@@ -5,7 +5,7 @@ import sys
 import argparse
 from dotenv import load_dotenv
 
-from api.openai_functions.gpt_chat import chat_gpt
+from api.openai_functions.gpt_chat import chat_gpt, configure_openai
 from api.microsoft_functions import graph_api
 import api.microsoft_functions.ms_authserver as ms_authserver
 import api.google_functions.google_api as google_api
@@ -21,6 +21,8 @@ def main():
     Main function to encapsulate the script logic.
     """
     load_dotenv()
+
+    configure_openai()
 
     email_provider = EMAIL_PROVIDER
 

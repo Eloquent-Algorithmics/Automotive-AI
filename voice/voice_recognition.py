@@ -2,7 +2,7 @@
 This module is responsible for handling voice commands using speech recognition
 and spacy.
 """
-
+import os
 import spacy
 import speech_recognition as sr
 
@@ -11,14 +11,11 @@ from api.openai_functions.gpt_chat import (
     chat_gpt_conversation,
     load_conversation_history,
     save_conversation_history,
-    summarize_conversation_history_direct,
-    client,
-    console,
+    summarize_conversation_history_direct
 )
 from audio.audio_output import tts_output
 from config import EMAIL_PROVIDER
 from utils.commands import voice_commands
-from utils.functions import available_functions, tools
 
 if EMAIL_PROVIDER == "Google":
     from api.google_functions.google_api import (
@@ -35,6 +32,8 @@ if EMAIL_PROVIDER == "365":
     )
 
 nlp = spacy.load("en_core_web_md")
+
+AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
 
 
 def get_similarity_score(text1, text2):
@@ -92,15 +91,15 @@ def recognize_speech():
     """
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source, duration=3)
+        recognizer.adjust_for_ambient_noise(source, duration=1)
         print("Listening...")
         try:
-            audio = recognizer.listen(source, timeout=30, phrase_time_limit=30)
+            audio = recognizer.listen(source, timeout=60, phrase_time_limit=60)
         except sr.WaitTimeoutError:
             print("Timeout: No speech detected")
             return None
     try:
-        text = recognizer.recognize_google(audio)
+        text, _ = recognizer.recognize_azure(audio, key=AZURE_SPEECH_KEY, location="eastus")
         print(f"You said: {text}")
         return text
     except sr.UnknownValueError:
@@ -111,7 +110,7 @@ def recognize_speech():
         return None
 
 
-def handle_common_voice_commands(args, user_object_id=None, email_provider=None):
+def handle_common_voice_commands(_args, user_object_id=None, email_provider=None):
     """
     Handle common voice commands.
 
@@ -202,11 +201,7 @@ def handle_common_voice_commands(args, user_object_id=None, email_provider=None)
             if not standby_mode and conversation_active:
                 chatgpt_response = chat_gpt_conversation(
                     text,
-                    conversation_history,
-                    available_functions,
-                    client,
-                    console,
-                    tools,
+                    conversation_history
                 )
                 conversation_history.append({"role": "user", "content": text})
                 conversation_history.append(

@@ -2,17 +2,85 @@
 This module provides functions for working with OpenAI's API.
 """
 
-import os
-import json
 import ast
 import inspect
-from rich.console import Console
-from openai import OpenAI, APIConnectionError, RateLimitError, APIStatusError
-from config import OPENAI_API_KEY
-from utils.functions import tools, available_functions
+import json
+import os
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+from openai import (
+    APIConnectionError,
+    APIStatusError,
+    AzureOpenAI,
+    OpenAI,
+    RateLimitError,
+)
+from rich.console import Console
+
+from utils.functions import available_functions, tools
+
 console = Console()
+
+openai_client = None
+openai_model_arg = None
+
+
+def configure_openai():
+    """
+    Asynchronously configures the OpenAI client based on environment variables.
+
+    This function sets up the OpenAI client using different configurations depending on
+    the environment variables provided. It supports local OpenAI endpoints,
+    Azure OpenAI endpoints, and OpenAI API keys.
+
+    Raises:
+        ValueError: If required environment variables for Azure OpenAI are missing or
+        if no OpenAI configuration is provided.
+
+    Environment Variables:
+        LOCAL_OPENAI_ENDPOINT: The local endpoint for OpenAI.
+        AZURE_OPENAI_ENDPOINT: The Azure endpoint for OpenAI.
+        AZURE_OPENAI_KEY: The API key for Azure OpenAI.
+        AZURE_OPENAI_CHATGPT_DEPLOYMENT: The deployment name for Azure OpenAI ChatGPT.
+        AZURE_OPENAI_API_VERSION: The API version for Azure OpenAI.
+        OPENAICOM_API_KEY: The API key for OpenAI.
+        OPENAI_MODEL_NAME: The model name for OpenAI (default is "gpt-4o-mini").
+
+    """
+    global openai_client, openai_model_arg
+
+    client_args = {}
+    if os.getenv("LOCAL_OPENAI_ENDPOINT"):
+        client_args["api_key"] = "no-key-required"
+        client_args["base_url"] = os.getenv("LOCAL_OPENAI_ENDPOINT")
+        openai_client = OpenAI(
+            **client_args,
+        )
+    elif os.getenv("AZURE_OPENAI_ENDPOINT"):
+        if os.getenv("AZURE_OPENAI_KEY"):
+            client_args["api_key"] = os.getenv("AZURE_OPENAI_KEY")
+        if not os.getenv("AZURE_OPENAI_ENDPOINT"):
+            raise ValueError("AZURE_OPENAI_ENDPOINT is required for Azure OpenAI")
+        if not os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT"):
+            raise ValueError(
+                "AZURE_OPENAI_CHATGPT_DEPLOYMENT is required for Azure OpenAI"
+            )
+        openai_client = AzureOpenAI(
+            api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-06-01",
+            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+            **client_args,
+        )
+        # Note: Azure OpenAI takes the deployment name as the model name
+        openai_model_arg = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT")
+    elif os.getenv("OPENAICOM_API_KEY"):
+        client_args["api_key"] = os.getenv("OPENAICOM_API_KEY")
+        openai_client = OpenAI(
+            **client_args,
+        )
+        openai_model_arg = os.getenv("OPENAI_MODEL_NAME") or "gpt-4o-mini"
+    else:
+        raise ValueError(
+            "No OpenAI configuration provided. Check your environment variables."
+        )
 
 
 def chat_gpt(prompt):
@@ -27,8 +95,8 @@ def chat_gpt(prompt):
     """
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
-            completion = client.chat.completions.create(
-                model="gpt-4o-mini",
+            completion = openai_client.chat.completions.create(
+                model=openai_model_arg,
                 messages=[
                     {
                         "role": "system",
@@ -56,16 +124,26 @@ def chat_gpt(prompt):
             return "An error occurred while generating the response."
 
 
-def chat_gpt_conversation(
-    prompt, conversation_history, available_functions, client, console, tools
-):
+def chat_gpt_conversation(prompt, conversation_history):
+    """
+    Generates a conversation response and handles tool calls if present.
+    Args:
+        prompt (str): The user's input prompt for the conversation.
+        conversation_history (list): A list of previous conversation messages,
+        each represented as a dictionary with 'role' and 'content' keys.
+    Returns:
+        str or dict: The generated response text if no tool calls are present,
+        or a dictionary containing the second response if tool calls are executed.
+    Raises:
+        APIConnectionError: If there is an error connecting to the API.
+    """
 
     messages = conversation_history + [{"role": "user", "content": f"{prompt}"}]
 
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
+            response = openai_client.chat.completions.create(
+                model=openai_model_arg,
                 messages=messages,
                 tools=tools,
                 tool_choice="auto",
@@ -116,8 +194,8 @@ def chat_gpt_conversation(
                     executed_tool_call_ids.append(tool_call.id)
                     messages.append(function_response_message)
 
-                second_response = client.chat.completions.create(
-                    model="gpt-4o-mini",
+                second_response = openai_client.chat.completions.create(
+                    model=openai_model_arg,
                     messages=messages,
                     tools=tools,
                     tool_choice="auto",
@@ -224,8 +302,8 @@ def summarize_conversation_history_direct(conversation_history):
                 {"role": "user", "content": summary_prompt}
             ]
 
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
+            response = openai_client.chat.completions.create(
+                model=openai_model_arg,
                 messages=messages,
                 max_tokens=300,
                 n=1,
@@ -298,8 +376,8 @@ def chat_gpt_custom(processed_data):
     else:
         with console.status("[bold green]Processing", spinner="dots"):
             try:
-                completion = client.chat.completions.create(
-                    model="gpt-4o-mini",
+                completion = openai_client.chat.completions.create(
+                    model=openai_model_arg,
                     messages=[
                         {
                             "role": "system",

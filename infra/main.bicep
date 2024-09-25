@@ -12,6 +12,14 @@ param location string
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
+param speechServiceResourceGroupName string = ''
+param speechServiceLocation string = ''
+param speechServiceName string = ''
+param speechServiceSkuName string // Set in main.parameters.json
+
+@description('Use Azure speech service for reading out text')
+param useSpeechOutputAzure bool = true
+
 @description('Flag to decide where to create OpenAI role for current user')
 param createRoleForUser bool = true
 
@@ -42,6 +50,7 @@ var openAiConfig = {
 }
 
 var resourceToken = toLower(uniqueString(subscription().id, name, location))
+var abbrs = loadJsonContent('abbreviations.json')
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${name}-rg'
@@ -50,6 +59,10 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 resource openAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(openAiResourceGroupName)) {
   name: !empty(openAiResourceGroupName) ? openAiResourceGroupName : resourceGroup.name
+}
+
+resource speechResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(speechServiceResourceGroupName)) {
+  name: !empty(speechServiceResourceGroupName) ? speechServiceResourceGroupName : resourceGroup.name
 }
 
 module openAi 'core/ai/cognitiveservices.bicep' = if (deployAzureOpenAi) {
@@ -61,7 +74,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = if (deployAzureOpenAi) {
     sku: {
       name: !empty(openAiSkuName) ? openAiSkuName : 'S0'
     }
-    disableLocalAuth: true
+    disableLocalAuth: false
     deployments: [
       {
         name: openAiConfig.deploymentName
@@ -79,6 +92,23 @@ module openAi 'core/ai/cognitiveservices.bicep' = if (deployAzureOpenAi) {
   }
 }
 
+module speech 'br/public:avm/res/cognitive-services/account:0.5.4' = if (useSpeechOutputAzure) {
+  name: 'speech-service'
+  scope: speechResourceGroup
+  params: {
+    name: !empty(speechServiceName) ? speechServiceName : '${abbrs.cognitiveServicesSpeech}${resourceToken}'
+    kind: 'SpeechServices'
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
+    customSubDomainName: !empty(speechServiceName)
+      ? speechServiceName
+      : '${abbrs.cognitiveServicesSpeech}${resourceToken}'
+    location: !empty(speechServiceLocation) ? speechServiceLocation : location
+    sku: speechServiceSkuName
+  }
+}
+
 module openAiRoleUser 'core/security/role.bicep' = if (createRoleForUser && deployAzureOpenAi) {
   scope: openAiResourceGroup
   name: 'openai-role-user'
@@ -89,8 +119,18 @@ module openAiRoleUser 'core/security/role.bicep' = if (createRoleForUser && depl
   }
 }
 
+module speechRoleUser 'core/security/role.bicep' = {
+  scope: speechResourceGroup
+  name: 'speech-role-user'
+  params: {
+    principalId: principalId
+    roleDefinitionId: 'f2dc8367-1007-4938-bd23-fe263f013447'
+    principalType: 'User'
+  }
+}
 
 output AZURE_LOCATION string = location
+
 
 output AZURE_OPENAI_CHATGPT_DEPLOYMENT string = deployAzureOpenAi ? openAiConfig.deploymentName : ''
 output AZURE_OPENAI_API_VERSION string = deployAzureOpenAi ? openAiApiVersion : ''
@@ -99,3 +139,5 @@ output AZURE_OPENAI_RESOURCE string = deployAzureOpenAi ? openAi.outputs.name : 
 output AZURE_OPENAI_RESOURCE_GROUP string = deployAzureOpenAi ? openAiResourceGroup.name : ''
 output AZURE_OPENAI_RESOURCE_GROUP_LOCATION string = deployAzureOpenAi ? openAiResourceGroup.location : ''
 output OPENAI_MODEL_NAME string = openAiConfig.modelName
+output AZURE_SPEECH_SERVICE_ID string = useSpeechOutputAzure ? speech.outputs.resourceId : ''
+output AZURE_SPEECH_SERVICE_LOCATION string = useSpeechOutputAzure ? speech.outputs.location : ''
