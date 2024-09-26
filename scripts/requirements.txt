@@ -1,0 +1,4 @@
+azure-identity
+msgraph-sdk
+rich
+python-dotenv

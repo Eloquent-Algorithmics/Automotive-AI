@@ -6,6 +6,7 @@ import ast
 import inspect
 import json
 import os
+from azure.keyvault.secrets.aio import SecretClient
 
 from openai import (
     APIConnectionError,
@@ -17,6 +18,7 @@ from openai import (
 from rich.console import Console
 
 from utils.functions import available_functions, tools
+from app import setup_redis, get_azure_credential
 
 console = Console()
 
@@ -81,6 +83,21 @@ def configure_openai():
         raise ValueError(
             "No OpenAI configuration provided. Check your environment variables."
         )
+    
+    cache = setup_redis()
+    config["SESSION_TYPE"] = "redis"
+    config["SESSION_REDIS"] = cache
+
+    redirect_uri = "http://localhost:50505/redirect"
+
+    print(f"Using production redirect URI: {redirect_uri}")
+
+    AZURE_AUTH_CLIENT_SECRET_NAME = os.getenv("AZURE_AUTH_CLIENT_SECRET_NAME")
+    AZURE_KEY_VAULT_NAME = os.getenv("AZURE_KEY_VAULT_NAME")
+    async with SecretClient(
+        vault_url=f"https://{AZURE_KEY_VAULT_NAME}.vault.azure.net", credential=get_azure_credential()
+    ) as key_vault_client:
+        auth_client_secret = (await key_vault_client.get_secret(AZURE_AUTH_CLIENT_SECRET_NAME)).value
 
 
 def chat_gpt(prompt):
