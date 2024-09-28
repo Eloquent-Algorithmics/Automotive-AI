@@ -6,7 +6,7 @@ import ast
 import inspect
 import json
 import os
-from azure.keyvault.secrets.aio import SecretClient
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 from openai import (
     APIConnectionError,
@@ -18,12 +18,25 @@ from openai import (
 from rich.console import Console
 
 from utils.functions import available_functions, tools
-from app import setup_redis, get_azure_credential
 
 console = Console()
 
 openai_client = None
 openai_model_arg = None
+
+azure_credential = None
+
+
+def get_azure_credential():
+    """
+    Retrieves the Azure credential for authentication.
+    """
+    global azure_credential  # Declare it as global to modify the global variable
+    if azure_credential is None:
+        azure_credential = DefaultAzureCredential(
+            exclude_shared_token_cache_credential=True
+        )
+    return azure_credential
 
 
 def configure_openai():
@@ -60,6 +73,10 @@ def configure_openai():
     elif os.getenv("AZURE_OPENAI_ENDPOINT"):
         if os.getenv("AZURE_OPENAI_KEY"):
             client_args["api_key"] = os.getenv("AZURE_OPENAI_KEY")
+        else:
+            client_args["azure_ad_token_provider"] = get_bearer_token_provider(
+                get_azure_credential(), "https://cognitiveservices.azure.com/.default"
+            )
         if not os.getenv("AZURE_OPENAI_ENDPOINT"):
             raise ValueError("AZURE_OPENAI_ENDPOINT is required for Azure OpenAI")
         if not os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT"):
@@ -83,21 +100,6 @@ def configure_openai():
         raise ValueError(
             "No OpenAI configuration provided. Check your environment variables."
         )
-    
-    cache = setup_redis()
-    config["SESSION_TYPE"] = "redis"
-    config["SESSION_REDIS"] = cache
-
-    redirect_uri = "http://localhost:50505/redirect"
-
-    print(f"Using production redirect URI: {redirect_uri}")
-
-    AZURE_AUTH_CLIENT_SECRET_NAME = os.getenv("AZURE_AUTH_CLIENT_SECRET_NAME")
-    AZURE_KEY_VAULT_NAME = os.getenv("AZURE_KEY_VAULT_NAME")
-    async with SecretClient(
-        vault_url=f"https://{AZURE_KEY_VAULT_NAME}.vault.azure.net", credential=get_azure_credential()
-    ) as key_vault_client:
-        auth_client_secret = (await key_vault_client.get_secret(AZURE_AUTH_CLIENT_SECRET_NAME)).value
 
 
 def chat_gpt(prompt):
@@ -164,7 +166,7 @@ def chat_gpt_conversation(prompt, conversation_history):
                 messages=messages,
                 tools=tools,
                 tool_choice="auto",
-                max_tokens=200,
+                max_tokens=512,
                 n=1,
                 stop=None,
                 temperature=0.5,

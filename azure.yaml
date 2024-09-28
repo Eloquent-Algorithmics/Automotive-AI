@@ -5,32 +5,19 @@ metadata:
   template: azure-automotive-ai
 
 hooks:
-    preprovision:
-      posix:
-        shell: sh
-        run: ./scripts/auth_init.sh;
-        interactive: true
-        continueOnError: false
-      windows:
-        shell: pwsh
-        run: ./scripts/auth_init.ps1;
-        interactive: true
-        continueOnError: false
     postprovision:
       posix:
         shell: sh
-        run: ./scripts/auth_update.sh; azd env get-values > .env;
+        run: azd env get-values > .env;
         interactive: true
         continueOnError: false
       windows:
         shell: pwsh
-        run: ./scripts/auth_update.ps1;  $output = azd env get-values; Add-Content -Path .env -Value $output;
+        run: $output = azd env get-values; Add-Content -Path .env -Value $output;
         interactive: true
         continueOnError: false
 pipeline:
   variables:
-      - AZURE_AUTH_TENANT_ID
-      - AZURE_AUTH_CLIENT_ID
       - AZURE_OPENAI_RESOURCE
       - AZURE_OPENAI_RESOURCE_GROUP
       - AZURE_OPENAI_RESOURCE_GROUP_LOCATION

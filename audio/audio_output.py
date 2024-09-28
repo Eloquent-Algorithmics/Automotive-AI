@@ -9,6 +9,7 @@ import pygame
 import pyttsx4
 from gtts import gTTS
 import azure.cognitiveservices.speech as speechsdk
+from api.openai_functions.gpt_chat import get_azure_credential
 
 from config import TTS_ENGINE, TTS_RATE, TTS_VOICE_ID
 
@@ -134,32 +135,24 @@ def tts_output_pyttsx4(response_text):
 def tts_output_azure(response_text):
     """
     Converts the given text to speech using Azure's Text-to-Speech service.
-    Args:
-        response_text (str): The text to be converted to speech.
-    Environment Variables:
-        AZURE_SPEECH_KEY (str): The subscription key for Azure Speech service.
-        AZURE_SPEECH_REGION (str): The region for the Azure Speech service.
-        AZURE_SPEECH_VOICE (str): The voice name to be used for speech synthesis.
-    Returns:
-        None
-    Raises:
-        Prints error details if speech synthesis is canceled or fails.
     """
+    region = os.getenv("AZURE_SPEECH_REGION")
+    print(region)
 
-    speech_key = os.getenv("AZURE_SPEECH_KEY")
-    service_region = os.getenv("AZURE_SPEECH_REGION")
-    speech_config = speechsdk.SpeechConfig(
-        subscription=speech_key, region=service_region
-    )
+    # Obtain the token string from azure_credential
+    azure_credential = get_azure_credential()
+    token_result = azure_credential.get_token('https://cognitiveservices.azure.com/.default')
+    auth_token = token_result.token
+    print(auth_token)
 
+    # Create the SpeechConfig with the token and region
+    speech_config = speechsdk.SpeechConfig(auth_token=auth_token, region=region)
     speech_config.speech_synthesis_voice_name = os.getenv("AZURE_SPEECH_VOICE")
 
-    text = response_text
-
-    # use the default speaker as audio output.
+    # Use the default speaker as audio output.
     speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+    result = speech_synthesizer.speak_text_async(response_text).get()
 
-    result = speech_synthesizer.speak_text_async(text).get()
     # Check result
     if result.reason == speechsdk.ResultReason.Canceled:
         cancellation_details = result.cancellation_details

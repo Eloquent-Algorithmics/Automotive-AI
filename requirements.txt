@@ -8,7 +8,7 @@ gTTS>=2.5.3
 matplotlib>=3.9.2
 msal>=1.31.0
 obd>=0.7.2
-openai>=1.47.1
+openai>=1.49.0
 pandas>=2.2.2
 pygame>=2.6.0
 pyserial>=3.5
@@ -21,5 +21,3 @@ rich>=13.8.1
 spacy>=3.7.6
 SpeechRecognition>=3.10.4
 twilio>=9.3.1
-redis[hiredis]==5.0.7
-azure-keyvault-secrets

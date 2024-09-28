@@ -28,15 +28,6 @@ param deployAzureOpenAi bool = true
 param openAiResourceName string = ''
 param openAiResourceGroupName string = ''
 
-@description('Running on GitHub Actions?')
-param runningOnGh bool = false
-param keyVaultName string = ''
-
-param authTenantId string
-param authClientId string = ''
-@secure()
-param authClientSecret string = ''
-param authClientSecretName string = 'AZURE-AUTH-CLIENT-SECRET'
 
 @description('Location for the OpenAI resource')
 @allowed([ 'eastus', 'swedencentral' ])
@@ -45,6 +36,7 @@ param authClientSecretName string = 'AZURE-AUTH-CLIENT-SECRET'
     type: 'location'
   }
 })
+
 param openAiResourceLocation string
 param openAiDeploymentName string = 'chatgpt'
 param openAiSkuName string = ''
@@ -60,7 +52,6 @@ var openAiConfig = {
 
 var resourceToken = toLower(uniqueString(subscription().id, name, location))
 var abbrs = loadJsonContent('abbreviations.json')
-var prefix = '${name}-${resourceToken}'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${name}-rg'
@@ -84,7 +75,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = if (deployAzureOpenAi) {
     sku: {
       name: !empty(openAiSkuName) ? openAiSkuName : 'S0'
     }
-    disableLocalAuth: false
+    disableLocalAuth: true
     deployments: [
       {
         name: openAiConfig.deploymentName
@@ -99,45 +90,6 @@ module openAi 'core/ai/cognitiveservices.bicep' = if (deployAzureOpenAi) {
         }
       }
     ]
-  }
-}
-
-module keyVault 'core/security/keyvault.bicep' = {
-  name: 'keyvault'
-  scope: resourceGroup
-  params: {
-    name: !empty(keyVaultName) ? keyVaultName : '${replace(take(prefix, 17), '-', '')}-vault'
-    location: location
-    principalId: principalId
-  }
-}
-
-module userKeyVaultAccess 'core/security/role.bicep' = {
-  name: 'user-keyvault-access'
-  scope: resourceGroup
-  params: {
-    principalId: principalId
-    principalType: runningOnGh ? 'ServicePrincipal' : 'User'
-    roleDefinitionId: '00482a5a-887f-4fb3-b363-3b7fe8e74483'
-  }
-}
-
-module redisCache 'core/cache/redis.bicep' = {
-  name: 'redis'
-  scope: resourceGroup
-  params: {
-    name: '${prefix}-redis'
-    location: location
-  }
-}
-
-module redisBackendUser 'core/cache/redis-access.bicep' = if (createRoleForUser) {
-  name: 'redis-access-for-user'
-  scope: resourceGroup
-  params: {
-    redisCacheName: redisCache.outputs.name
-    principalId: principalId
-    accessPolicyAlias: 'User'
   }
 }
 
@@ -178,18 +130,9 @@ module speechRoleUser 'core/security/role.bicep' = {
   }
 }
 
-module secrets 'secrets.bicep' = if (!empty(authClientSecret)) {
-  name: 'secrets'
-  scope: resourceGroup
-  params: {
-    keyVaultName: keyVault.outputs.name
-    clientSecretName: authClientSecretName
-    clientSecretValue: authClientSecret
-  }
-}
+
 
 output AZURE_LOCATION string = location
-output AZURE_KEY_VAULT_NAME string = keyVault.outputs.name
 output AZURE_RESOURCE_GROUP string = resourceGroup.name
 output AZURE_OPENAI_CHATGPT_DEPLOYMENT string = deployAzureOpenAi ? openAiConfig.deploymentName : ''
 output AZURE_OPENAI_API_VERSION string = deployAzureOpenAi ? openAiApiVersion : ''
