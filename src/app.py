@@ -21,7 +21,7 @@ def main():
 
     email_provider = EMAIL_PROVIDER
 
-    tts_output("Allow me to introduce myself... I am Winston, a virtual Artificial Intelligence... Importing all preferences and settings... Systems now fully operational.")
+    tts_output("Allow me to introduce myself... I am Winston, a virtual Artificial Intelligence Assistant ... Importing all preferences and settings ... Systems now fully operational.")
 
     parser = argparse.ArgumentParser(description="Choose the device type")
     parser.add_argument(
