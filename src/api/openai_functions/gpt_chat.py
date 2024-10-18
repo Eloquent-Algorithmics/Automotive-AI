@@ -7,6 +7,7 @@ import inspect
 import json
 import os
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+import azure.cognitiveservices.speech as speechsdk
 
 from openai import (
     APIConnectionError,
@@ -54,7 +55,7 @@ def configure_openai():
     Environment Variables:
         LOCAL_OPENAI_ENDPOINT: The local endpoint for OpenAI.
         AZURE_OPENAI_ENDPOINT: The Azure endpoint for OpenAI.
-        AZURE_OPENAI_KEY: The API key for Azure OpenAI.
+        AZURE_OPENAI_API_KEY: The API key for Azure OpenAI.
         AZURE_OPENAI_CHATGPT_DEPLOYMENT: The deployment name for Azure OpenAI ChatGPT.
         AZURE_OPENAI_API_VERSION: The API version for Azure OpenAI.
         OPENAICOM_API_KEY: The API key for OpenAI.
@@ -71,17 +72,17 @@ def configure_openai():
             **client_args,
         )
     elif os.getenv("AZURE_OPENAI_ENDPOINT"):
-        if os.getenv("AZURE_OPENAI_KEY"):
-            client_args["api_key"] = os.getenv("AZURE_OPENAI_KEY")
+        if os.getenv("AZURE_OPENAI_API_KEY"):
+            client_args["api_key"] = os.getenv("AZURE_OPENAI_API_KEY")
         else:
             client_args["azure_ad_token_provider"] = get_bearer_token_provider(
                 get_azure_credential(), "https://cognitiveservices.azure.com/.default"
             )
         if not os.getenv("AZURE_OPENAI_ENDPOINT"):
             raise ValueError("AZURE_OPENAI_ENDPOINT is required for Azure OpenAI")
-        if not os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT"):
+        if not os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME"):
             raise ValueError(
-                "AZURE_OPENAI_CHATGPT_DEPLOYMENT is required for Azure OpenAI"
+                "AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME is required for Azure OpenAI"
             )
         openai_client = AzureOpenAI(
             api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-06-01",
@@ -95,7 +96,7 @@ def configure_openai():
         openai_client = OpenAI(
             **client_args,
         )
-        openai_model_arg = os.getenv("OPENAI_MODEL_NAME") or "gpt-4o-mini"
+        openai_model_arg = os.getenv("OPENAICOM_MODEL") or "gpt-4o-mini"
     else:
         raise ValueError(
             "No OpenAI configuration provided. Check your environment variables."
@@ -112,6 +113,27 @@ def chat_gpt(prompt):
     Returns:
         str: The generated response.
     """
+    speech_config = speechsdk.SpeechConfig(
+        endpoint=f"wss://{os.getenv('AZURE_SPEECH_REGION')}.tts.speech.microsoft.com/cognitiveservices/websocket/v2",
+        subscription=os.getenv("AZURE_SPEECH_KEY"),
+    )
+
+    speech_config.speech_synthesis_voice_name = os.getenv("AZURE_SPEECH_VOICE")
+
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+    speech_synthesizer.synthesizing.connect(lambda evt: print("[audio]", end=""))
+
+    properties = dict()
+    properties["SpeechSynthesis_FrameTimeoutInterval"] = "100000000"
+    properties["SpeechSynthesis_RtfTimeoutThreshold"] = "10"
+    speech_config.set_properties_by_name(properties)
+
+    # create request with TextStream input type
+    tts_request = speechsdk.SpeechSynthesisRequest(
+        input_type=speechsdk.SpeechSynthesisRequestInputType.TextStream
+    )
+    tts_task = speech_synthesizer.speak_async(tts_request)
+
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
             completion = openai_client.chat.completions.create(
@@ -126,17 +148,28 @@ def chat_gpt(prompt):
                         "content": f"{prompt}",
                     },
                 ],
-                max_tokens=200,
+                max_completion_tokens=200,
                 n=1,
                 stop=None,
                 temperature=0.5,
                 frequency_penalty=0,
                 presence_penalty=0,
+                stream=True,
             )
-            # Extract the text part of the response
-            response_text = completion.choices[0].message.content.strip()
 
-            return response_text
+            for chunk in completion:
+                if len(chunk.choices) > 0:
+                    chunk_text = chunk.choices[0].delta.content
+                    if chunk_text:
+                        print(chunk_text, end="")
+                        tts_request.input_stream.write(chunk_text)
+
+            # close tts input stream when GPT finished
+            tts_request.input_stream.close()
+
+            # wait all tts audio bytes return
+            result = tts_task.get()
+            return result
 
         except APIConnectionError as e:
             console.log(f"An error occurred: {e}")
@@ -151,38 +184,87 @@ def chat_gpt_conversation(prompt, conversation_history):
         conversation_history (list): A list of previous conversation messages,
         each represented as a dictionary with 'role' and 'content' keys.
     Returns:
-        str or dict: The generated response text if no tool calls are present,
-        or a dictionary containing the second response if tool calls are executed.
+        str: The generated response text.
     Raises:
         APIConnectionError: If there is an error connecting to the API.
     """
 
-    messages = conversation_history + [{"role": "user", "content": f"{prompt}"}]
+    # Include the new user message in the conversation history
+    messages = conversation_history + [{"role": "user", "content": prompt}]
+
+    # Set up speech synthesis configuration
+    speech_config = speechsdk.SpeechConfig(
+        endpoint=f"wss://{os.getenv('AZURE_SPEECH_REGION')}.tts.speech.microsoft.com/cognitiveservices/websocket/v2",
+        subscription=os.getenv("AZURE_SPEECH_KEY"),
+    )
+
+    speech_config.speech_synthesis_voice_name = os.getenv("AZURE_SPEECH_VOICE")
+
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+    speech_synthesizer.synthesizing.connect(lambda evt: print("[audio]", end=""))
+
+    properties = dict()
+    properties["SpeechSynthesis_FrameTimeoutInterval"] = "100000000"
+    properties["SpeechSynthesis_RtfTimeoutThreshold"] = "10"
+    speech_config.set_properties_by_name(properties)
+
+    # Create request with TextStream input type
+    tts_request = speechsdk.SpeechSynthesisRequest(
+        input_type=speechsdk.SpeechSynthesisRequestInputType.TextStream
+    )
+    tts_task = speech_synthesizer.speak_async(tts_request)
+
+    # Initialize a variable to collect the assistant's response text
+    assistant_response_text = ""
 
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
+            # Create a streaming completion request
             response = openai_client.chat.completions.create(
                 model=openai_model_arg,
                 messages=messages,
                 tools=tools,
                 tool_choice="auto",
-                max_tokens=512,
+                max_completion_tokens=512,
                 n=1,
                 stop=None,
                 temperature=0.5,
                 frequency_penalty=0,
                 presence_penalty=0,
+                stream=True,
             )
-            response_text = response.choices[0].message.content.strip()
+
+            # Iterate over the streamed response
+            for chunk in response:
+                if len(chunk.choices) > 0:
+                    delta = chunk.choices[0].delta.content
+                    chunk_text = delta.get("content", "")
+                    if chunk_text:
+                        print(chunk_text, end="")
+                        tts_request.input_stream.write(chunk_text)
+                        assistant_response_text += chunk_text
+
+            print("[GPT END]", end="")
+
+            # Close TTS input stream when GPT finished
+            tts_request.input_stream.close()
+
+            # Wait for all TTS audio bytes to return
+            result = tts_task.get()
+
+            # Add the assistant's response to the conversation history
+            conversation_history.append(
+                {"role": "assistant", "content": assistant_response_text}
+            )
 
             tool_calls = (
                 response.choices[0].tool_calls
-                if hasattr(response.choices[0], "tool_calls")
+                if hasattr(chunk.choices[0].delta.content, "tool_calls")
                 else []
             )
 
             if tool_calls:
-                messages.append({"role": "system", "content": response_text})
+                messages.append({"role": "system", "content": response})
                 executed_tool_call_ids = []
 
                 for tool_call in tool_calls:
@@ -220,12 +302,25 @@ def chat_gpt_conversation(prompt, conversation_history):
                     tool_choice="auto",
                     temperature=0.5,
                     top_p=0.5,
-                    max_tokens=1024,
+                    max_completion_tokens=1024,
+                    stream=True,
                 )
 
-                return second_response
+                for chunk in second_response:
+                    if len(chunk.choices) > 0:
+                        chunk_text = chunk.choices[0].delta.content
+                        if chunk_text:
+                            print(chunk_text, end="")
+                            tts_request.input_stream.write(chunk_text)
+
+                # close tts input stream when GPT finished
+                tts_request.input_stream.close()
+
+                # wait all tts audio bytes return
+                result = tts_task.get()
             else:
-                return response_text
+                return response, assistant_response_text
+
         except APIConnectionError as e:
             console.log(f"An error occurred: {e}")
             return "An error occurred while generating the response."
@@ -324,7 +419,7 @@ def summarize_conversation_history_direct(conversation_history):
             response = openai_client.chat.completions.create(
                 model=openai_model_arg,
                 messages=messages,
-                max_tokens=300,
+                max_completion_tokens=300,
                 n=1,
                 stop=None,
                 temperature=0.5,
@@ -407,7 +502,7 @@ def chat_gpt_custom(processed_data):
                             "content": f"{processed_data}",
                         },
                     ],
-                    max_tokens=200,
+                    max_completion_tokens=200,
                     n=1,
                     stop=None,
                     temperature=0.5,

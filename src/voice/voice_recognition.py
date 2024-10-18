@@ -13,7 +13,6 @@ from api.openai_functions.gpt_chat import (
     save_conversation_history,
     summarize_conversation_history_direct
 )
-from audio.audio_output import tts_output
 from config import EMAIL_PROVIDER
 from utils.commands import voice_commands
 
@@ -138,7 +137,6 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
             if any(phrase in text.lower() for phrase in standby_phrases):
                 standby_mode = True
                 print("Entering standby mode.")
-                tts_output("Entering standby mode.")
                 continue
 
             if standby_mode and any(
@@ -146,7 +144,6 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
             ):
                 standby_mode = False
                 print("Exiting standby mode.")
-                tts_output("Exiting standby mode.")
                 continue
 
             if standby_mode:
@@ -159,7 +156,6 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
                     )
                     save_conversation_history(conversation_history)
                     print("Conversation history summarized.")
-                    tts_output("Conversation history summarized.")
                     continue
 
                 if "clear all history" in text.lower():
@@ -168,7 +164,6 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
                     ]
                     save_conversation_history(conversation_history)
                     print("Conversation history cleared.")
-                    tts_output("Conversation history cleared.")
                     continue
 
                 if "delete the last message" in text.lower():
@@ -176,16 +171,13 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
                         conversation_history.pop()
                         save_conversation_history(conversation_history)
                         print("Last message removed.")
-                        tts_output("Last message removed.")
                     else:
                         print("No messages to remove.")
-                        tts_output("No messages to remove.")
                     continue
 
                 if "end the conversation" in text.lower():
                     conversation_active = False
                     print("Ending the conversation.")
-                    tts_output("Ending the conversation.")
                     continue
 
             if (
@@ -195,7 +187,6 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
             ):
                 conversation_active = True
                 print("Starting a conversation.")
-                tts_output("What would you like to chat about?")
                 continue
 
             if not standby_mode and conversation_active:
@@ -209,7 +200,6 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
                 )
                 save_conversation_history(conversation_history)
                 print(f"Assistant: {chatgpt_response}")
-                tts_output(chatgpt_response)
                 continue
 
             recognized_command = recognize_command(text, list(voice_commands.keys()))
@@ -220,12 +210,10 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
                 if cmd == "next_appointment" and email_provider == "365":
                     next_appointment = get_next_appointment(user_object_id)
                     print(f"{next_appointment}")
-                    tts_output(f"{next_appointment}")
 
                 elif cmd == "create_appointment" and email_provider == "365":
-                    create_new_appointment(recognize_speech, tts_output)
+                    create_new_appointment(recognize_speech)
                     print("New appointment created.")
-                    tts_output("New appointment has been created.")
 
                 elif cmd == "check_outlook_email" and email_provider == "365":
                     emails = get_emails(user_object_id)
@@ -251,10 +239,8 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
                     if question:
                         chatgpt_response = chat_gpt(question)
                         print(f"Answer: {chatgpt_response}")
-                        tts_output(chatgpt_response)
                     else:
                         print("I didn't catch your question. Please try again.")
-                        tts_output("I didn't catch your question. Please try again.")
                 elif cmd == "check_google_email" and email_provider == "Google":
                     emails = get_emails_google(user_object_id=None)
                     if emails:
@@ -263,18 +249,12 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
                             print(f"Subject: {email['subject']}")
                             snippet = email.get("snippet", "N/A")
                             print(f"Body: {snippet}")
-                            tts_output(
-                                f"From: {email['from']}, Subject: {email['subject']}, Body: {snippet}"
-                            )
-                            tts_output("Would you like to delete this email?")
                             response = recognize_speech()
                             if response is not None and "yes" in response.lower():
                                 delete_email(email["id"])
                                 print("Email deleted.")
-                                tts_output("Email deleted.")
                             else:
                                 print("Email not deleted.")
-                                tts_output("Email not deleted.")
                     else:
                         print("No emails found.")
 

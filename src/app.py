@@ -4,18 +4,13 @@ This is the main script of the application.
 import argparse
 import sys
 
-from dotenv import load_dotenv
-
 import api.google_functions.google_api as google_api
 import api.microsoft_functions.ms_authserver as ms_authserver
 from api.microsoft_functions import graph_api
-from api.openai_functions.gpt_chat import chat_gpt, configure_openai
-from audio.audio_output import initialize_audio, tts_output
+from api.openai_functions.gpt_chat import configure_openai
 from config import EMAIL_PROVIDER
 from voice.elm327 import handle_voice_commands_elm327
 from voice.voice_recognition import handle_common_voice_commands
-
-load_dotenv()
 
 
 def main():
@@ -23,15 +18,7 @@ def main():
     Main function to encapsulate the script logic.
     """
 
-    configure_openai()
-
     email_provider = EMAIL_PROVIDER
-
-    initialize_audio()
-
-    response_text = chat_gpt("Hello")
-    print(response_text)
-    tts_output(response_text)
 
     parser = argparse.ArgumentParser(description="Choose the device type")
     parser.add_argument(
@@ -66,6 +53,7 @@ def main():
 
 if __name__ == "__main__":
     try:
+        configure_openai()
         main()
     except KeyboardInterrupt:
         print("\nGoodbye for now ...\n")

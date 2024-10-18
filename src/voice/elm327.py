@@ -6,10 +6,9 @@ import subprocess
 import pandas as pd
 import serial
 from config import SERIAL_PORT, BAUD_RATE
-from datastreams.flask_air_fuel_datastream import start_datastream, app
+from datastreams.flask_air_fuel_datastream import start_datastream, app, supported_sensors
 from voice.voice_recognition import (
     recognize_speech,
-    tts_output,
     handle_common_voice_commands,
 )
 from utils.commands import ELM327_COMMANDS
@@ -52,7 +51,6 @@ def handle_voice_commands_elm327(user_object_id):
             if any(phrase in text.lower() for phrase in standby_phrases):
                 standby_mode = True
                 print("Entering standby mode.")
-                tts_output("Entering standby mode.")
                 continue
 
             if standby_mode and any(
@@ -60,7 +58,6 @@ def handle_voice_commands_elm327(user_object_id):
             ):
                 standby_mode = False
                 print("Exiting standby mode.")
-                tts_output("Exiting standby mode.")
                 continue
 
             if standby_mode:
@@ -70,32 +67,27 @@ def handle_voice_commands_elm327(user_object_id):
 
             if cmd == "START_DATA_STREAM":
                 print("Starting data stream...")
-                tts_output("Starting data stream...")
                 datastream_thread = threading.Thread(target=start_datastream)
                 datastream_thread.daemon = True
                 datastream_thread.start()
 
             elif cmd == "STOP_DATA_STREAM":
                 print("Stopping data stream...")
-                tts_output("Stopping data stream...")
                 with app.test_request_context():
                     app.do_teardown_request()
 
             elif cmd == "SAVE_DATA_TO_SPREADSHEET":
                 print("Saving data to spreadsheet...")
-                tts_output("Saving data to spreadsheet...")
                 data = app.view_functions["data"]()
                 df = pd.DataFrame(data["sensor_data"]).T
                 df.columns = [sensor.name for sensor in supported_sensors]
                 df.to_excel("datastream_output.xlsx", index=False)
                 print("Data saved to datastream_output.xlsx")
-                tts_output("Data saved to datastream_output.xlsx")
 
             if cmd and (cmd in ELM327_COMMANDS):
                 if cmd == "send_diagnostic_report":
                     send_diagnostic_report(ser)
                     print("Diagnostic report sent to your email.")
-                    tts_output("The report has been sent to your email.")
                 else:
                     response = send_command(ser, cmd)
                     print(f"Raw response: {response}")
@@ -133,14 +125,14 @@ def handle_voice_commands_elm327(user_object_id):
 
                         chatgpt_response = chat_gpt_custom(processed_data)
                         print(f"ChatGPT Response: {chatgpt_response}")
-                        tts_output(chatgpt_response)
+                        # tts_output(chatgpt_response)
                     else:
                         print(f"{text} not available.")
 
                 if cmd == "START_DATASTREAM":
                     if datastream_process is None:
                         print("Starting datastream...")
-                        tts_output("Starting datastream...")
+                        # tts_output("Starting datastream...")
                         datastream_process = subprocess.Popen(
                             ["python", "datastreams/air_fuel_datastream.py"],
                             stdin=subprocess.PIPE,
@@ -150,17 +142,17 @@ def handle_voice_commands_elm327(user_object_id):
                         )
                     else:
                         print("Datastream is already running.")
-                        tts_output("Datastream is already running.")
+                        # tts_output("Datastream is already running.")
 
                 elif cmd == "STOP_DATASTREAM":
                     if datastream_process is not None:
                         print("Stopping datastream...")
-                        tts_output("Stopping datastream...")
+                        # tts_output("Stopping datastream...")
                         datastream_process.terminate()
                         datastream_process = None
                     else:
                         print("Datastream is not running.")
-                        tts_output("Datastream is not running.")
+                        # tts_output("Datastream is not running.")
 
             else:
                 print("Command not recognized. Please try again.")

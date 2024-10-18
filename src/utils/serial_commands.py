@@ -1,6 +1,10 @@
 import serial
 import requests
-from api.nhtsa_functions.vin_decoder import parse_vin_response, decode_vin, get_vehicle_data_from_nhtsa
+from api.nhtsa_functions.vin_decoder import (
+    parse_vin_response,
+    decode_vin,
+    get_vehicle_data_from_nhtsa,
+)
 from api.microsoft_functions.graph_api import send_email_with_attachments
 from config import GRAPH_EMAIL_ADDRESS
 
@@ -38,7 +42,7 @@ def run_diagnostic_report(ser):
     # Add more commands for Mode 6 and Mode 9 data as needed
 
     # Save the report to a text file
-    with open("diagnostic_report.txt", "w") as f:
+    with open("diagnostic_report.txt", "w", encoding="utf-8") as f:
         for line in report_data:
             f.write(line + "\n")
 
@@ -47,13 +51,13 @@ def run_diagnostic_report(ser):
 
 def get_recall_data(year, make):
     url = f"https://api.nhtsa.gov/products/vehicle/models?modelYear={year}&make={make}&issueType=r"
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
     return response.json()
 
 
 def get_complaint_data(year, make, model):
     url = f"https://api.nhtsa.gov/complaints/complaintsByVehicle?make={make}&model={model}&modelYear={year}"
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
     return response.json()
 
 
@@ -64,10 +68,10 @@ def send_diagnostic_report(ser):
     vehicle_data = get_vehicle_data_from_nhtsa(vin)
 
     # Get recall and complaint data
-    recall_data = get_recall_data(
-        vehicle_data['Model Year'], vehicle_data['Make'])
+    recall_data = get_recall_data(vehicle_data["Model Year"], vehicle_data["Make"])
     complaint_data = get_complaint_data(
-        vehicle_data['Model Year'], vehicle_data['Make'], vehicle_data['Model'])
+        vehicle_data["Model Year"], vehicle_data["Make"], vehicle_data["Model"]
+    )
 
     trouble_codes_response = send_command(ser, "03")
 
@@ -78,10 +82,16 @@ def send_diagnostic_report(ser):
     calibration_ids_response = send_command(ser, "0904")
 
     # Extract relevant recall and complaint information
-    recalls = [recall['model'] for recall in recall_data['results']
-               if recall['model'].lower() == vehicle_data['Model'].lower()]
-    complaints = [complaint['summary']
-                  for complaint in complaint_data['results']] if 'results' in complaint_data else []
+    recalls = [
+        recall["model"]
+        for recall in recall_data["results"]
+        if recall["model"].lower() == vehicle_data["Model"].lower()
+    ]
+    complaints = (
+        [complaint["summary"] for complaint in complaint_data["results"]]
+        if "results" in complaint_data
+        else []
+    )
 
     # Combine the data into a single string with proper formatting
     diagnostic_data = (

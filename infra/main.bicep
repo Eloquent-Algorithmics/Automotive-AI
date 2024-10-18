@@ -38,7 +38,7 @@ param openAiResourceGroupName string = ''
 })
 
 param openAiResourceLocation string
-param openAiDeploymentName string = 'chatgpt'
+param openAiDeploymentName string = '4o-mini-7-18-24'
 param openAiSkuName string = ''
 param openAiDeploymentCapacity int
 param openAiApiVersion string = ''
@@ -46,7 +46,7 @@ param openAiApiVersion string = ''
 var openAiConfig = {
   modelName: 'gpt-4o-mini'
   modelVersion: '2024-07-18'
-  deploymentName: !empty(openAiDeploymentName) ? openAiDeploymentName : 'chatgpt'
+  deploymentName: !empty(openAiDeploymentName) ? openAiDeploymentName : '4o-mini-7-18-24'
   deploymentCapacity: openAiDeploymentCapacity != 0 ? openAiDeploymentCapacity : 30
 }
 
