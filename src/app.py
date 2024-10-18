@@ -9,9 +9,6 @@ import api.microsoft_functions.ms_authserver as ms_authserver
 from api.microsoft_functions import graph_api
 from api.openai_functions.gpt_chat import configure_openai
 from config import EMAIL_PROVIDER
-from api.google_functions import google_api
-from api.microsoft_functions import ms_authserver, graph_api
-from api.openai_functions.gpt_chat import configure_openai
 from voice.elm327 import handle_voice_commands_elm327
 from voice.voice_recognition import handle_common_voice_commands
 from audio.audio_output import tts_output
