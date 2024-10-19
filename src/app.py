@@ -34,6 +34,7 @@ def main():
     args = parser.parse_args()
 
     api_module = None
+
     if email_provider == "365":
         authorization_code = ms_authserver.get_auth_code()
         graph_api.perform_graph_api_request(authorization_code)
