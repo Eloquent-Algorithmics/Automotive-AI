@@ -2,9 +2,11 @@
 
 Join the [Discord Server](https://discord.gg/VsVuxche)
 
-An experimental open-source application that integrates the OpenAi gpt-3.5-turbo-0125 or gpt-4-turbo models via API, NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
+An experimental open-source application that integrates OpenAi gpt-4o or gpt-4o-mini, NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
 
 ⚠️ ***This is a work in progress*** ⚠️
+
+10/18/2024: Updated to us gpt-4o models and Azure OpenAI
 
 03/17/2024: Updated to use [OpenAI v1](https://github.com/openai/openai-python/releases/)
 
@@ -27,6 +29,7 @@ git clone https://github.com/<your_username>/Automotive-AI.git
 ```
 
 <details>
+## To use the OpenAI API
 <summary>Linux Installation and use Instructions</summary>
 
 ```bash
@@ -81,6 +84,32 @@ With an ELM327 device connected:
 
 ```bash
 python -m app --device elm327
+```
+
+</details>
+
+<br>
+
+<details>
+<summary>To use Azure OpenAI Service</summary>
+
+```bash
+azd auth login
+azd up
+```
+
+#### Running the Application
+
+Without a vehicle communication interface:
+
+```bash
+python -m src/app
+```
+
+With an ELM327 device connected:
+
+```bash
+python -m src/app --device elm327
 ```
 
 </details>
