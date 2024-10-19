@@ -39,10 +39,12 @@ def main():
         authorization_code = ms_authserver.get_auth_code()
         graph_api.perform_graph_api_request(authorization_code)
         api_module = graph_api
+
     elif email_provider == "Google":
         api_module = google_api
 
     if args.device == "none":
+
         if email_provider == "365":
             handle_common_voice_commands(
                 args, api_module.user_object_id, email_provider
