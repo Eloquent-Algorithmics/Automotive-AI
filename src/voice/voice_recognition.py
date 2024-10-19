@@ -13,22 +13,14 @@ from api.openai_functions.gpt_chat import (
     save_conversation_history,
     summarize_conversation_history_direct
 )
-from config import EMAIL_PROVIDER
 from utils.commands import voice_commands
 
-if EMAIL_PROVIDER == "Google":
-    from api.google_functions.google_api import (
-        delete_email,
-        get_emails_google,
-    )
-
-if EMAIL_PROVIDER == "365":
-    from api.microsoft_functions.graph_api import (
-        create_new_appointment,
-        get_emails,
-        get_next_appointment,
-        send_email_with_attachments,
-    )
+from api.microsoft_functions.graph_api import (
+    create_new_appointment,
+    get_emails,
+    get_next_appointment,
+    send_email_with_attachments,
+)
 
 nlp = spacy.load("en_core_web_md")
 
@@ -109,7 +101,7 @@ def recognize_speech():
         return None
 
 
-def handle_common_voice_commands(_args, user_object_id=None, email_provider=None):
+def handle_common_voice_commands(_args, user_object_id=None):
     """
     Handle common voice commands.
 
@@ -207,15 +199,15 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
             if recognized_command:
                 cmd = voice_commands[recognized_command]
 
-                if cmd == "next_appointment" and email_provider == "365":
+                if cmd == "next_appointment":
                     next_appointment = get_next_appointment(user_object_id)
                     print(f"{next_appointment}")
 
-                elif cmd == "create_appointment" and email_provider == "365":
+                elif cmd == "create_appointment":
                     create_new_appointment(recognize_speech)
                     print("New appointment created.")
 
-                elif cmd == "check_outlook_email" and email_provider == "365":
+                elif cmd == "check_outlook_email":
                     emails = get_emails(user_object_id)
                     if emails:
                         for email in emails:
@@ -226,7 +218,7 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
                     else:
                         print("No emails found.")
 
-                elif cmd == "send_email" and email_provider == "365":
+                elif cmd == "send_email":
                     email_to = "example@example.com"
                     subject = "Test email"
                     body = "This is a test email."
@@ -241,31 +233,8 @@ def handle_common_voice_commands(_args, user_object_id=None, email_provider=None
                         print(f"Answer: {chatgpt_response}")
                     else:
                         print("I didn't catch your question. Please try again.")
-                elif cmd == "check_google_email" and email_provider == "Google":
-                    emails = get_emails_google(user_object_id=None)
-                    if emails:
-                        for email in emails:
-                            print(f"\nFrom: {email['from']}")
-                            print(f"Subject: {email['subject']}")
-                            snippet = email.get("snippet", "N/A")
-                            print(f"Body: {snippet}")
-                            response = recognize_speech()
-                            if response is not None and "yes" in response.lower():
-                                delete_email(email["id"])
-                                print("Email deleted.")
-                            else:
-                                print("Email not deleted.")
-                    else:
-                        print("No emails found.")
-
-                else:
-                    continue
             else:
                 if not standby_mode and not conversation_active:
                     print("Command not recognized. Please try again.")
-                    continue
                 elif conversation_active:
                     print("Unrecognized input. Please try again.")
-                    continue
-                else:
-                    continue

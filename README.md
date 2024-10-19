@@ -135,14 +135,12 @@ python -m src/app --device elm327
 - "calibration verification numbers"
 - "start a diagnostic report"
 - "send a diagnostic report"
-- "next on outlook calendar"
-- "create a new outlook appointment"
-- "check outlook"
-- "send an email with outlook"
+- "next on my calendar"
+- "create a new appointment"
+- "check my email"
+- "send an email to"
 - "ask question"
 - "start a conversation"
-- "check gmail"
-- "what's next on my google calendar"
 
 To start a conversation that uses JSON for conversation history, use the "start a conversation" command.
 

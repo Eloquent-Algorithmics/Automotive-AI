@@ -26,9 +26,7 @@ voice_commands = {
     "stop data stream": "STOP_DATA_STREAM",
     "save data to spreadsheet": "SAVE_DATA_TO_SPREADSHEET",
     "ask a question": "ASK_CHATGPT_QUESTION",
-    "start conversation": "START_CONVERSATION",
-    "check gmail": "check_google_email",
-    "what's next on my google calendar": "check_google_calendar",
+    "start conversation": "START_CONVERSATION"
 }
 
 # ELM327 commands set
