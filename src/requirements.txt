@@ -13,7 +13,6 @@ openai>=1.52.0
 pandas>=2.2.2
 pygame>=2.6.0
 pyserial>=3.5
-PyAudio>=0.2.14
 python-dotenv>=1.0.1
 pyttsx4>=3.0.15
 pytz>=2024.2
