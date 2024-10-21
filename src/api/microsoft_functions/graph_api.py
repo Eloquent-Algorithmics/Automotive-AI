@@ -12,8 +12,8 @@ import dateparser
 import pytz
 from dateutil.parser import isoparse
 from twilio.rest import Client
-from src.api.microsoft_functions import ms_authserver
-from src.config import (
+from api.microsoft_functions import ms_authserver
+from config import (
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
     TWILIO_FROM_PHONE_NUMBER,

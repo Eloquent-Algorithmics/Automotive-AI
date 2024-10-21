@@ -4,7 +4,7 @@ This module contains functions for audio output.
 
 import os
 import azure.cognitiveservices.speech as speechsdk
-from src.api.openai_functions.gpt_chat import get_azure_credential
+from api.openai_functions.gpt_chat import get_azure_credential
 
 
 def tts_output(response_text):

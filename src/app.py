@@ -5,12 +5,12 @@ This is the main script of the application.
 import argparse
 import sys
 
-import src.api.microsoft_functions.ms_authserver as ms_authserver
-from src.api.microsoft_functions import graph_api
-from src.api.openai_functions.gpt_chat import configure_openai
-from src.voice.elm327 import handle_voice_commands_elm327
-from src.voice.voice_recognition import handle_common_voice_commands
-from src.audio.audio_output import tts_output
+import api.microsoft_functions.ms_authserver as ms_authserver
+from api.microsoft_functions import graph_api
+from api.openai_functions.gpt_chat import configure_openai
+from voice.elm327 import handle_voice_commands_elm327
+from voice.voice_recognition import handle_common_voice_commands
+from audio.audio_output import tts_output
 
 
 def main():

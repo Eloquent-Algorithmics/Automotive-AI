@@ -18,7 +18,7 @@ from openai import (
 )
 from rich.console import Console
 
-from src.utils.functions import available_functions, tools
+from utils.functions import available_functions, tools
 
 console = Console()
 

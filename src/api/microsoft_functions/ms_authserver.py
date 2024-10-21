@@ -6,7 +6,7 @@ import http.server
 import socketserver
 import webbrowser
 import urllib.parse
-from src.config import GRAPH_CLIENT_ID
+from config import GRAPH_CLIENT_ID
 
 PORT = 8000
 

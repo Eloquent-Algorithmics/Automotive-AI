@@ -7,16 +7,16 @@ import os
 import spacy
 import speech_recognition as sr
 
-from src.api.openai_functions.gpt_chat import (
+from api.openai_functions.gpt_chat import (
     chat_gpt,
     chat_gpt_conversation,
     load_conversation_history,
     save_conversation_history,
     summarize_conversation_history_direct,
 )
-from src.utils.commands import voice_commands
+from utils.commands import voice_commands
 
-from src.api.microsoft_functions.graph_api import (
+from api.microsoft_functions.graph_api import (
     create_new_appointment,
     get_emails,
     get_next_appointment,

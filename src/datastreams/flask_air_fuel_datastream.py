@@ -3,7 +3,7 @@ import threading
 import re
 from flask import Flask, render_template_string, jsonify
 import obd
-from src.config import SERIAL_PORT, BAUD_RATE
+from config import SERIAL_PORT, BAUD_RATE
 
 app = Flask(__name__)
 
