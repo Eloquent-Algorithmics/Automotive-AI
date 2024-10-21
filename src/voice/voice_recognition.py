@@ -108,7 +108,6 @@ def handle_common_voice_commands(_args, user_object_id=None):
     Args:
         args: [description of args]
         user_object_id: [description of user_object_id]
-        email_provider: [description of email_provider]
 
     Returns:
         [description of the return value, if any]

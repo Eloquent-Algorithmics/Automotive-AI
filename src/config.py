@@ -8,19 +8,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get environment variables
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAICOM_API_KEY")
 if OPENAI_API_KEY is None:
-    raise ValueError("OPENAI_API_KEY environment variable is not set")
+    raise ValueError("OPENAICOM_API_KEY environment variable is not set")
 OPENAI_ORG_ID = os.getenv("OPENAI_ORG_ID")
 if OPENAI_ORG_ID is None:
     raise ValueError("OPENAI_ORG_ID environment variable is not set")
 OPENAI_PROJECT_ID = os.getenv("OPENAI_PROJECT_ID")
 if OPENAI_PROJECT_ID is None:
     raise ValueError("OPENAI_PROJECT_ID environment variable is not set")
-
-EMAIL_PROVIDER = os.getenv("EMAIL_PROVIDER")
-if EMAIL_PROVIDER is None:
-    raise ValueError("EMAIL_PROVIDER environment variable is not set")
 
 GRAPH_EMAIL_ADDRESS = os.getenv("GRAPH_EMAIL_ADDRESS")
 if GRAPH_EMAIL_ADDRESS is None:

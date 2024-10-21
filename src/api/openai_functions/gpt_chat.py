@@ -59,7 +59,7 @@ def configure_openai():
         AZURE_OPENAI_CHATGPT_DEPLOYMENT: The deployment name for Azure OpenAI ChatGPT.
         AZURE_OPENAI_API_VERSION: The API version for Azure OpenAI.
         OPENAICOM_API_KEY: The API key for OpenAI.
-        OPENAI_MODEL_NAME: The model name for OpenAI (default is "gpt-4o-mini").
+        OPENAICOM_MODEL: The model name for OpenAI (default is "gpt-4o-mini").
 
     """
     global openai_client, openai_model_arg

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+conda create -n auto-ai python=3.12 -y
+
 echo "Installing Python requirements..."
 pip install -r src/requirements.txt
 

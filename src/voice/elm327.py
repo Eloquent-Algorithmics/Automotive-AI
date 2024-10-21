@@ -5,21 +5,21 @@ import threading
 import subprocess
 import pandas as pd
 import serial
-from config import SERIAL_PORT, BAUD_RATE
-from datastreams.flask_air_fuel_datastream import start_datastream, app, supported_sensors
-from voice.voice_recognition import (
+from src.config import SERIAL_PORT, BAUD_RATE
+from src.datastreams.flask_air_fuel_datastream import start_datastream, app, supported_sensors
+from src.voice.voice_recognition import (
     recognize_speech,
     handle_common_voice_commands,
 )
-from utils.commands import ELM327_COMMANDS
-from utils.serial_commands import (
+from src.utils.commands import ELM327_COMMANDS
+from src.utils.serial_commands import (
     send_command,
     process_data,
     send_diagnostic_report,
     parse_vin_response,
     decode_vin,
 )
-from api.openai_functions.gpt_chat import chat_gpt_custom
+from src.api.openai_functions.gpt_chat import chat_gpt_custom
 
 
 def handle_voice_commands_elm327(user_object_id):
@@ -35,7 +35,7 @@ def handle_voice_commands_elm327(user_object_id):
     ser = serial.Serial(
         port=SERIAL_PORT,
         baudrate=BAUD_RATE,
-        timeout=1,
+        timeout=10,
     )
     standby_phrases = ["enter standby mode", "go to sleep", "stop listening"]
     wakeup_phrases = ["wake up", "i need your help", "start listening"]

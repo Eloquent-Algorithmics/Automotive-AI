@@ -11,8 +11,8 @@ import dateparser
 import pytz
 from dateutil.parser import isoparse
 from twilio.rest import Client
-import api.microsoft_functions.ms_authserver as ms_authserver
-from config import (
+from src.api.microsoft_functions import ms_authserver
+from src.config import (
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
     TWILIO_FROM_PHONE_NUMBER,
@@ -20,9 +20,10 @@ from config import (
     GRAPH_EMAIL_ADDRESS,
     GRAPH_CLIENT_ID,
     GRAPH_CLIENT_SECRET,
-    GRAPH_TENANT_ID,
-    EMAIL_PROVIDER,
+    GRAPH_TENANT_ID
 )
+
+user_principal_name = GRAPH_EMAIL_ADDRESS
 
 # Set up authentication with Microsoft Graph API
 authority = f"https://login.microsoftonline.com/{GRAPH_TENANT_ID}"
@@ -34,28 +35,27 @@ redirect_uri = "http://localhost:8000"
 user_object_id = None
 
 
-if EMAIL_PROVIDER == "365":
-    authorization_code = ms_authserver.get_auth_code()
+authorization_code = ms_authserver.get_auth_code()
 
-    app = msal.ConfidentialClientApplication(
-        client_id=client_id, client_credential=client_secret, authority=authority
-    )
+app = msal.ConfidentialClientApplication(
+    client_id=client_id, client_credential=client_secret, authority=authority
+)
 
-    result = app.acquire_token_by_authorization_code(
-        authorization_code, scope, redirect_uri=redirect_uri
-    )
+result = app.acquire_token_by_authorization_code(
+    authorization_code, scope, redirect_uri=redirect_uri
+)
 
-    if "access_token" in result:
-        access_token = result["access_token"]
-        refresh_token = result["refresh_token"]
-    else:
-        print(result.get("error"))
-        print(result.get("error_description"))
-        print(result.get("correlation_id"))
-        raise ValueError("Could not authenticate with Microsoft Graph API")
+if "access_token" in result:
+    access_token = result["access_token"]
+    refresh_token = result["refresh_token"]
+else:
+    print(result.get("error"))
+    print(result.get("error_description"))
+    print(result.get("correlation_id"))
+    raise ValueError("Could not authenticate with Microsoft Graph API")
 
 
-def perform_graph_api_request(authorization_code):
+def perform_graph_api_request(_authorization_code):
     """
     Perform a Graph API request using the given authorization code.
 
@@ -116,6 +116,9 @@ def get_user_object_id(user_principal_name):
             print(f"Error: {response.status_code}")
             print(response.json())
             return None
+
+
+user_object_id = get_user_object_id(user_principal_name)
 
 
 def get_next_appointment(user_object_id):
@@ -301,7 +304,7 @@ def get_emails(user_object_id):
     else:
         if response.status_code == 401:
             refresh_access_token()
-            return get_emails()
+            return get_emails(user_object_id)
         else:
             print(f"Error: {response.status_code}")
             print(response.json())
@@ -365,8 +368,3 @@ def send_email_with_attachments(to, subject, body, attachments=None):
         else:
             print(f"Error: {response.status_code}")
             print(response.json())
-
-
-if EMAIL_PROVIDER == "365":
-    user_principal_name = GRAPH_EMAIL_ADDRESS
-    user_object_id = get_user_object_id(user_principal_name)
