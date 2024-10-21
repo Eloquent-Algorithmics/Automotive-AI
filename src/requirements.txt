@@ -9,6 +9,7 @@ msal>=1.31.0
 obd>=0.7.2
 openai>=1.52.0
 pandas>=2.2.2
+PyAudio>=0.2.14
 pyserial>=3.5
 python-dotenv>=1.0.1
 pytz>=2024.2
