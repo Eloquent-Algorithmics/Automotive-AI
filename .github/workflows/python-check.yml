@@ -28,5 +28,9 @@ jobs:
             pip install -r requirements-dev.txt
         - name: Lint with ruff
           run: python3 -m ruff check .
-        - name: Check formatting with black
-          run: python3 -m black . --check --verbose
+        - name: Format code with black
+          run: |
+            black .
+            git config --global user.email "actions@github.com"
+            git config --global user.name "GitHub Actions"
+            git diff-index --quiet HEAD || git commit -am "Format code with black" && git push
