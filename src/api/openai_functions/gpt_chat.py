@@ -236,12 +236,13 @@ def chat_gpt_conversation(prompt, conversation_history):
             # Iterate over the streamed response
             for chunk in response:
                 if len(chunk.choices) > 0:
-                    delta = chunk.choices[0].delta.content
-                    chunk_text = delta.get("content", "")
-                    if chunk_text:
-                        print(chunk_text, end="")
-                        tts_request.input_stream.write(chunk_text)
-                        assistant_response_text += chunk_text
+                    delta = chunk.choices[0].delta
+                    if isinstance(delta, dict):
+                        chunk_text = delta.get("content", "")
+                        if chunk_text:
+                            print(chunk_text, end="")
+                            tts_request.input_stream.write(chunk_text)
+                            assistant_response_text += chunk_text
 
             print("[GPT END]", end="")
 
