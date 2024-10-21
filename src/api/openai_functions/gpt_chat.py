@@ -168,8 +168,7 @@ def chat_gpt(prompt):
             tts_request.input_stream.close()
 
             # wait all tts audio bytes return
-            result = tts_task.get()
-            return result
+            tts_task.get()
 
         except APIConnectionError as e:
             console.log(f"An error occurred: {e}")
