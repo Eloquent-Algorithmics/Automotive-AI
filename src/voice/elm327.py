@@ -2,16 +2,8 @@
 This module contains functions to handle voice commands using ELM327.
 """
 
-import threading
-import subprocess
-import pandas as pd
 import serial
 from config import SERIAL_PORT, BAUD_RATE
-from datastreams.flask_air_fuel_datastream import (
-    start_datastream,
-    app,
-    supported_sensors,
-)
 from voice.voice_recognition import (
     recognize_speech,
     handle_common_voice_commands,
@@ -21,8 +13,7 @@ from utils.serial_commands import (
     send_command,
     process_data,
     send_diagnostic_report,
-    parse_vin_response,
-    decode_vin,
+    parse_vin_response
 )
 from api.openai_functions.gpt_chat import chat_gpt_custom
 
@@ -46,7 +37,6 @@ def handle_voice_commands_elm327(user_object_id):
     wakeup_phrases = ["wake up", "i need your help", "start listening"]
 
     standby_mode = False
-    datastream_process = None
 
     while True:
         if not standby_mode:
@@ -69,25 +59,6 @@ def handle_voice_commands_elm327(user_object_id):
                 continue
 
             cmd = handle_common_voice_commands(user_object_id)
-
-            if cmd == "START_DATA_STREAM":
-                print("Starting data stream...")
-                datastream_thread = threading.Thread(target=start_datastream)
-                datastream_thread.daemon = True
-                datastream_thread.start()
-
-            elif cmd == "STOP_DATA_STREAM":
-                print("Stopping data stream...")
-                with app.test_request_context():
-                    app.do_teardown_request()
-
-            elif cmd == "SAVE_DATA_TO_SPREADSHEET":
-                print("Saving data to spreadsheet...")
-                data = app.view_functions["data"]()
-                df = pd.DataFrame(data["sensor_data"]).T
-                df.columns = [sensor.name for sensor in supported_sensors]
-                df.to_excel("datastream_output.xlsx", index=False)
-                print("Data saved to datastream_output.xlsx")
 
             if cmd and (cmd in ELM327_COMMANDS):
                 if cmd == "send_diagnostic_report":
@@ -132,32 +103,6 @@ def handle_voice_commands_elm327(user_object_id):
                         # tts_output(chatgpt_response)
                     else:
                         print(f"{text} not available.")
-
-                if cmd == "START_DATASTREAM":
-                    if datastream_process is None:
-                        print("Starting datastream...")
-                        # tts_output("Starting datastream...")
-                        datastream_process = subprocess.Popen(
-                            ["python", "datastreams/air_fuel_datastream.py"],
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            text=True,
-                        )
-                    else:
-                        print("Datastream is already running.")
-                        # tts_output("Datastream is already running.")
-
-                elif cmd == "STOP_DATASTREAM":
-                    if datastream_process is not None:
-                        print("Stopping datastream...")
-                        # tts_output("Stopping datastream...")
-                        datastream_process.terminate()
-                        datastream_process = None
-                    else:
-                        print("Datastream is not running.")
-                        # tts_output("Datastream is not running.")
-
             else:
                 print("Command not recognized. Please try again.")
         else:
