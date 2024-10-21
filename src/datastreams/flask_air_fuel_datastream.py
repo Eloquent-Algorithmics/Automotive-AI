@@ -1,7 +1,7 @@
 import time
 from flask import Flask, render_template_string, jsonify
 import obd
-from config import SERIAL_PORT, BAUD_RATE
+from src.config import SERIAL_PORT, BAUD_RATE
 
 
 app = Flask(__name__)
@@ -16,6 +16,15 @@ connection = obd.OBD(portstr=SERIAL_PORT, baudrate=BAUD_RATE, fast=False)
 
 
 def check_and_add_sensor(sensor):
+    """
+    Checks if the given sensor exists in the database and adds it to the supported sensors list if it does.
+
+    Args:
+        sensor (str): The name or identifier of the sensor to be checked and added.
+
+    Returns:
+        bool: True if the sensor was successfully added, False if the sensor does not exist in the database.
+    """
     if connection.query(sensor).is_null():
         return False
     supported_sensors.append(sensor)
@@ -166,9 +175,6 @@ def data():
 
 def start_datastream():
 
-    # Move the sensor checking logic inside this function
-    supported_sensors = []
-    SENSOR_DATA = {}
     check_and_add_sensor(obd.commands.RPM)
     check_and_add_sensor(obd.commands.MAF)
     check_and_add_sensor(obd.commands.SHORT_FUEL_TRIM_1)
@@ -196,5 +202,6 @@ def start_datastream():
     check_and_add_sensor(obd.commands.O2_S8_WR_VOLTAGE)
     check_and_add_sensor(obd.commands.O2_S8_WR_CURRENT)
 
-    if __name__ == "__main__":
-        app.run(debug=False)
+
+if __name__ == "__main__":
+    app.run(debug=False)
