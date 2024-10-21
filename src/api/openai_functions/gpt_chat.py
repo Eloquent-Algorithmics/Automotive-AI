@@ -249,7 +249,7 @@ def chat_gpt_conversation(prompt, conversation_history):
             tts_request.input_stream.close()
 
             # Wait for all TTS audio bytes to return
-            result = tts_task.get()
+            tts_task.get()
 
             # Add the assistant's response to the conversation history
             conversation_history.append(
@@ -316,7 +316,7 @@ def chat_gpt_conversation(prompt, conversation_history):
                 tts_request.input_stream.close()
 
                 # wait all tts audio bytes return
-                result = tts_task.get()
+                tts_task.get()
             else:
                 return response, assistant_response_text
 
