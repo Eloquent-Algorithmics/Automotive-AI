@@ -43,6 +43,7 @@ def main():
     elif args.device == "elm327":
         handle_voice_commands_elm327(email_module.user_object_id)
 
+
 if __name__ == "__main__":
     try:
         configure_openai()
