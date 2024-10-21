@@ -134,7 +134,7 @@ module speechRoleUser 'core/security/role.bicep' = {
 
 output AZURE_LOCATION string = location
 output AZURE_RESOURCE_GROUP string = resourceGroup.name
-output AZURE_OPENAI_CHATGPT_DEPLOYMENT string = deployAzureOpenAi ? openAiConfig.deploymentName : ''
+output AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME string = deployAzureOpenAi ? openAiConfig.deploymentName : ''
 output AZURE_OPENAI_API_VERSION string = deployAzureOpenAi ? openAiApiVersion : ''
 output AZURE_OPENAI_ENDPOINT string = deployAzureOpenAi ? openAi.outputs.endpoint : ''
 output AZURE_OPENAI_RESOURCE string = deployAzureOpenAi ? openAi.outputs.name : ''

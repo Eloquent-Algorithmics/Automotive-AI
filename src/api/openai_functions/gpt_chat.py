@@ -56,7 +56,7 @@ def configure_openai():
         LOCAL_OPENAI_ENDPOINT: The local endpoint for OpenAI.
         AZURE_OPENAI_ENDPOINT: The Azure endpoint for OpenAI.
         AZURE_OPENAI_API_KEY: The API key for Azure OpenAI.
-        AZURE_OPENAI_CHATGPT_DEPLOYMENT: The deployment name for Azure OpenAI ChatGPT.
+        AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME: The deployment name for Azure OpenAI ChatGPT.
         AZURE_OPENAI_API_VERSION: The API version for Azure OpenAI.
         OPENAICOM_API_KEY: The API key for OpenAI.
         OPENAICOM_MODEL: The model name for OpenAI (default is "gpt-4o-mini").
@@ -90,7 +90,7 @@ def configure_openai():
             **client_args,
         )
         # Note: Azure OpenAI takes the deployment name as the model name
-        openai_model_arg = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT")
+        openai_model_arg = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME")
     elif os.getenv("OPENAICOM_API_KEY"):
         client_args["api_key"] = os.getenv("OPENAICOM_API_KEY")
         openai_client = OpenAI(
@@ -148,7 +148,7 @@ def chat_gpt(prompt):
                         "content": f"{prompt}",
                     },
                 ],
-                max_completion_tokens=200,
+                max_tokens=200,
                 n=1,
                 stop=None,
                 temperature=0.5,
@@ -224,7 +224,7 @@ def chat_gpt_conversation(prompt, conversation_history):
                 messages=messages,
                 tools=tools,
                 tool_choice="auto",
-                max_completion_tokens=512,
+                max_tokens=512,
                 n=1,
                 stop=None,
                 temperature=0.5,
@@ -301,7 +301,7 @@ def chat_gpt_conversation(prompt, conversation_history):
                     tool_choice="auto",
                     temperature=0.5,
                     top_p=0.5,
-                    max_completion_tokens=1024,
+                    max_tokens=1024,
                     stream=True,
                 )
 
@@ -418,7 +418,7 @@ def summarize_conversation_history_direct(conversation_history):
             response = openai_client.chat.completions.create(
                 model=openai_model_arg,
                 messages=messages,
-                max_completion_tokens=300,
+                max_tokens=300,
                 n=1,
                 stop=None,
                 temperature=0.5,
@@ -501,7 +501,7 @@ def chat_gpt_custom(processed_data):
                             "content": f"{processed_data}",
                         },
                     ],
-                    max_completion_tokens=200,
+                    max_tokens=200,
                     n=1,
                     stop=None,
                     temperature=0.5,
