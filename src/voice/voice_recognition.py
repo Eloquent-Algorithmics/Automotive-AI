@@ -2,20 +2,21 @@
 This module is responsible for handling voice commands using speech recognition
 and spacy.
 """
+
 import os
 import spacy
 import speech_recognition as sr
 
-from api.openai_functions.gpt_chat import (
+from src.api.openai_functions.gpt_chat import (
     chat_gpt,
     chat_gpt_conversation,
     load_conversation_history,
     save_conversation_history,
-    summarize_conversation_history_direct
+    summarize_conversation_history_direct,
 )
-from utils.commands import voice_commands
+from src.utils.commands import voice_commands
 
-from api.microsoft_functions.graph_api import (
+from src.api.microsoft_functions.graph_api import (
     create_new_appointment,
     get_emails,
     get_next_appointment,
@@ -90,7 +91,9 @@ def recognize_speech():
             print("Timeout: No speech detected")
             return None
     try:
-        text, _ = recognizer.recognize_azure(audio, key=AZURE_SPEECH_KEY, location="eastus")
+        text, _ = recognizer.recognize_azure(
+            audio, key=AZURE_SPEECH_KEY, location="eastus"
+        )
         print(f"You said: {text}")
         return text
     except sr.UnknownValueError:
@@ -181,10 +184,7 @@ def handle_common_voice_commands(_args, user_object_id=None):
                 continue
 
             if not standby_mode and conversation_active:
-                chatgpt_response = chat_gpt_conversation(
-                    text,
-                    conversation_history
-                )
+                chatgpt_response = chat_gpt_conversation(text, conversation_history)
                 conversation_history.append({"role": "user", "content": text})
                 conversation_history.append(
                     {"role": "assistant", "content": chatgpt_response}

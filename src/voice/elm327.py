@@ -1,12 +1,17 @@
 """
 This module contains functions to handle voice commands using ELM327.
 """
+
 import threading
 import subprocess
 import pandas as pd
 import serial
 from src.config import SERIAL_PORT, BAUD_RATE
-from src.datastreams.flask_air_fuel_datastream import start_datastream, app, supported_sensors
+from src.datastreams.flask_air_fuel_datastream import (
+    start_datastream,
+    app,
+    supported_sensors,
+)
 from src.voice.voice_recognition import (
     recognize_speech,
     handle_common_voice_commands,
@@ -120,8 +125,7 @@ def handle_voice_commands_elm327(user_object_id):
                                 f"Decoded VIN: {vehicle_data}"
                             )
                         else:
-                            processed_data = process_data(
-                                text, response, value)
+                            processed_data = process_data(text, response, value)
 
                         chatgpt_response = chat_gpt_custom(processed_data)
                         print(f"ChatGPT Response: {chatgpt_response}")

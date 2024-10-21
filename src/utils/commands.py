@@ -1,6 +1,7 @@
 """
 This module defines a dictionary for voice commands.
 """
+
 # voice commands dictionary
 voice_commands = {
     "engine rpm": "010C",
@@ -26,7 +27,7 @@ voice_commands = {
     "stop data stream": "STOP_DATA_STREAM",
     "save data to spreadsheet": "SAVE_DATA_TO_SPREADSHEET",
     "ask a question": "ASK_CHATGPT_QUESTION",
-    "start conversation": "START_CONVERSATION"
+    "start conversation": "START_CONVERSATION",
 }
 
 # ELM327 commands set

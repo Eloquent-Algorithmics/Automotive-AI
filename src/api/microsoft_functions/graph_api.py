@@ -1,6 +1,7 @@
 """
 This module demonstrates how to work with OS, Base64, and DateTime libraries.
 """
+
 import os
 import base64
 import datetime
@@ -20,7 +21,7 @@ from src.config import (
     GRAPH_EMAIL_ADDRESS,
     GRAPH_CLIENT_ID,
     GRAPH_CLIENT_SECRET,
-    GRAPH_TENANT_ID
+    GRAPH_TENANT_ID,
 )
 
 user_principal_name = GRAPH_EMAIL_ADDRESS
@@ -167,8 +168,8 @@ def get_next_appointment(user_object_id):
             subject = appointment["subject"]
             location = appointment.get("location", {}).get("displayName", "unknown")
             send_maps_link(location)
-            formatted_start_time = start_time.strftime('%I:%M %p')
-            formatted_end_time = end_time.strftime('%I:%M %p')
+            formatted_start_time = start_time.strftime("%I:%M %p")
+            formatted_end_time = end_time.strftime("%I:%M %p")
             return (
                 f"Your next appointment is {subject} at {location} "
                 f"from {formatted_start_time} to {formatted_end_time}."
@@ -256,9 +257,7 @@ def create_new_appointment(recognize_speech, tts_output):
     end_time_str = recognize_speech()
     end_time_obj = dateparser.parse(end_time_str)
 
-    local_timezone = pytz.timezone(
-        "America/New_York"
-    )
+    local_timezone = pytz.timezone("America/New_York")
     start_time = local_timezone.localize(
         datetime.datetime.combine(appointment_date, start_time_obj.time())
     ).isoformat()
