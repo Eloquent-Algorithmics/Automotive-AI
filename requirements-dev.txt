@@ -1,4 +1,4 @@
--r src/requirements.txt
+-r automotive_ai/requirements.txt
 black
 ruff
 pre-commit
