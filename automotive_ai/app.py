@@ -5,7 +5,7 @@ This is the main script of the application.
 import argparse
 import sys
 
-import api.microsoft_functions.ms_authserver as ms_authserver
+from api.microsoft_functions import ms_authserver
 from api.microsoft_functions import graph_api
 from api.openai_functions.gpt_chat import configure_openai
 from voice.elm327 import handle_voice_commands_elm327
