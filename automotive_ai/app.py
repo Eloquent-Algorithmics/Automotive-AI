@@ -9,7 +9,7 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 from api._msal import ms_authserver
 from api._msal import graph_api
-from audio.audio_output import tts_output
+from audio.audio_output import tts_output, ssml_output
 from dotenv import load_dotenv
 from rich.console import Console
 
@@ -96,12 +96,25 @@ def main():
     Main function to encapsulate the script logic.
     """
 
-    tts_output(
-        "Allow me to introduce myself... I am Winston, your in car Virtual Assistant ... Importing all preferences and settings."
-    )
+    ssml_text = """
+                <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-GB">
+                    <voice name="en-GB-OllieMultilingualNeural">
+                        <prosody rate="medium" pitch="medium">
+                            Allow me to introduce myself...
+                            <break time="700ms"/>
+                            I am Winston, your in-car Virtual Assistant...
+                            <break time="700ms"/>
+                            Importing all preferences and settings now.
+                        </prosody>
+                    </voice>
+                </speak>
+                """
+
+    ssml_output(ssml_text)
+    
     configure_openai()
 
-    console.print("Allow me to introduce myself... I am Winston, your in car Virtual Assistant ... Importing all preferences and settings.", style="bold green")
+    console.print("Allow me to introduce myself... I am Winston, your in car Virtual Assistant... Importing all preferences and settings.", style="bold green")
 
     parser = argparse.ArgumentParser(description="Choose the device type")
     parser.add_argument(
@@ -127,7 +140,7 @@ def main():
     main_conversation(args, email_module.user_object_id, use_elm327)
 
     if openai_client is None:
-        console.log("OpenAI client is not configured.")
+        console.log("OpenAI client is not configured in app.py")
         return
 
 if __name__ == "__main__":

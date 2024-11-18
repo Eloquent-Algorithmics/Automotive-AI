@@ -65,8 +65,8 @@ def chat_gpt(prompt):
     tts_task = speech_synthesizer.speak_async(tts_request)
 
     if openai_client is None:
-        console.log("OpenAI client is not configured.")
-        return "OpenAI client is not configured."
+        console.log("OpenAI client is not configured in the gpt_chat function.")
+        return "OpenAI client is not configured in the gpt_chat function."
 
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
@@ -151,8 +151,8 @@ def chat_gpt_conversation(prompt, conversation_history):
     assistant_response_text = ""
 
     if openai_client is None:
-        console.log("OpenAI client is not configured.")
-        return "OpenAI client is not configured."
+        console.log("OpenAI client is not configured in the chat_gpt_conversation function.")
+        return "OpenAI client is not configured  in the chat_gpt_conversation function."
 
     with console.status("[bold green]Generating...", spinner="dots"):
         try:

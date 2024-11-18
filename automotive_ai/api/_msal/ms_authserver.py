@@ -103,6 +103,3 @@ webbrowser.open(
 )
 httpd.serve_forever()
 httpd.server_close()
-
-# Automatically close the browser window when the authorization code is received
-webbrowser.open("http://localhost:8000/close")
