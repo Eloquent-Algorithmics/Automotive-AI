@@ -10,6 +10,7 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import azure.cognitiveservices.speech as speechsdk
 from app import openai_client, openai_model_arg
 from openai import (
+    AzureOpenAI,
     APIConnectionError,
     APIStatusError,
     RateLimitError,
@@ -121,6 +122,12 @@ def chat_gpt_conversation(prompt, conversation_history):
     Raises:
         APIConnectionError: If there is an error connecting to the API.
     """
+    client = AzureOpenAI(
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+        endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+        api_version=os.getenv("AZURE_OPENAI_API_VERSION")
+    )
+    openai_model_arg = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME")
 
     # Include the new user message in the conversation history
     messages = conversation_history + [{"role": "user", "content": prompt}]
@@ -157,7 +164,7 @@ def chat_gpt_conversation(prompt, conversation_history):
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
             # Create a streaming completion request
-            response = openai_client.chat.completions.create(
+            response = client.chat.completions.create(
                 model=openai_model_arg,
                 messages=messages,
                 tools=tools,
