@@ -11,6 +11,9 @@ from api._msal import ms_authserver
 from api._msal import graph_api
 from audio.audio_output import tts_output
 from dotenv import load_dotenv
+from rich.console import Console
+
+console = Console()
 
 # Load variables from .env file
 load_dotenv()
@@ -94,9 +97,11 @@ def main():
     """
 
     tts_output(
-        "Allow me to introduce myself... I am Winston, your in car Virtual Assistant ... Importing all preferences and settings"
+        "Allow me to introduce myself... I am Winston, your in car Virtual Assistant ... Importing all preferences and settings."
     )
     configure_openai()
+
+    console.print("Allow me to introduce myself... I am Winston, your in car Virtual Assistant ... Importing all preferences and settings.", style="bold green")
 
     parser = argparse.ArgumentParser(description="Choose the device type")
     parser.add_argument(
@@ -116,6 +121,7 @@ def main():
     use_elm327 = args.device == "elm327"
 
     tts_output("Systems now fully operational. How may I assist you today?")
+    console.print("Systems now fully operational. How may I assist you today?", style="bold green")
 
     from main import main_conversation
     main_conversation(args, email_module.user_object_id, use_elm327)
