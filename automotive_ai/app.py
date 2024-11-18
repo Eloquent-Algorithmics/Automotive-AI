@@ -9,7 +9,6 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 from api._msal import ms_authserver
 from api._msal import graph_api
-from main import main_conversation
 from audio.audio_output import tts_output
 from dotenv import load_dotenv
 
@@ -118,6 +117,7 @@ def main():
 
     tts_output("Systems now fully operational. How may I assist you today?")
 
+    from main import main_conversation
     main_conversation(args, email_module.user_object_id, use_elm327)
 
 
