@@ -13,6 +13,10 @@ import pytz
 from dateutil.parser import isoparse
 from twilio.rest import Client
 from api._msal import ms_authserver
+from dotenv import load_dotenv
+
+# Load variables from .env file
+load_dotenv()
 
 # Set up authentication with Microsoft Graph API
 user_principal_name = os.getenv("EMAIL_ADDRESS")

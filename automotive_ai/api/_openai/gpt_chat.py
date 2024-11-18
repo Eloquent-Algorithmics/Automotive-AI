@@ -8,12 +8,10 @@ import json
 import os
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import azure.cognitiveservices.speech as speechsdk
-
+from app import openai_client, openai_model_arg
 from openai import (
     APIConnectionError,
     APIStatusError,
-    AzureOpenAI,
-    OpenAI,
     RateLimitError,
 )
 from rich.console import Console
@@ -21,11 +19,6 @@ from rich.console import Console
 from utils.functions import available_functions, tools
 
 console = Console()
-
-openai_client = None
-openai_model_arg = None
-
-azure_credential = None
 
 
 def get_azure_credential():
@@ -38,69 +31,6 @@ def get_azure_credential():
             exclude_shared_token_cache_credential=True
         )
     return azure_credential
-
-
-def configure_openai():
-    """
-    Asynchronously configures the OpenAI client based on environment variables.
-
-    This function sets up the OpenAI client using different configurations depending on
-    the environment variables provided. It supports local OpenAI endpoints,
-    Azure OpenAI endpoints, and OpenAI API keys.
-
-    Raises:
-        ValueError: If required environment variables for Azure OpenAI are missing or
-        if no OpenAI configuration is provided.
-
-    Environment Variables:
-        LOCAL_OPENAI_ENDPOINT: The local endpoint for OpenAI.
-        AZURE_OPENAI_ENDPOINT: The Azure endpoint for OpenAI.
-        AZURE_OPENAI_API_KEY: The API key for Azure OpenAI.
-        AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME: The deployment name for Azure OpenAI ChatGPT.
-        AZURE_OPENAI_API_VERSION: The API version for Azure OpenAI.
-        OPENAICOM_API_KEY: The API key for OpenAI.
-        OPENAICOM_MODEL: The model name for OpenAI (default is "gpt-4o-mini").
-
-    """
-    global openai_client, openai_model_arg
-
-    client_args = {}
-    if os.getenv("LOCAL_OPENAI_ENDPOINT"):
-        client_args["api_key"] = "no-key-required"
-        client_args["base_url"] = os.getenv("LOCAL_OPENAI_ENDPOINT")
-        openai_client = OpenAI(
-            **client_args,
-        )
-    elif os.getenv("AZURE_OPENAI_ENDPOINT"):
-        if os.getenv("AZURE_OPENAI_API_KEY"):
-            client_args["api_key"] = os.getenv("AZURE_OPENAI_API_KEY")
-        else:
-            client_args["azure_ad_token_provider"] = get_bearer_token_provider(
-                get_azure_credential(), "https://cognitiveservices.azure.com/.default"
-            )
-        if not os.getenv("AZURE_OPENAI_ENDPOINT"):
-            raise ValueError("AZURE_OPENAI_ENDPOINT is required for Azure OpenAI")
-        if not os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME"):
-            raise ValueError(
-                "AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME is required for Azure OpenAI"
-            )
-        openai_client = AzureOpenAI(
-            api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-06-01",
-            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-            **client_args,
-        )
-        # Note: Azure OpenAI takes the deployment name as the model name
-        openai_model_arg = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME")
-    elif os.getenv("OPENAICOM_API_KEY"):
-        client_args["api_key"] = os.getenv("OPENAICOM_API_KEY")
-        openai_client = OpenAI(
-            **client_args,
-        )
-        openai_model_arg = os.getenv("OPENAICOM_MODEL") or "gpt-4o-mini"
-    else:
-        raise ValueError(
-            "No OpenAI configuration provided. Check your environment variables."
-        )
 
 
 def chat_gpt(prompt):

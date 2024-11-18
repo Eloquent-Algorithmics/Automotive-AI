@@ -6,6 +6,10 @@ import http.server
 import socketserver
 import webbrowser
 import urllib.parse
+from dotenv import load_dotenv
+
+# Load variables from .env file
+load_dotenv()
 
 GRAPH_CLIENT_ID = os.getenv("GRAPH_CLIENT_ID")
 PORT = 8000

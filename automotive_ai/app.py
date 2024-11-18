@@ -11,7 +11,10 @@ from api._msal import ms_authserver
 from api._msal import graph_api
 from main import main_conversation
 from audio.audio_output import tts_output
+from dotenv import load_dotenv
 
+# Load variables from .env file
+load_dotenv()
 
 openai_client = None
 openai_model_arg = None
@@ -113,9 +116,9 @@ def main():
     # Determine if ELM327 is to be used
     use_elm327 = args.device == "elm327"
 
-    main_conversation(args, email_module.user_object_id, use_elm327)
-
     tts_output("Systems now fully operational. How may I assist you today?")
+
+    main_conversation(args, email_module.user_object_id, use_elm327)
 
 
 if __name__ == "__main__":
