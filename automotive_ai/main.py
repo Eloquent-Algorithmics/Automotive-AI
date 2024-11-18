@@ -204,6 +204,10 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
                 continue
 
             if not standby_mode and conversation_active:
+                if openai_client is None:
+                    print("OpenAI client is not configured.")
+                    tts_output("OpenAI client is not configured.")
+                    continue
                 chatgpt_response = chat_gpt_conversation(text, conversation_history)
                 conversation_history.append({"role": "user", "content": text})
                 conversation_history.append({"role": "assistant", "content": chatgpt_response})
