@@ -11,7 +11,7 @@ def tts_output(response_text):
     Converts the given text to speech using Azure's Text-to-Speech service.
     """
     region = os.getenv("AZURE_SPEECH_REGION")
-    print(region)
+    # print(region)
 
     speech_key = os.getenv("AZURE_SPEECH_KEY")
 
