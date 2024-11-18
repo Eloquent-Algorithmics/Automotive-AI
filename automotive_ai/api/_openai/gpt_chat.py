@@ -16,10 +16,13 @@ from openai import (
     RateLimitError,
 )
 from rich.console import Console
+from dotenv import load_dotenv
 
 from utils.functions import available_functions, tools
 
 console = Console()
+
+load_dotenv()
 
 
 def get_azure_credential():
@@ -124,7 +127,7 @@ def chat_gpt_conversation(prompt, conversation_history):
     """
     client = AzureOpenAI(
         api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-        endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
         api_version=os.getenv("AZURE_OPENAI_API_VERSION")
     )
     openai_model_arg = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME")
@@ -156,10 +159,6 @@ def chat_gpt_conversation(prompt, conversation_history):
 
     # Initialize a variable to collect the assistant's response text
     assistant_response_text = ""
-
-    if openai_client is None:
-        console.log("OpenAI client is not configured in the chat_gpt_conversation function.")
-        return "OpenAI client is not configured  in the chat_gpt_conversation function."
 
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
