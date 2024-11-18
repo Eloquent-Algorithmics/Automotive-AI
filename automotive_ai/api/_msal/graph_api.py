@@ -12,29 +12,18 @@ import dateparser
 import pytz
 from dateutil.parser import isoparse
 from twilio.rest import Client
-from api.microsoft_functions import ms_authserver
-from config import (
-    TWILIO_ACCOUNT_SID,
-    TWILIO_AUTH_TOKEN,
-    TWILIO_FROM_PHONE_NUMBER,
-    TEXT_TO_PHONE_NUMBER,
-    GRAPH_EMAIL_ADDRESS,
-    GRAPH_CLIENT_ID,
-    GRAPH_CLIENT_SECRET,
-    GRAPH_TENANT_ID,
-)
-
-user_principal_name = GRAPH_EMAIL_ADDRESS
+from api._msal import ms_authserver
 
 # Set up authentication with Microsoft Graph API
-authority = f"https://login.microsoftonline.com/{GRAPH_TENANT_ID}"
-client_id = GRAPH_CLIENT_ID
-client_secret = GRAPH_CLIENT_SECRET
+user_principal_name = os.getenv("EMAIL_ADDRESS")
+tenant_id = os.getenv("TENANT_ID")
+authority = f"https://login.microsoftonline.com/{tenant_id}"
+client_id = os.getenv("GRAPH_CLIENT_ID")
+client_secret = os.getenv("GRAPH_CLIENT_SECRET")
 scope = ["https://graph.microsoft.com/.default"]
 redirect_uri = "http://localhost:8000"
 
 user_object_id = None
-
 
 authorization_code = ms_authserver.get_auth_code()
 
@@ -181,23 +170,6 @@ def get_next_appointment(user_object_id):
         print(f"Status code: {response.status_code}")
         print(f"Response: {response.text}")
         return "Sorry, I couldn't retrieve your calendar information."
-
-
-def send_maps_link(address):
-    """
-    Generates a Google Maps link for the given address and sends it.
-
-    :param address: The address to generate the Google Maps link for.
-    :type address: str
-    """
-    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-    maps_link = f"https://www.google.com/maps?q={address.replace(' ', '+')}"
-    message = client.messages.create(
-        body=f"Here's the address for your next appointment: {maps_link}",
-        from_=TWILIO_FROM_PHONE_NUMBER,
-        to=TEXT_TO_PHONE_NUMBER,
-    )
-    print(f"Message sent: {message.sid}")
 
 
 def extract_date(text):
@@ -367,3 +339,26 @@ def send_email_with_attachments(to, subject, body, attachments=None):
         else:
             print(f"Error: {response.status_code}")
             print(response.json())
+
+
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_FROM_PHONE_NUMBER = os.getenv("TWILIO_FROM_PHONE_NUMBER")
+TEXT_TO_PHONE_NUMBER = os.getenv("TEXT_TO_PHONE_NUMBER")
+
+
+def send_maps_link(address):
+    """
+    Generates a Google Maps link for the given address and sends it.
+
+    :param address: The address to generate the Google Maps link for.
+    :type address: str
+    """
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+    maps_link = f"https://www.google.com/maps?q={address.replace(' ', '+')}"
+    message = client.messages.create(
+        body=f"Here's the address for your next appointment: {maps_link}",
+        from_=TWILIO_FROM_PHONE_NUMBER,
+        to=TEXT_TO_PHONE_NUMBER,
+    )
+    print(f"Message sent: {message.sid}")

@@ -4,7 +4,6 @@ This module contains functions for audio output.
 
 import os
 import azure.cognitiveservices.speech as speechsdk
-from api.openai_functions.gpt_chat import get_azure_credential
 
 
 def tts_output(response_text):
@@ -14,16 +13,10 @@ def tts_output(response_text):
     region = os.getenv("AZURE_SPEECH_REGION")
     print(region)
 
-    # Obtain the token string from azure_credential
-    azure_credential = get_azure_credential()
-    token_result = azure_credential.get_token(
-        "https://cognitiveservices.azure.com/.default"
-    )
-    auth_token = token_result.token
-    print(auth_token)
+    speech_key = os.getenv("AZURE_SPEECH_KEY")
 
-    # Create the SpeechConfig with the token and region
-    speech_config = speechsdk.SpeechConfig(auth_token=auth_token, region=region)
+    # Create the SpeechConfig with the Azure Speech API Key and region
+    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=region)
     speech_config.speech_synthesis_voice_name = os.getenv("AZURE_SPEECH_VOICE")
 
     # Use the default speaker as audio output.

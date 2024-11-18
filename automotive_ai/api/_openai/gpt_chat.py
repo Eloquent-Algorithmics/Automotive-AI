@@ -463,7 +463,7 @@ def summarize_conversation_history_direct(conversation_history):
     return summarized_history
 
 
-def chat_gpt_custom(processed_data):
+def extract_vin(processed_data):
     """
     Extracts VIN number from processed data using OpenAI's API.
 
@@ -495,7 +495,7 @@ def chat_gpt_custom(processed_data):
                     messages=[
                         {
                             "role": "system",
-                            "content": "You are an AI assistant.",
+                            "content": "You are Winston, an in car virtual assistant.",
                         },
                         {
                             "role": "user",

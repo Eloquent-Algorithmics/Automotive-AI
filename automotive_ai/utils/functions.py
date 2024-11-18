@@ -6,7 +6,7 @@ TOOL_API_KEY = os.getenv("GOOGLE_API_KEY")
 CSE_ID = os.getenv("GOOGLE_CSE_ID")
 
 
-def search_google_synchronous(
+def search_google(
     query: str,
     num: [int] = 10,
     start: [int] = 1,
@@ -66,7 +66,7 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "search_google_asynchronous",
+            "name": "search_google",
             "description": "This function allows you to use the Google custom search engine API.",
             "parameters": {
                 "type": "object",
@@ -103,5 +103,5 @@ tools = [
 ]
 
 available_functions = {
-    "search_google_synchronous": search_google_synchronous,
+    "search_google": search_google,
 }

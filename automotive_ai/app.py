@@ -1,16 +1,89 @@
 """
 This is the main script of the application.
 """
-
+import os
 import argparse
 import sys
+from openai import OpenAI, AzureOpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
-from api.microsoft_functions import ms_authserver
-from api.microsoft_functions import graph_api
-from api.openai_functions.gpt_chat import configure_openai
-from voice.elm327 import handle_voice_commands_elm327
-from voice.voice_recognition import handle_common_voice_commands
+from api._msal import ms_authserver
+from api._msal import graph_api
+from main import main_conversation
 from audio.audio_output import tts_output
+
+
+openai_client = None
+openai_model_arg = None
+
+azure_credential = None
+
+
+def get_azure_credential():
+    """
+    Retrieves the Azure credential for authentication.
+    """
+    global azure_credential
+    if azure_credential is None:
+        azure_credential = DefaultAzureCredential(
+            exclude_shared_token_cache_credential=True
+        )
+    return azure_credential
+
+
+def configure_openai():
+    """
+    Configures the OpenAI client based on environment variables.
+
+    This function sets up the OpenAI client using different configurations depending on
+    the environment variables provided. It supports Azure OpenAI endpoints, and OpenAI API keys.
+
+    Raises:
+        ValueError: If required environment variables for Azure OpenAI are missing or
+        if no OpenAI configuration is provided.
+
+    Environment Variables:
+        AZURE_OPENAI_ENDPOINT: The Azure endpoint for OpenAI.
+        AZURE_OPENAI_API_KEY: The API key for Azure OpenAI.
+        AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME: The deployment name for Azure OpenAI ChatGPT.
+        AZURE_OPENAI_API_VERSION: The API version for Azure OpenAI.
+        OPENAICOM_API_KEY: The API key for OpenAI.
+        OPENAICOM_MODEL: The model name for OpenAI (default is "gpt-4o-mini").
+
+    """
+    global openai_client, openai_model_arg
+
+    client_args = {}
+    if os.getenv("AZURE_OPENAI_ENDPOINT"):
+        if os.getenv("AZURE_OPENAI_API_KEY"):
+            client_args["api_key"] = os.getenv("AZURE_OPENAI_API_KEY")
+        else:
+            client_args["azure_ad_token_provider"] = get_bearer_token_provider(
+                get_azure_credential(), "https://cognitiveservices.azure.com/.default"
+            )
+        if not os.getenv("AZURE_OPENAI_ENDPOINT"):
+            raise ValueError("AZURE_OPENAI_ENDPOINT is required for Azure OpenAI")
+        if not os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME"):
+            raise ValueError(
+                "AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME is required for Azure OpenAI"
+            )
+        openai_client = AzureOpenAI(
+            api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-10-01",
+            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+            **client_args,
+        )
+        openai_model_arg = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME")
+
+    elif os.getenv("OPENAI_API_KEY"):
+        client_args["api_key"] = os.getenv("OPENAI_API_KEY")
+        openai_client = OpenAI(
+            **client_args,
+        )
+        openai_model_arg = os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
+    else:
+        raise ValueError(
+            "No OpenAI configuration provided. Check your environment variables."
+        )
 
 
 def main():
@@ -19,8 +92,9 @@ def main():
     """
 
     tts_output(
-        "Allow me to introduce myself... I am Winston, a virtual Artificial Intelligence Assistant ... Importing all preferences and settings ... Systems now fully operational."
+        "Allow me to introduce myself... I am Winston, your in car Virtual Assistant ... Importing all preferences and settings"
     )
+    configure_openai()
 
     parser = argparse.ArgumentParser(description="Choose the device type")
     parser.add_argument(
@@ -36,17 +110,16 @@ def main():
     graph_api.perform_graph_api_request(authorization_code)
     email_module = graph_api
 
-    if args.device == "none":
+    # Determine if ELM327 is to be used
+    use_elm327 = args.device == "elm327"
 
-        handle_common_voice_commands(args, email_module.user_object_id)
+    main_conversation(args, email_module.user_object_id, use_elm327)
 
-    elif args.device == "elm327":
-        handle_voice_commands_elm327(email_module.user_object_id)
+    tts_output("Systems now fully operational. How may I assist you today?")
 
 
 if __name__ == "__main__":
     try:
-        configure_openai()
         main()
     except KeyboardInterrupt:
         print("\nGoodbye for now ...\n")

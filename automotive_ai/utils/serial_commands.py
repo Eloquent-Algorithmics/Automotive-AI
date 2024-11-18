@@ -1,10 +1,12 @@
+import os
 import requests
-from api.nhtsa_functions.vin_decoder import (
+from api._nhtsa.vin_decoder import (
     parse_vin_response,
     get_vehicle_data_from_nhtsa,
 )
-from api.microsoft_functions.graph_api import send_email_with_attachments
-from config import GRAPH_EMAIL_ADDRESS
+from api._msal.graph_api import send_email_with_attachments
+
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 
 
 def process_data(command, response, value):
@@ -196,7 +198,7 @@ def send_diagnostic_report(ser):
         diagnostic_data += f"Complaint {i+1}: {complaint}\n\n"
 
     # Send the email
-    to_email = GRAPH_EMAIL_ADDRESS
+    to_email = EMAIL_ADDRESS
     subject = "Diagnostic Report"
     body = diagnostic_data
 

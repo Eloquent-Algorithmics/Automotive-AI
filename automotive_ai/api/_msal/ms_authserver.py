@@ -1,13 +1,13 @@
 """
 This module provides a simple HTTP server.
 """
-
+import os
 import http.server
 import socketserver
 import webbrowser
 import urllib.parse
-from config import GRAPH_CLIENT_ID
 
+GRAPH_CLIENT_ID = os.getenv("GRAPH_CLIENT_ID")
 PORT = 8000
 
 # Initialize the authorization_code as an empty string
@@ -97,6 +97,8 @@ httpd = StoppableTCPServer(("", PORT), Handler)
 webbrowser.open(
     f"https://login.microsoftonline.com/bc56a593-6ce0-4fb1-bf21-ea810dbe4170/oauth2/v2.0/authorize?client_id={GRAPH_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:8000/&response_mode=query&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&state=12345"
 )
-
 httpd.serve_forever()
 httpd.server_close()
+
+# Automatically close the browser window when the authorization code is received
+webbrowser.open("http://localhost:8000/close")
