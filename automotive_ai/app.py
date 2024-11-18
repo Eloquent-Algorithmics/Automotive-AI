@@ -126,6 +126,9 @@ def main():
     from main import main_conversation
     main_conversation(args, email_module.user_object_id, use_elm327)
 
+    if openai_client is None:
+        console.log("OpenAI client is not configured.")
+        return
 
 if __name__ == "__main__":
     try:
