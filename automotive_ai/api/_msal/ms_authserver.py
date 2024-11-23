@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 # Load variables from .env file
 load_dotenv()
 
-GRAPH_CLIENT_ID = os.getenv("GRAPH_CLIENT_ID")
+AUTH_CLIENT_ID = os.getenv("AUTH_CLIENT_ID")
 PORT = 8000
 
 # Initialize the authorization_code as an empty string
@@ -99,7 +99,7 @@ httpd = StoppableTCPServer(("", PORT), Handler)
 
 # Open the browser automatically
 webbrowser.open(
-    f"https://login.microsoftonline.com/bc56a593-6ce0-4fb1-bf21-ea810dbe4170/oauth2/v2.0/authorize?client_id={GRAPH_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:8000/&response_mode=query&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&state=12345"
+    f"https://login.microsoftonline.com/bc56a593-6ce0-4fb1-bf21-ea810dbe4170/oauth2/v2.0/authorize?client_id={AUTH_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:8000/&response_mode=query&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&state=12345"
 )
 httpd.serve_forever()
 httpd.server_close()

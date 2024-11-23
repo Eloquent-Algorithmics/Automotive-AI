@@ -18,12 +18,12 @@ from dotenv import load_dotenv
 # Load variables from .env file
 load_dotenv()
 
-# Set up authentication with Microsoft Graph API
+# Set up authentication with Microsoft Entra ID
 user_principal_name = os.getenv("EMAIL_ADDRESS")
-tenant_id = os.getenv("TENANT_ID")
+tenant_id = os.getenv("AUTH_TENANT_ID")
 authority = f"https://login.microsoftonline.com/{tenant_id}"
-client_id = os.getenv("GRAPH_CLIENT_ID")
-client_secret = os.getenv("GRAPH_CLIENT_SECRET")
+client_id = os.getenv("AUTH_CLIENT_ID")
+client_secret = os.getenv("AUTH_CLIENT_SECRET")
 scope = ["https://graph.microsoft.com/.default"]
 redirect_uri = "http://localhost:8000"
 
@@ -46,12 +46,12 @@ else:
     print(result.get("error"))
     print(result.get("error_description"))
     print(result.get("correlation_id"))
-    raise ValueError("Could not authenticate with Microsoft Graph API")
+    raise ValueError("Could not authenticate with Microsoft Entra ID")
 
 
 def perform_graph_api_request(_authorization_code):
     """
-    Perform a Graph API request using the given authorization code.
+    Perform a Entra ID request using the given authorization code.
 
     Args:
         authorization_code (str): The authorization code used for request.

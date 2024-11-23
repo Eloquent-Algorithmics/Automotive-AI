@@ -116,7 +116,7 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
 
     Args:
         args: Parsed command-line arguments.
-        user_object_id: The user object ID for Microsoft Graph API.
+        user_object_id: The user object ID for Microsoft Entra ID API.
         use_elm327: Boolean indicating whether to use ELM327 functionalities.
 
     Returns:
