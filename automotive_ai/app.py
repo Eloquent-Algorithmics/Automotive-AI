@@ -73,7 +73,7 @@ def configure_openai():
                 "AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME is required for Azure OpenAI"
             )
         openai_client = AzureOpenAI(
-            api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-10-01",
+            api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-10-21",
             azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
             **client_args,
         )
@@ -101,9 +101,9 @@ def main():
                     <voice name="en-GB-OllieMultilingualNeural">
                         <prosody rate="medium" pitch="medium">
                             Allow me to introduce myself...
-                            <break time="700ms"/>
+                            <break time="300ms"/>
                             I am Winston, your in-car Virtual Assistant...
-                            <break time="700ms"/>
+                            <break time="300ms"/>
                             Importing all preferences and settings now.
                         </prosody>
                     </voice>
@@ -142,6 +142,7 @@ def main():
     if openai_client is None:
         console.log("OpenAI client is not configured in app.py")
         return
+
 
 if __name__ == "__main__":
     try:

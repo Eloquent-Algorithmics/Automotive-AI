@@ -1,28 +1,34 @@
 """
 This module provides functions for working with OpenAI's API.
 """
-
 import ast
 import inspect
 import json
 import os
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import azure.cognitiveservices.speech as speechsdk
-from app import openai_client, openai_model_arg
 from openai import (
     AzureOpenAI,
     APIConnectionError,
     APIStatusError,
-    RateLimitError,
+    RateLimitError
 )
 from rich.console import Console
+from utils.functions import available_functions, tools
 from dotenv import load_dotenv
 
-from utils.functions import available_functions, tools
+load_dotenv()
 
 console = Console()
 
-load_dotenv()
+API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
+
+client = AzureOpenAI(
+    azure_endpoint=AZURE_ENDPOINT,
+    api_version=API_VERSION,
+)
 
 
 def get_azure_credential():
@@ -37,7 +43,7 @@ def get_azure_credential():
     return azure_credential
 
 
-def chat_gpt(prompt):
+def chat_gpt(prompt, conversation_history):
     """
     Generates a response using OpenAI's API.
 
@@ -68,24 +74,17 @@ def chat_gpt(prompt):
     )
     tts_task = speech_synthesizer.speak_async(tts_request)
 
-    if openai_client is None:
+    if client is None:
         console.log("OpenAI client is not configured in the gpt_chat function.")
         return "OpenAI client is not configured in the gpt_chat function."
 
+    messages = conversation_history + [{"role": "user", "content": prompt}]
+
     with console.status("[bold green]Generating...", spinner="dots"):
         try:
-            completion = openai_client.chat.completions.create(
-                model=openai_model_arg,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an AI assistant.",
-                    },
-                    {
-                        "role": "user",
-                        "content": f"{prompt}",
-                    },
-                ],
+            completion = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=messages,
                 max_tokens=200,
                 n=1,
                 stop=None,
@@ -125,12 +124,6 @@ def chat_gpt_conversation(prompt, conversation_history):
     Raises:
         APIConnectionError: If there is an error connecting to the API.
     """
-    client = AzureOpenAI(
-        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-        api_version=os.getenv("AZURE_OPENAI_API_VERSION")
-    )
-    openai_model_arg = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME")
 
     # Include the new user message in the conversation history
     messages = conversation_history + [{"role": "user", "content": prompt}]
@@ -164,7 +157,7 @@ def chat_gpt_conversation(prompt, conversation_history):
         try:
             # Create a streaming completion request
             response = client.chat.completions.create(
-                model=openai_model_arg,
+                model="gpt-4o-mini",
                 messages=messages,
                 tools=tools,
                 tool_choice="auto",
@@ -239,8 +232,8 @@ def chat_gpt_conversation(prompt, conversation_history):
                     executed_tool_call_ids.append(tool_call.id)
                     messages.append(function_response_message)
 
-                second_response = openai_client.chat.completions.create(
-                    model=openai_model_arg,
+                second_response = client.chat.completions.create(
+                    model="gpt-4o-mini",
                     messages=messages,
                     tools=tools,
                     tool_choice="auto",
@@ -360,8 +353,8 @@ def summarize_conversation_history_direct(conversation_history):
                 {"role": "user", "content": summary_prompt}
             ]
 
-            response = openai_client.chat.completions.create(
-                model=openai_model_arg,
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
                 messages=messages,
                 max_tokens=300,
                 n=1,
@@ -434,8 +427,8 @@ def extract_vin(processed_data):
     else:
         with console.status("[bold green]Processing", spinner="dots"):
             try:
-                completion = openai_client.chat.completions.create(
-                    model=openai_model_arg,
+                completion = client.chat.completions.create(
+                    model="gpt-4o-mini",
                     messages=[
                         {
                             "role": "system",

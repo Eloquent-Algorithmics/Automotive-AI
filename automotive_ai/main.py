@@ -8,7 +8,6 @@ import serial
 from utils.commands import voice_commands
 from api._openai.gpt_chat import (
     chat_gpt,
-    chat_gpt_conversation,
     load_conversation_history,
     save_conversation_history,
     summarize_conversation_history_direct,
@@ -92,7 +91,7 @@ def configure_openai():
                 "AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME is required for Azure OpenAI"
             )
         openai_client = AzureOpenAI(
-            api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-10-01",
+            api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-10-21",
             azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
             **client_args,
         )
@@ -208,7 +207,7 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
                     print("OpenAI client is not configured, main.py.")
                     tts_output("The OpenAI client is not configured.")
                     continue
-                chatgpt_response = chat_gpt_conversation(text, conversation_history)
+                chatgpt_response = chat_gpt(text, conversation_history)
                 conversation_history.append({"role": "user", "content": text})
                 conversation_history.append({"role": "assistant", "content": chatgpt_response})
                 save_conversation_history(conversation_history)
@@ -299,14 +298,6 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
                     attachments = ["file1.txt", "file2.txt"]
                     send_email_with_attachments(email_to, subject, body, attachments)
 
-                elif cmd == "ASK_CHATGPT_QUESTION":
-                    print("Please ask your question:")
-                    question = recognize_speech()
-                    if question:
-                        chatgpt_response = chat_gpt(question)
-                        print(f"Answer: {chatgpt_response}")
-                    else:
-                        print("I didn't catch your question. Please try again.")
             else:
                 if not standby_mode and not conversation_active:
                     print("Command not recognized. Please try again.")
