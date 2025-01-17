@@ -5,30 +5,30 @@ This is the main conversation module for the automotive AI assistant.
 import os
 import serial
 
-from utils._commands import voice_commands
-from _api._openai.gpt_chat import (
+from _utils._commands import voice_commands
+from automotive_ai._api._openai._gpt_chat import (
     chat_gpt,
     load_conversation_history,
     save_conversation_history,
     summarize_conversation_history_direct,
     extract_vin,
 )
-from _api._msal.graph_api import (
+from automotive_ai._api._msal._graph_api import (
     create_new_appointment,
     get_emails,
     get_next_appointment,
     send_email_with_attachments,
 )
 from automotive_ai._utils._commands import ELM327_COMMANDS
-from _utils.serial_commands import (
+from _utils._serial_commands import (
     send_command,
     process_data,
     send_diagnostic_report,
     parse_vin_response
 )
-from _api._nhtsa.vin_decoder import decode_vin
-from voice.voice_recognition import recognize_speech, recognize_command
-from _audio.audio_output import tts_output
+from automotive_ai._api._nhtsa._vin_decoder import decode_vin
+from automotive_ai._voice._voice_recognition import recognize_speech, recognize_command
+from _audio._audio_output import tts_output
 from openai import OpenAI, AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from dotenv import load_dotenv

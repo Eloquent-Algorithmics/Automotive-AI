@@ -12,7 +12,7 @@ import dateparser
 import pytz
 from dateutil.parser import isoparse
 from twilio.rest import Client
-from _api._msal import ms_authserver
+from _api._msal import _ms_authserver
 from dotenv import load_dotenv
 
 # Load variables from .env file
@@ -29,7 +29,7 @@ redirect_uri = "http://localhost:8000"
 
 user_object_id = None
 
-authorization_code = ms_authserver.get_auth_code()
+authorization_code = _ms_authserver.get_auth_code()
 
 app = msal.ConfidentialClientApplication(
     client_id=client_id, client_credential=client_secret, authority=authority

@@ -7,9 +7,9 @@ import sys
 from openai import OpenAI, AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
-from _api._msal import ms_authserver
-from _api._msal import graph_api
-from _audio.audio_output import tts_output, ssml_output
+from automotive_ai._api._msal import _ms_authserver
+from automotive_ai._api._msal import _graph_api
+from _audio._audio_output import tts_output, ssml_output
 from dotenv import load_dotenv
 from rich.console import Console
 
@@ -127,9 +127,9 @@ def main():
 
     args = parser.parse_args()
 
-    authorization_code = ms_authserver.get_auth_code()
-    graph_api.perform_graph_api_request(authorization_code)
-    email_module = graph_api
+    authorization_code = _ms_authserver.get_auth_code()
+    _graph_api.perform_graph_api_request(authorization_code)
+    email_module = _graph_api
 
     # Determine if ELM327 is to be used
     use_elm327 = args.device == "elm327"
