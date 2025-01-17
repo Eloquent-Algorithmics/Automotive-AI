@@ -10,7 +10,7 @@ on:
 jobs:
   lint-markdown:
     name: Check for Markdown linting errors
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
