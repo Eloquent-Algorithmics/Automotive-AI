@@ -1,10 +1,10 @@
 import os
 import requests
-from api._nhtsa.vin_decoder import (
+from _api._nhtsa.vin_decoder import (
     parse_vin_response,
     get_vehicle_data_from_nhtsa,
 )
-from api._msal.graph_api import send_email_with_attachments
+from _api._msal.graph_api import send_email_with_attachments
 
 EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 

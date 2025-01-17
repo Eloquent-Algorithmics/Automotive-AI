@@ -12,7 +12,7 @@ import dateparser
 import pytz
 from dateutil.parser import isoparse
 from twilio.rest import Client
-from api._msal import ms_authserver
+from _api._msal import ms_authserver
 from dotenv import load_dotenv
 
 # Load variables from .env file

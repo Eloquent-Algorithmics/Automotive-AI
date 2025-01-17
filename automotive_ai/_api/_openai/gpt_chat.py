@@ -14,7 +14,7 @@ from openai import (
     RateLimitError
 )
 from rich.console import Console
-from utils.functions import available_functions, tools
+from _utils.functions import available_functions, tools
 from dotenv import load_dotenv
 
 load_dotenv()

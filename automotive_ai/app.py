@@ -7,9 +7,9 @@ import sys
 from openai import OpenAI, AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
-from api._msal import ms_authserver
-from api._msal import graph_api
-from audio.audio_output import tts_output, ssml_output
+from _api._msal import ms_authserver
+from _api._msal import graph_api
+from _audio.audio_output import tts_output, ssml_output
 from dotenv import load_dotenv
 from rich.console import Console
 
@@ -117,6 +117,7 @@ def main():
     console.print("Allow me to introduce myself... I am Winston, your in car Virtual Assistant... Importing all preferences and settings.", style="bold green")
 
     parser = argparse.ArgumentParser(description="Choose the device type")
+
     parser.add_argument(
         "--device",
         choices=["none", "elm327"],
