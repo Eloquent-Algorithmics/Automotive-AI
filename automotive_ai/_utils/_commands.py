@@ -32,16 +32,15 @@ voice_commands = {
 
 # ELM327 commands set
 ELM327_COMMANDS = {
-    "DIAGNOSTIC_REPORT",
+    "03",
+    "04",
+    "07",
     "010C",
     "010F",
     "012F",
     "014D",
     "0105",
-    "03",
     "0202",
-    "07",
-    "04",
     "0900",
     "0901",
     "0902",
@@ -54,4 +53,5 @@ ELM327_COMMANDS = {
     "0909",
     "090A",
     "090B",
+    "DIAGNOSTIC_REPORT",
 }

@@ -8,11 +8,11 @@ CSE_ID = os.getenv("GOOGLE_CSE_ID")
 
 def search_google(
     query: str,
-    num: [int] = 10,
-    start: [int] = 1,
-    fileType: [str] = None,
-    lr: [str] = None,
-    safe: [str] = "off",
+    num: int = 10,
+    start: int = 1,
+    fileType: str = None,
+    lr: str = None,
+    safe: str = "off",
 ) -> List:
     """
     Search Google and return results.

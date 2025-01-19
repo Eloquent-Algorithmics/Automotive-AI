@@ -34,7 +34,8 @@ def send_command(ser, command):
         command (str): The command string to send.
 
     Returns:
-        str: The response from the serial device, with carriage returns and '>' characters removed.
+        str: The response from the serial device,
+        with carriage returns and '>' characters removed.
     """
     ser.write((command + "\r\n").encode())
     response = ser.readline().decode().strip()
@@ -48,7 +49,7 @@ def run_diagnostic_report(ser):
     Args:
         ser (serial.Serial): The serial connection to the vehicle's OBD-II port.
     Returns:
-        str: A message indicating that the diagnostic report has been generated and saved.
+        str: A message indicating the diagnostic report has been generated and saved.
     The function performs the following steps:
     1. Retrieves the Vehicle Identification Number (VIN) and vehicle data from NHTSA.
     2. Retrieves Diagnostic Trouble Codes (DTCs).
@@ -65,9 +66,13 @@ def run_diagnostic_report(ser):
     report_data.append(f"VIN: {vin}")
     report_data.append(f"Vehicle Data: {vehicle_data}")
 
-    # Get DTCs
-    dtc_response = send_command(ser, "03")
-    report_data.append(f"DTCs: {dtc_response}")
+    # Get Current DTCs
+    current_dtc_response = send_command(ser, "03")
+    report_data.append(f"Current DTCs: {current_dtc_response}")
+
+    # Get Pending DTCs
+    pending_dtc_response = send_command(ser, "07")
+    report_data.append(f"Pending DTCs: {pending_dtc_response}")
 
     # Get Freeze Frame Data
     freeze_frame_response = send_command(ser, "02")
@@ -118,11 +123,14 @@ def get_complaint_data(year, make, model):
 
 def send_diagnostic_report(ser):
     """
-    Sends a diagnostic report via email after querying an ELM327 device and processing the responses.
+    Sends a diagnostic report via email after querying an ELM327 device
+    and processing the responses.
+
     Args:
         ser (serial.Serial): The serial connection to the ELM327 device.
     The function performs the following steps:
-    1. Sends commands to the ELM327 device to retrieve the VIN, trouble codes, freeze frame data, pending trouble codes, and calibration IDs.
+    1. Sends commands to the ELM327 device to retrieve the VIN, trouble codes,
+       freeze frame data, pending trouble codes, and calibration IDs.
     2. Parses the VIN response and retrieves vehicle data from the NHTSA database.
     3. Retrieves recall and complaint data based on the vehicle's make, model, and year.
     4. Extracts relevant recall and complaint information.
@@ -156,13 +164,11 @@ def send_diagnostic_report(ser):
         vehicle_data["Model Year"], vehicle_data["Make"], vehicle_data["Model"]
     )
 
-    trouble_codes_response = send_command(ser, "03")
+    current_dtc_response = send_command(ser, "03")
+
+    pending_dtc_response = send_command(ser, "07")
 
     freeze_frame_data_response = send_command(ser, "0202")
-
-    pending_trouble_codes_response = send_command(ser, "07")
-
-    calibration_ids_response = send_command(ser, "0904")
 
     # Extract relevant recall and complaint information
     recalls = [
@@ -184,10 +190,9 @@ def send_diagnostic_report(ser):
         f"Model: {vehicle_data['Model']}\n"
         f"Trim Level: {vehicle_data['Trim Level']}\n"
         f"Engine Displacement (L): {vehicle_data['Engine Displacement (L)']}\n"
-        f"Trouble Codes: {trouble_codes_response}\n"
+        f"Trouble Codes: {current_dtc_response}\n"
+        f"Pending Trouble Codes: {pending_dtc_response}\n"
         f"Freeze Frame Data: {freeze_frame_data_response}\n"
-        f"Pending Trouble Codes: {pending_trouble_codes_response}\n"
-        f"Calibration IDs: {calibration_ids_response}\n"
         f"Recalls: {len(recalls)}\n"
         f"{'-'*20}\n"
         f"Complaints: {len(complaints)}\n"
@@ -199,7 +204,7 @@ def send_diagnostic_report(ser):
 
     # Send the email
     to_email = EMAIL_ADDRESS
-    subject = "Diagnostic Report"
+    subject = f"{vin} Diagnostic Report"
     body = diagnostic_data
 
     send_email_with_attachments(to_email, subject, body)
