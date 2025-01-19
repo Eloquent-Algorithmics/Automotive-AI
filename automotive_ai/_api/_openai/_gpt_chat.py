@@ -5,7 +5,7 @@ import ast
 import inspect
 import json
 import os
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from azure.identity import DefaultAzureCredential
 import azure.cognitiveservices.speech as speechsdk
 from openai import (
     AzureOpenAI,
