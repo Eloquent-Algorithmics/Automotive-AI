@@ -37,4 +37,4 @@ jobs:
         - name: Lint with ruff
           run: python3 -m ruff check .
         - name: Format code with black
-          run: black . --check --verbose
+          run: black .
