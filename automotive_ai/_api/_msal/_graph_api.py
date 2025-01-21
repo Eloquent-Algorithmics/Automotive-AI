@@ -296,7 +296,7 @@ def send_email_with_attachments(to, subject, body, attachments=None):
     :type subject: str
     :param body: The body of the email.
     :type body: str
-    :param attachments: A list of file paths to be attached to the email, defaults to None.
+    :param attachments: A list of file paths to be attached to the email, defaults None
     :type attachments: list, optional
     """
     url = "https://graph.microsoft.com/v1.0/me/sendMail"

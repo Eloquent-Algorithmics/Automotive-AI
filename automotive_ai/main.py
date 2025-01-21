@@ -24,7 +24,7 @@ from _utils._serial_commands import (
     send_command,
     process_data,
     send_diagnostic_report,
-    parse_vin_response
+    parse_vin_response,
 )
 from automotive_ai._api._nhtsa._vin_decoder import decode_vin
 from automotive_ai._voice._voice_recognition import recognize_speech, recognize_command
@@ -167,7 +167,9 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
 
             if not standby_mode and conversation_active:
                 if "summarize the conversation history" in lower_text:
-                    conversation_history = summarize_conversation_history_direct(conversation_history)
+                    conversation_history = summarize_conversation_history_direct(
+                        conversation_history
+                    )
                     save_conversation_history(conversation_history)
                     print("Conversation history summarized.")
                     tts_output("The current conversation has been summarized.")
@@ -175,11 +177,16 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
 
                 if "clear all history" in lower_text:
                     conversation_history = [
-                        {"role": "system", "content": "You are Winston, an in car AI assistant."}
+                        {
+                            "role": "system",
+                            "content": "You are Winston, an in car AI assistant.",
+                        }
                     ]
                     save_conversation_history(conversation_history)
                     print("Conversation history cleared.")
-                    tts_output("The history of the current conversation has been cleared.")
+                    tts_output(
+                        "The history of the current conversation has been cleared."
+                    )
                     continue
 
                 if "delete the last message" in lower_text:
@@ -197,7 +204,11 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
                     print("Ending the conversation.")
                     continue
 
-            if not standby_mode and not conversation_active and "start a conversation" in lower_text:
+            if (
+                not standby_mode
+                and not conversation_active
+                and "start a conversation" in lower_text
+            ):
                 conversation_active = True
                 print("Starting a conversation.")
                 continue
@@ -209,7 +220,9 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
                     continue
                 chatgpt_response = chat_gpt(text, conversation_history)
                 conversation_history.append({"role": "user", "content": text})
-                conversation_history.append({"role": "assistant", "content": chatgpt_response})
+                conversation_history.append(
+                    {"role": "assistant", "content": chatgpt_response}
+                )
                 save_conversation_history(conversation_history)
                 print(f"Assistant: {chatgpt_response}")
                 tts_output(chatgpt_response)
@@ -233,9 +246,7 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
                                     value = int(response.split()[2], 16) - 40
                                     value = (value * 9 / 5) + 32
                                     print(f"Engine Coolant Temperature (F): {value}")
-                                    processed_data = (
-                                        f"{text}: {response} - Engine Coolant Temperature (F): {value}"
-                                    )
+                                    processed_data = f"{text}: {response} - Engine Coolant Temperature (F): {value}"
                                 elif recognized_command == "010C":
                                     value = (
                                         int(response.split()[2], 16) * 256
@@ -250,9 +261,7 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
                                     print(f"VIN response: {vin_response}")
                                     vehicle_data = decode_vin(vin_response)
                                     print(f"Decoded VIN: {vehicle_data}")
-                                    processed_data = (
-                                        f"VIN response: {vin_response}\nDecoded VIN: {vehicle_data}"
-                                    )
+                                    processed_data = f"VIN response: {vin_response}\nDecoded VIN: {vehicle_data}"
                                 else:
                                     processed_data = process_data(text, response, value)
 
@@ -267,7 +276,9 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
                     continue
 
             # Handle voice commands
-            recognized_command = recognize_command(lower_text, list(voice_commands.keys()))
+            recognized_command = recognize_command(
+                lower_text, list(voice_commands.keys())
+            )
 
             if recognized_command:
                 cmd = voice_commands[recognized_command]

@@ -1,6 +1,7 @@
 """
 This module provides a simple HTTP server.
 """
+
 import os
 import http.server
 import socketserver

@@ -1,18 +1,14 @@
 """
 This module provides functions for working with OpenAI's API.
 """
+
 import ast
 import inspect
 import json
 import os
 from azure.identity import DefaultAzureCredential
 import azure.cognitiveservices.speech as speechsdk
-from openai import (
-    AzureOpenAI,
-    APIConnectionError,
-    APIStatusError,
-    RateLimitError
-)
+from openai import AzureOpenAI, APIConnectionError, APIStatusError, RateLimitError
 from rich.console import Console
 from dotenv import load_dotenv
 from _utils._functions import available_functions, tools

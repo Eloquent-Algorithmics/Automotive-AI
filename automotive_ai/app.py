@@ -1,6 +1,7 @@
 """
 This is the main script of the application.
 """
+
 import os
 import argparse
 import sys
@@ -111,10 +112,13 @@ def main():
                 """
 
     ssml_output(ssml_text)
-    
+
     configure_openai()
 
-    console.print("Allow me to introduce myself... I am Winston, your in car Virtual Assistant... Importing all preferences and settings.", style="bold green")
+    console.print(
+        "Allow me to introduce myself... I am Winston, your in car Virtual Assistant... Importing all preferences and settings.",
+        style="bold green",
+    )
 
     parser = argparse.ArgumentParser(description="Choose the device type")
 
@@ -135,9 +139,12 @@ def main():
     use_elm327 = args.device == "elm327"
 
     tts_output("Systems now fully operational. How may I assist you today?")
-    console.print("Systems now fully operational. How may I assist you today?", style="bold green")
+    console.print(
+        "Systems now fully operational. How may I assist you today?", style="bold green"
+    )
 
     from main import main_conversation
+
     main_conversation(args, email_module.user_object_id, use_elm327)
 
     if openai_client is None:
