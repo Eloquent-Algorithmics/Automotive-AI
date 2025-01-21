@@ -2,6 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 import azure.cognitiveservices.speech as speechsdk
+
 # Replace this with the correct import path for your functions
 from automotive_ai._audio._audio_output import tts_output, ssml_output
 
@@ -15,9 +16,7 @@ def test_tts_output_success(monkeypatch):
     response_text = "Hello, this is a test."
 
     # Mock the required classes and methods
-    with patch(
-        "automotive_ai._audio._audio_output.speechsdk.SpeechConfig"
-    ), patch(
+    with patch("automotive_ai._audio._audio_output.speechsdk.SpeechConfig"), patch(
         "automotive_ai._audio._audio_output.speechsdk.SpeechSynthesizer"
     ) as MockSpeechSynthesizer:
 
@@ -49,9 +48,7 @@ def test_tts_output_canceled(monkeypatch, capsys):
     response_text = "Hello, this is a test."
 
     # Mock the required classes and methods
-    with patch(
-        "automotive_ai._audio._audio_output.speechsdk.SpeechConfig"
-    ), patch(
+    with patch("automotive_ai._audio._audio_output.speechsdk.SpeechConfig"), patch(
         "automotive_ai._audio._audio_output.speechsdk.SpeechSynthesizer"
     ) as MockSpeechSynthesizer:
 
@@ -87,9 +84,7 @@ def test_ssml_output_success(monkeypatch):
     response_text = "<speak>This is SSML text.</speak>"
 
     # Mock the required classes and methods
-    with patch(
-        "automotive_ai._audio._audio_output.speechsdk.SpeechConfig"
-    ), patch(
+    with patch("automotive_ai._audio._audio_output.speechsdk.SpeechConfig"), patch(
         "automotive_ai._audio._audio_output.speechsdk.SpeechSynthesizer"
     ) as MockSpeechSynthesizer:
 
@@ -121,9 +116,7 @@ def test_ssml_output_canceled(monkeypatch, capsys):
     response_text = "<speak>This is SSML text.</speak>"
 
     # Mock the required classes and methods
-    with patch(
-        "automotive_ai._audio._audio_output.speechsdk.SpeechConfig"
-    ), patch(
+    with patch("automotive_ai._audio._audio_output.speechsdk.SpeechConfig"), patch(
         "automotive_ai._audio._audio_output.speechsdk.SpeechSynthesizer"
     ) as MockSpeechSynthesizer:
 

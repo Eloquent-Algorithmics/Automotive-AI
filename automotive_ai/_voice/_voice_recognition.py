@@ -1,5 +1,6 @@
 """
-This module is responsible for command and voice recognition using the SpeechRecognition and spaCy libraries.
+This module is responsible for command and voice recognition
+using the SpeechRecognition and spaCy libraries.
 """
 
 import os
