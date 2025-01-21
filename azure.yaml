@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: azure-automotive-ai
+name: az-auto-ai_v0.0.1
 metadata:
-  template: azure-automotive-ai
+  template: az-auto-ai_0.0.1
 
 hooks:
     postprovision:

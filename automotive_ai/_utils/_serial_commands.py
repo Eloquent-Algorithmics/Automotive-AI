@@ -99,7 +99,7 @@ def get_recall_data(year, make):
     Returns:
         dict: A dictionary containing the recall data retrieved from the NHTSA API.
     """
-    url = f"https://api.nhtsa.gov/products/vehicle/models?modelYear={year}&make={make}&issueType=r"
+    url = f"https://api.nhtsa.gov/products/vehicle/models?modelYear={year}&make={make}&issueType=r"  # noqa: E501
     response = requests.get(url, timeout=10)
     return response.json()
 
@@ -116,7 +116,7 @@ def get_complaint_data(year, make, model):
     Returns:
         dict: A dictionary containing the complaint data retrieved from the API.
     """
-    url = f"https://api.nhtsa.gov/complaints/complaintsByVehicle?make={make}&model={model}&modelYear={year}"
+    url = f"https://api.nhtsa.gov/complaints/complaintsByVehicle?make={make}&model={model}&modelYear={year}"  # noqa: E501
     response = requests.get(url, timeout=10)
     return response.json()
 

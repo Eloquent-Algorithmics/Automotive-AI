@@ -1,9 +1,16 @@
+import os
 import time
 import threading
 import re
 from flask import Flask, render_template_string, jsonify
 import obd
-from config import SERIAL_PORT, BAUD_RATE
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+SERIAL_PORT = os.getenv("SERIAL_PORT")
+BAUD_RATE = int(os.getenv("BAUD_RATE"))
 
 app = Flask(__name__)
 
@@ -27,7 +34,12 @@ def sanitize_sensor_desc(desc):
 
 def check_and_add_sensor(sensor):
     """
-    Checks if the given sensor exists in the database and adds it to the supported sensors list if it does.
+    Checks if the given sensor exists in the database and adds
+    it to the supported sensors list if it does.
+
+        Args:
+        sensor (obd.OBDCommand): OBD-II command to check.
+
     Returns:
         dict: sensor_info dict if successful, None otherwise.
     """

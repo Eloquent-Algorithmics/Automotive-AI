@@ -1,9 +1,13 @@
 import os
 from typing import List
 import requests
+from dotenv import load_dotenv
 
-TOOL_API_KEY = os.getenv("GOOGLE_API_KEY")
-CSE_ID = os.getenv("GOOGLE_CSE_ID")
+load_dotenv()
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
+BING_API_KEY = os.getenv("BING_API_KEY")
 
 
 def search_google(
@@ -28,8 +32,8 @@ def search_google(
 
     url = "https://www.googleapis.com/customsearch/v1"
     params = {
-        "key": TOOL_API_KEY,
-        "cx": CSE_ID,
+        "key": GOOGLE_API_KEY,
+        "cx": GOOGLE_CSE_ID,
         "q": query,
         "num": num,
         "start": start,
@@ -62,12 +66,45 @@ def search_google(
         return []
 
 
+def search_bing(query: str, num: int = 10) -> List:
+    """
+    Search Bing and return results.
+
+    :param query: The search query string.
+    :param num: Number of search results to return.
+    :return: A list of search results.
+    """
+
+    url = "https://api.bing.microsoft.com/v7.0/search"
+    headers = {"Ocp-Apim-Subscription-Key": BING_API_KEY}
+    params = {"q": query, "count": num}
+
+    try:
+        res = requests.get(url, headers=headers, params=params, timeout=5)
+        data = res.json()
+        results = []
+        if data.get("webPages"):
+            for item in data["webPages"]["value"]:
+                results.append(
+                    {
+                        "title": item["name"],
+                        "description": item["snippet"],
+                        "link": item["url"],
+                    }
+                )
+
+        return results
+
+    except requests.exceptions.RequestException:
+        return []
+
+
 tools = [
     {
         "type": "function",
         "function": {
             "name": "search_google",
-            "description": "This function allows you to use the Google custom search engine API.",
+            "description": "This function allows you to use the Google CSE API.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -89,7 +126,7 @@ tools = [
                     },
                     "lr": {
                         "type": "string",
-                        "description": "Restricts the search to documents written in a particular language.",
+                        "description": "Restricts the search to a particular language.",
                     },
                     "safe": {
                         "type": "string",
@@ -100,8 +137,30 @@ tools = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_bing",
+            "description": "This function allows you to use the Bing search API.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Query to perform the search on.",
+                    },
+                    "num": {
+                        "type": "integer",
+                        "description": "Number of search results to return.",
+                    },
+                },
+                "required": ["query"],
+            },
+        },
+    },
 ]
 
 available_functions = {
     "search_google": search_google,
+    "search_bing": search_bing,
 }
