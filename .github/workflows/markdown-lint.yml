@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    if: '! github.event.pull_request.draft'
+    if: ${{ github.event_name != 'push' && github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
 
     steps:
