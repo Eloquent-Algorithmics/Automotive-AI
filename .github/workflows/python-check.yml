@@ -13,8 +13,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-22.04", "ubuntu-24.04"]
-        python_version: ["3.12"]
+        os: ["ubuntu-22.04", "ubuntu-24.04", "windows-latest"]
+        python_version: ["3.11", "3.12"]
     env:
       UV_SYSTEM_PYTHON: 1
     steps:
