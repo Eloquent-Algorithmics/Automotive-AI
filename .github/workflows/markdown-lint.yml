@@ -1,6 +1,10 @@
-name: Markdown linting
+name: markdown-lint
 
 on:
+  push:
+    branches: [ "azure_openai" ]
+    paths:
+      - '**/*.md'
   pull_request:
     branches: [ "azure_openai" ]
     paths:
