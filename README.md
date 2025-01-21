@@ -5,16 +5,16 @@ Join the [Discord Server](https://discord.gg/VsVuxche)
 An experimental open-source application that integrates OpenAi gpt-4o or gpt-4o-mini, NLP, TTS, STT, and an OBD-II ELM327 device to create a voice-activated, hands-free, vehicle diagnostic assistant.
 
 ⚠️ ***This is a work in progress*** ⚠️
+01/21/2024: Updated dependencies and added CI/CD pipeline.
 
 10/18/2024: Updated to us gpt-4o models and Azure OpenAI
 
 03/17/2024: Updated to use [OpenAI v1](https://github.com/openai/openai-python/releases/)
 
-11/14/2023: Added "development" branch with the option to use text input in the terminal instead of voice commands.
 
 ## 🛠️ Built and tested using:
 
-- Windows 11 & Ubuntu 22.04
+- Windows 11, Ubuntu 22.04, Ubuntu 24.04
 - Python 3.12
 - Requires [Miniconda](https://docs.anaconda.com/free/miniconda/#latest-miniconda-installer-links)
 - [OBDlink MX+ Bluetooth ELM327](https://www.obdlink.com/products/obdlink-mxp/)
