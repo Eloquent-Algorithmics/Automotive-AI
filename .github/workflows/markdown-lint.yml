@@ -5,10 +5,12 @@ on:
     branches: [ "azure_openai" ]
     paths:
       - '**/*.md'
+      - '*.md'
   pull_request:
     branches: [ "azure_openai" ]
     paths:
       - '**/*.md'
+      - '*.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
