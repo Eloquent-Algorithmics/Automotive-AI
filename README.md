@@ -23,14 +23,13 @@ An experimental open-source application that integrates OpenAi gpt-4o or gpt-4o-
 
 ## 🚀 Installation
 
-1. Fork the repository and clone it to your local machine:
+1. Fork this repository and clone it to your local machine:
 
 ```bash
 git clone https://github.com/<your_username>/Automotive-AI.git
 ```
 
 <details>
-## To use the OpenAI API
 <summary>Linux Installation and use Instructions</summary>
 
 ```bash
