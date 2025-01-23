@@ -47,13 +47,13 @@ def recognize_command(text, commands):
     best_match = None
 
     for command in commands:
-        similarity = get_similarity_score(text.lower(), command)
+        similarity = get_similarity_score(text, command)
 
         if similarity > max_similarity:
             max_similarity = similarity
             best_match = command
 
-    if max_similarity > 0.7:  # You can adjust this threshold
+    if max_similarity > 0.5:  # You can adjust this threshold
         return best_match
     else:
         return None
