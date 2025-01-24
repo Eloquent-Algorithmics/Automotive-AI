@@ -30,7 +30,7 @@ class TestVoiceRecognition(unittest.TestCase):
 
     @patch("automotive_ai._voice._voice_recognition.nlp")
     def test_recognize_command_exact_match(self, mock_nlp):
-        text = "What is the engine rpm"
+        text = "engine rpm"
         commands = ["engine rpm", "read trouble codes", "send a diagnostic report"]
 
         # Mock the similarity scores
