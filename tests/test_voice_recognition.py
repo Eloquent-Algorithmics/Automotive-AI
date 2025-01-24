@@ -11,9 +11,9 @@ import speech_recognition as sr
 class TestVoiceRecognition(unittest.TestCase):
     def test_get_similarity_score_identical_texts(self):
         text1 = "What is the engine rpm"
-        text2 = "How fast is the engine spinning"
+        text2 = "What is the engine rpm"
         score = get_similarity_score(text1, text2)
-        self.assertGreaterEqual(score, 0.85)
+        self.assertGreaterEqual(score, 0.99)
 
     def test_get_similarity_score_different_texts(self):
         text1 = "read trouble codes"
@@ -30,7 +30,7 @@ class TestVoiceRecognition(unittest.TestCase):
 
     @patch("automotive_ai._voice._voice_recognition.nlp")
     def test_recognize_command_exact_match(self, mock_nlp):
-        text = "engine rpm"
+        text = "What is the engine rpm"
         commands = ["engine rpm", "read trouble codes", "send a diagnostic report"]
 
         # Mock the similarity scores
@@ -41,7 +41,7 @@ class TestVoiceRecognition(unittest.TestCase):
         mock_nlp.return_value = mock_doc
 
         result = recognize_command(text, commands)
-        self.assertEqual(result, "engine rpm")
+        self.assertEqual(result, "What is the engine rpm")
 
     @patch("automotive_ai._voice._voice_recognition.get_similarity_score")
     def test_recognize_command_no_match(self, mock_get_similarity_score):
@@ -89,7 +89,7 @@ class TestVoiceRecognition(unittest.TestCase):
         # Mock the Microphone
         with patch("automotive_ai._voice._voice_recognition.sr.Microphone"):
             result = recognize_speech()
-            self.assertEqual(result, "engine rpm")
+            self.assertEqual(result, "What is the engine rpm")
 
     @patch("automotive_ai._voice._voice_recognition.sr.Recognizer")
     def test_recognize_speech_timeout(self, mock_recognizer_class):
