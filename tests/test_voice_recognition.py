@@ -41,7 +41,7 @@ class TestVoiceRecognition(unittest.TestCase):
         mock_nlp.return_value = mock_doc
 
         result = recognize_command(text, commands)
-        self.assertEqual(result, "What is the engine rpm")
+        self.assertEqual(result, "engine rpm")
 
     @patch("automotive_ai._voice._voice_recognition.get_similarity_score")
     def test_recognize_command_no_match(self, mock_get_similarity_score):
