@@ -2,15 +2,11 @@
 This module is responsible for command and voice recognition
 using the SpeechRecognition and spaCy libraries.
 """
-
-import os
 import spacy
 import speech_recognition as sr
+from . import AZURE_SPEECH_KEY, AZURE_SPEECH_REGION
 
 nlp = spacy.load("en_core_web_md")
-
-AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
-AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
 
 
 def get_similarity_score(text1, text2):
