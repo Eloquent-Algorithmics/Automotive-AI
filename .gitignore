@@ -162,3 +162,4 @@ conversation_history.json
 elm.log
 .vscode
 .idea/
+*.code-workspace
