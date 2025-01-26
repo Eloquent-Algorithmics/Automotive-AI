@@ -1,13 +1,11 @@
-import os
+"""
+This module contains functions to search Google and Bing.
+"""
 from typing import List
+
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
-
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
-BING_API_KEY = os.getenv("BING_API_KEY")
+from . import BING_API_KEY, GOOGLE_API_KEY, GOOGLE_CSE_ID
 
 
 def search_google(
