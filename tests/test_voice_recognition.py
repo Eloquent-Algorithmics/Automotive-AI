@@ -33,12 +33,25 @@ class TestVoiceRecognition(unittest.TestCase):
         text = "engine rpm"
         commands = ["engine rpm", "read trouble codes", "send a diagnostic report"]
 
-        # Mock the similarity scores
-        mock_doc = MagicMock()
-        mock_doc.similarity.side_effect = lambda other: (
-            1.0 if other.text == text else 0.0
-        )
-        mock_nlp.return_value = mock_doc
+        # Helper function to create a mock Doc object with a specific text
+        def create_mock_doc(text_value):
+            mock_doc = MagicMock()
+            mock_doc.text = text_value
+
+            def similarity(other_doc):
+                if mock_doc.text == other_doc.text:
+                    return 1.0
+                else:
+                    return 0.0
+
+            mock_doc.similarity.side_effect = similarity
+            return mock_doc
+
+        # Mock nlp to return a new mock Doc object for each input text
+        def nlp_side_effect(input_text):
+            return create_mock_doc(input_text)
+
+        mock_nlp.side_effect = nlp_side_effect
 
         result = recognize_command(text, commands)
         self.assertEqual(result, "engine rpm")
