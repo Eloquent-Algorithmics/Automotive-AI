@@ -5,33 +5,33 @@ This is the main conversation module for the automotive AI assistant.
 import os
 
 import serial
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from dotenv import load_dotenv
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from openai import AzureOpenAI, OpenAI
 
-from automotive_ai._api._msal._graph_api import (
+from _api._msal._graph_api import (
     create_new_appointment,
     get_emails,
     get_next_appointment,
     send_email_with_attachments,
 )
-from automotive_ai._api._nhtsa._vin_decoder import decode_vin
-from automotive_ai._api._openai._gpt_chat import (
+from _api._nhtsa._vin_decoder import decode_vin
+from _api._openai._gpt_chat import (
     chat_gpt,
     extract_vin,
     load_conversation_history,
     save_conversation_history,
     summarize_conversation_history_direct,
 )
-from automotive_ai._audio._audio_output import tts_output
-from automotive_ai._utils._commands import ELM327_COMMANDS, voice_commands
-from automotive_ai._utils._serial_commands import (
+from _audio._audio_output import tts_output
+from _utils._commands import ELM327_COMMANDS, voice_commands
+from _utils._serial_commands import (
     parse_vin_response,
     process_data,
     send_command,
     send_diagnostic_report,
 )
-from automotive_ai._voice._voice_recognition import recognize_command, recognize_speech
+from _voice._voice_recognition import recognize_command, recognize_speech
 
 load_dotenv()
 
@@ -58,7 +58,7 @@ def configure_openai():
     Configures the OpenAI client based on environment variables.
 
     This function sets up the OpenAI client using different configurations depending on
-    the environment variables provided. It supports Azure OpenAI, and OpenAI endpoints.
+    the environment variables provided. It supports Azure OpenAI endpoints, and OpenAI API keys.
 
     Raises:
         ValueError: If required environment variables for Azure OpenAI are missing or
@@ -67,7 +67,7 @@ def configure_openai():
     Environment Variables:
         AZURE_OPENAI_ENDPOINT: The Azure endpoint for OpenAI.
         AZURE_OPENAI_API_KEY: The API key for Azure OpenAI.
-        AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME: Deployment name for Azure OpenAI ChatGPT.
+        AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME: The deployment name for Azure OpenAI ChatGPT.
         AZURE_OPENAI_API_VERSION: The API version for Azure OpenAI.
         OPENAICOM_API_KEY: The API key for OpenAI.
         OPENAICOM_MODEL: The model name for OpenAI (default is "gpt-4o-mini").
@@ -90,7 +90,7 @@ def configure_openai():
                 "AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME is required for Azure OpenAI"
             )
         openai_client = AzureOpenAI(
-            api_version=os.getenv("OPENAI_API_VERSION") or "2024-10-21",
+            api_version=os.getenv("AZURE_OPENAI_API_VERSION") or "2024-10-21",
             azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
             **client_args,
         )
@@ -106,6 +106,7 @@ def configure_openai():
         raise ValueError(
             "No OpenAI configuration provided. Check your environment variables."
         )
+    return openai_client, openai_model_arg
 
 
 def main_conversation(args, user_object_id=None, use_elm327=False):
@@ -141,9 +142,10 @@ def main_conversation(args, user_object_id=None, use_elm327=False):
             print(f"Failed to connect to ELM327 device: {e}")
             use_elm327 = False  # Disable ELM327 features if connection fails
 
-    configure_openai()
-
     while True:
+
+        configure_openai()
+
         if not standby_mode:
             print("\nSpeech Recognition Active:")
         text = recognize_speech()
