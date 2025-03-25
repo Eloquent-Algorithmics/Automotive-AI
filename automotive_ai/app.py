@@ -16,7 +16,6 @@ from rich.console import Console
 
 console = Console()
 
-# Load variables from .env file
 load_dotenv()
 
 openai_client = None
