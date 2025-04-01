@@ -163,3 +163,5 @@ elm.log
 .vscode
 .idea/
 *.code-workspace
+.vs
+*.env

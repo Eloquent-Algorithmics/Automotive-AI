@@ -1,0 +1,316 @@
+# automotive_ai/config.py
+
+"""
+Centralized configuration management for the automotive_ai application.
+
+Loads environment variables and initializes shared clients/configurations.
+"""
+
+import os
+import msal
+import azure.cognitiveservices.speech as speechsdk
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from openai import AzureOpenAI, OpenAI
+from dotenv import load_dotenv
+
+# --- Load Environment Variables ---
+# Load variables from .env file first. Environment variables override .env variables.
+load_dotenv()
+
+# --- Caching ---
+# Simple caching mechanism for initialized clients/configs
+_azure_credential = None
+_openai_client = None
+_openai_model_arg = None
+_speech_config = None
+_msal_app = None
+
+# --- Azure Credentials ---
+AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
+AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
+AZURE_SPEECH_VOICE = os.getenv(
+    "AZURE_SPEECH_VOICE", "en-GB-OllieMultilingualNeural"
+)  # Default voice
+
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME")
+AZURE_OPENAI_API_VERSION = os.getenv(
+    "AZURE_OPENAI_API_VERSION", "2024-02-15-preview"
+)  # Use a reasonable default
+
+# --- OpenAI.com Credentials ---
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")  # Default model
+
+# --- Microsoft Authentication Library (MSAL) / Graph API ---
+AUTH_TENANT_ID = os.getenv("AUTH_TENANT_ID")
+AUTH_CLIENT_ID = os.getenv("AUTH_CLIENT_ID")
+AUTH_CLIENT_SECRET = os.getenv("AUTH_CLIENT_SECRET")
+GRAPH_API_SCOPES = ["https://graph.microsoft.com/.default"]
+MS_REDIRECT_URI = (
+    "http://localhost:8000"  # Ensure this matches the server and app registration
+)
+MS_AUTHORITY = (
+    f"https://login.microsoftonline.com/{AUTH_TENANT_ID}" if AUTH_TENANT_ID else None
+)
+
+# --- Twilio ---
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_FROM_PHONE_NUMBER = os.getenv("TWILIO_FROM_PHONE_NUMBER")
+TEXT_TO_PHONE_NUMBER = os.getenv("TEXT_TO_PHONE_NUMBER")
+
+# --- Search APIs ---
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
+BING_API_KEY = os.getenv("BING_API_KEY")
+
+# --- ELM327 / Serial ---
+SERIAL_PORT = os.getenv("SERIAL_PORT")
+BAUD_RATE = os.getenv("BAUD_RATE", 38400)  # Default baud rate
+
+# --- User Specific ---
+EMAIL_ADDRESS = os.getenv(
+    "EMAIL_ADDRESS"
+)  # Used for Graph API and potentially email sending
+
+# --- Function Definitions ---
+
+
+def get_azure_credential():
+    """
+    Retrieves the Azure credential for authentication, caching the result.
+    Uses DefaultAzureCredential.
+    """
+    global _azure_credential
+    if _azure_credential is None:
+        try:
+            _azure_credential = DefaultAzureCredential(
+                exclude_shared_token_cache_credential=True
+            )
+            # Perform a quick check to ensure the credential is valid
+            _azure_credential.get_token("https://management.azure.com/.default")
+        except Exception as e:
+            print(f"Error obtaining Azure credential: {e}")
+            _azure_credential = None  # Reset if failed
+            raise ValueError(
+                "Failed to obtain Azure credentials. Check login or .env variables."
+            ) from e
+    return _azure_credential
+
+
+def get_openai_client_config():
+    """
+    Configures and returns the OpenAI client (Azure or OpenAI.com) and model argument.
+
+    Prioritizes Azure configuration if AZURE_OPENAI_ENDPOINT is set.
+    Caches the initialized client and model argument.
+
+    Returns:
+        tuple: (openai_client, openai_model_arg)
+               Returns (None, None) if configuration fails.
+
+    Raises:
+        ValueError: If required environment variables for the configuration are missing.
+    """
+    global _openai_client, _openai_model_arg
+
+    if _openai_client is not None and _openai_model_arg is not None:
+        return _openai_client, _openai_model_arg
+
+    client_args = {}
+    if AZURE_OPENAI_ENDPOINT:
+        print("Configuring Azure OpenAI client...")
+        if not AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME:
+            raise ValueError(
+                "AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME is required for Azure OpenAI"
+            )
+
+        if AZURE_OPENAI_API_KEY:
+            client_args["api_key"] = AZURE_OPENAI_API_KEY
+            print("Using API Key for Azure OpenAI.")
+        else:
+            print("Using Azure AD Token Provider for Azure OpenAI.")
+            try:
+                credential = get_azure_credential()
+                client_args["azure_ad_token_provider"] = get_bearer_token_provider(
+                    credential, "https://cognitiveservices.azure.com/.default"
+                )
+            except ValueError as e:
+                raise ValueError(
+                    f"Azure AD authentication failed for OpenAI: {e}"
+                ) from e
+
+        try:
+            _openai_client = AzureOpenAI(
+                api_version=AZURE_OPENAI_API_VERSION,
+                azure_endpoint=AZURE_OPENAI_ENDPOINT,
+                **client_args,
+            )
+            # Perform a simple test call if desired (optional)
+            # _openai_client.models.list()
+            _openai_model_arg = AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME
+            print(
+                f"Azure OpenAI client configured for endpoint {AZURE_OPENAI_ENDPOINT} and deployment {AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME}"
+            )
+
+        except Exception as e:
+            print(f"Error initializing Azure OpenAI client: {e}")
+            _openai_client = None
+            _openai_model_arg = None
+            raise ValueError("Failed to initialize Azure OpenAI client.") from e
+
+    elif OPENAI_API_KEY:
+        print("Configuring OpenAI.com client...")
+        client_args["api_key"] = OPENAI_API_KEY
+        try:
+            _openai_client = OpenAI(**client_args)
+            # Perform a simple test call if desired (optional)
+            # _openai_client.models.list()
+            _openai_model_arg = OPENAI_MODEL
+            print(f"OpenAI.com client configured for model {OPENAI_MODEL}")
+        except Exception as e:
+            print(f"Error initializing OpenAI.com client: {e}")
+            _openai_client = None
+            _openai_model_arg = None
+            raise ValueError("Failed to initialize OpenAI.com client.") from e
+    else:
+        _openai_client = None
+        _openai_model_arg = None
+        # Not raising an error here, allowing the app to potentially run without OpenAI
+        print(
+            "Warning: No OpenAI configuration found (Azure or OpenAI.com)."
+        )
+
+    return _openai_client, _openai_model_arg
+
+
+def get_speech_config():
+    """
+    Creates and returns the Azure Speech SDK configuration, caching the result.
+
+    Returns:
+        azure.cognitiveservices.speech.SpeechConfig: configured speech config object.
+        Returns None if configuration fails.
+
+    Raises:
+        ValueError: If AZURE_SPEECH_KEY or AZURE_SPEECH_REGION are missing.
+    """
+    global _speech_config
+    if _speech_config is None:
+        if not AZURE_SPEECH_KEY or not AZURE_SPEECH_REGION:
+            # Allow app to run without speech if keys are missing
+            print(
+                "Warning: AZURE_SPEECH_KEY or AZURE_SPEECH_REGION not set."
+            )
+            return None
+            # Alternatively, raise an error if speech is mandatory:
+            # raise ValueError("AZURE_SPEECH_KEY and AZURE_SPEECH_REGION must be set.")
+
+        try:
+            _speech_config = speechsdk.SpeechConfig(
+                subscription=AZURE_SPEECH_KEY, region=AZURE_SPEECH_REGION
+            )
+            _speech_config.speech_synthesis_voice_name = AZURE_SPEECH_VOICE
+            print(
+                f"Speech config initialized for region {AZURE_SPEECH_REGION} and voice {AZURE_SPEECH_VOICE}"
+            )
+        except Exception as e:
+            print(f"Error initializing Speech Config: {e}")
+            _speech_config = None  # Reset cache on error
+            raise ValueError("Failed to initialize Azure Speech configuration.") from e
+
+    return _speech_config
+
+
+def get_msal_app():
+    """
+    Initializes and returns the MSAL Confidential Client Application, caching result.
+
+    Returns:
+        msal.ConfidentialClientApplication: The initialized MSAL application instance.
+        Returns None if configuration fails.
+
+    Raises:
+        ValueError: If required MSAL configuration variables are missing.
+    """
+    global _msal_app
+    if _msal_app is None:
+        if not all([AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, MS_AUTHORITY]):
+            # Allow app to run without MSAL if config is missing
+            print(
+                "Warning: MSAL configuration (Client ID, Secret, Tenant ID) incomplete."
+            )
+            return None
+            # Alternatively, raise an error if MSAL is mandatory:
+            # raise ValueError("AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, and AUTH_TENANT_ID must be set for Microsoft Graph features.")
+
+        try:
+            _msal_app = msal.ConfidentialClientApplication(
+                client_id=AUTH_CLIENT_ID,
+                client_credential=AUTH_CLIENT_SECRET,
+                authority=MS_AUTHORITY,
+            )
+            print("MSAL Confidential Client Application initialized.")
+        except Exception as e:
+            print(f"Error initializing MSAL application: {e}")
+            _msal_app = None  # Reset cache on error
+            raise ValueError("Failed to initialize MSAL application.") from e
+
+    return _msal_app
+
+
+# --- Initial Configuration Checks (Optional but Recommended) ---
+# You can add checks here to ensure critical components are configured at startup
+
+try:
+    # Attempt to get the OpenAI client configuration
+    get_openai_client_config()
+except ValueError as e:
+    print(f"OpenAI Configuration Error: {e}")
+    # Decide if the app should exit or continue with limited functionality
+
+try:
+    # Attempt to get the Speech config
+    get_speech_config()
+except ValueError as e:
+    print(f"Speech Configuration Error: {e}")
+    # Decide if the app should exit or continue
+
+try:
+    # Attempt to get the MSAL app
+    get_msal_app()
+except ValueError as e:
+    print(f"MSAL Configuration Error: {e}")
+    # Decide if the app should exit or continue
+
+
+# --- Helper Functions (Example) ---
+def is_elm327_configured():
+    """Checks if serial port is configured for ELM327."""
+    return bool(SERIAL_PORT)
+
+
+def is_speech_enabled():
+    """Checks if speech services are configured."""
+    return bool(AZURE_SPEECH_KEY and AZURE_SPEECH_REGION)
+
+
+def is_graph_enabled():
+    """Checks if Microsoft Graph (MSAL) is configured."""
+    return bool(AUTH_CLIENT_ID and AUTH_CLIENT_SECRET and AUTH_TENANT_ID)
+
+
+def is_openai_enabled():
+    """Checks if any OpenAI service is configured."""
+    return bool(AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY)
+
+
+print("-" * 30)
+print("Configuration Loading Complete.")
+print(f"OpenAI Enabled: {is_openai_enabled()}")
+print(f"Speech Enabled: {is_speech_enabled()}")
+print(f"Graph Enabled: {is_graph_enabled()}")
+print(f"ELM327 Configured: {is_elm327_configured()}")
+print("-" * 30)
