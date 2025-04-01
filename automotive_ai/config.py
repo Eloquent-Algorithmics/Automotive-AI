@@ -147,9 +147,7 @@ def get_azure_credential():
 
         except Exception as e:
             console.print(f"Error obtaining Azure credential: {e}", style="bold red")
-            logger.error(
-                f"Warning: Error obtaining Azure credential: {e}."
-            )
+            logger.error(f"Warning: Error obtaining Azure credential: {e}.")
             _azure_credential = None
 
     return _azure_credential
@@ -158,7 +156,7 @@ def get_azure_credential():
 def get_openai_client_config():
     """
     Configures and returns the OpenAI client (Azure or OpenAI.com) and model argument.
-    Caches the initialized client and model argument. Returns (None, None) if config fails.
+    Caches initialized client and model argument. Returns (None, None) if config fails.
     """
     global _openai_client, _openai_model_arg
 
@@ -166,9 +164,7 @@ def get_openai_client_config():
         return _openai_client, _openai_model_arg
 
     if not is_openai_enabled():
-        logger.info(
-            "Warning: No OpenAI configuration found (Azure or OpenAI.com)."
-        )
+        logger.info("Warning: No OpenAI configuration found (Azure or OpenAI.com).")
         return None, None
 
     client_args = {}
@@ -187,14 +183,12 @@ def get_openai_client_config():
                 try:
                     credential = get_azure_credential()
                     if not credential:
-                        logger.error(
-                            "Azure AD/Entra ID authentication failed."
-                        )
+                        logger.error("Azure AD/Entra ID authentication failed.")
                     client_args["azure_ad_token_provider"] = get_bearer_token_provider(
                         credential, "https://cognitiveservices.azure.com/.default"
                     )
                 except Exception as e:
-                    logger.error(f"Azure AD authentication setup failed for OpenAI: {e}", exc_info=True)
+                    logger.error(f"Azure AD authentication failed: {e}", exc_info=True)
                     return None, None
 
             try:
@@ -206,10 +200,14 @@ def get_openai_client_config():
                 # Perform a simple test call (optional, uncomment if needed)
                 # _openai_client.models.list()
                 _openai_model_arg = AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME
-                logger.info(f"Azure OpenAI client configured for endpoint {AZURE_OPENAI_ENDPOINT} and deployment {AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME}")
+                logger.info(
+                    f"Azure OpenAI client configured for endpoint {AZURE_OPENAI_ENDPOINT} and deployment {AZURE_OPENAI_CHATGPT_DEPLOYMENT_NAME}"
+                )
 
             except Exception as e:
-                logger.error(f"Error initializing Azure OpenAI client: {e}", exc_info=True)
+                logger.error(
+                    f"Error initializing Azure OpenAI client: {e}", exc_info=True
+                )
                 _openai_client = None
                 _openai_model_arg = None
 
@@ -220,16 +218,22 @@ def get_openai_client_config():
                 _openai_client = OpenAI(**client_args)
                 _openai_model_arg = OPENAI_MODEL
 
-                logger.info(f"OpenAI.com client configured for model '{_openai_model_arg}'.")
+                logger.info(
+                    f"OpenAI.com client configured for model '{_openai_model_arg}'."
+                )
 
             except Exception as e:
-                logger.error(f"Error initializing OpenAI.com client: {e}", exc_info=True)
+                logger.error(
+                    f"Error initializing OpenAI.com client: {e}", exc_info=True
+                )
                 _openai_client = None
                 _openai_model_arg = None
         else:
             _openai_client = None
             _openai_model_arg = None
-            logger.warning("No OpenAI configuration found (Azure or OpenAI.com). OpenAI features will be disabled.")
+            logger.warning(
+                "No OpenAI configuration found (Azure or OpenAI.com)."
+            )
 
     except Exception as e:
         logger.info(f"Error initializing OpenAI client: {e}")
@@ -275,7 +279,7 @@ def get_msal_app():
     global _msal_app
     if not is_graph_enabled():
         logger.warning(
-            "Warning: MSAL/Graph configuration incomplete. Microsoft Graph features disabled."
+            "Warning: MSAL/Graph configuration incomplete."
         )
         return None
 
@@ -305,7 +309,8 @@ def store_msal_tokens(token_result):
             ),  # May not always be present
         }
         logger.info("MSAL tokens stored.")
-        # Consider storing user_object_id here if available in token claims or from a /me call
+        # Consider storing user_object_id here if available in token claims
+        # or from a /me call
     else:
         _msal_tokens = None
         logger.info("Warning: Attempted to store invalid MSAL token result.")
@@ -398,6 +403,6 @@ def print_config_summary():
 print_config_summary()
 
 # --- Perform essential initializations ---
-get_openai_client_config() # Can be deferred until needed
-get_speech_config() # Can be deferred until needed
-get_msal_app() # Definitely defer this until after auth code is obtained
+get_openai_client_config()  # Can be deferred until needed
+get_speech_config()  # Can be deferred until needed
+get_msal_app()  # Definitely defer this until after auth code is obtained
