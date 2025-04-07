@@ -14,4 +14,10 @@ call python -m spacy download en_core_web_md
 
 echo Installation completed.
 
+echo To continue, please activate the conda environment with the following command:
+echo conda activate auto_ai
+
+echo Then, run the following command to start the application:
+echo python automotive_ai/app.py
+
 pause

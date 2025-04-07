@@ -3,11 +3,11 @@ This module contains functions for processing data,
 sending commands to a serial device, and running diagnostic reports.
 """
 import requests
-from automotive_ai._api._nhtsa._vin_decoder import (
+from _api._nhtsa._vin_decoder import (
     parse_vin_response,
     get_vehicle_data_from_nhtsa,
 )
-from automotive_ai._api._msal._graph_api import send_email_with_attachments
+from _api._msal._graph_api import send_email_with_attachments
 from . import EMAIL_ADDRESS
 
 
