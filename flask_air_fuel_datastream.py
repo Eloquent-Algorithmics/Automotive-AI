@@ -1,10 +1,11 @@
 import os
-import time
-import threading
 import re
-from flask import Flask, render_template_string, jsonify
+import threading
+import time
+
 import obd
 from dotenv import load_dotenv
+from flask import Flask, jsonify, render_template_string
 
 # Load environment variables from .env file
 load_dotenv()
@@ -54,6 +55,20 @@ def check_and_add_sensor(sensor):
 
 
 def start_datastream():
+    """
+    Initializes the automotive data streaming by iterating through a predefined list of sensor commands.
+    The function performs the following steps:
+    1. Defines a list of sensor commands (e.g., RPM, MAF, SHORT_FUEL_TRIM_1, etc.) extracted from the `obd.commands` dictionary.
+    2. Iterates over each sensor command in the list.
+    3. For each sensor, it calls `check_and_add_sensor(sensor)` to verify the sensor's validity or readiness.
+    4. If valid sensor information is returned by `check_and_add_sensor`, it appends the sensor data to the global `sensors_info` list.
+    Note:
+        - The function relies on the global variable `sensors_info` for storing sensor details.
+        - Prior execution or proper definition of `check_and_add_sensor` is required.
+        - The `obd.commands` dictionary must contain keys for the sensor commands used.
+    Returns:
+        None
+    """
     global sensors_info
     sensor_list = [
         obd.commands["RPM"],
@@ -62,7 +77,6 @@ def start_datastream():
         obd.commands["SHORT_FUEL_TRIM_2"],
         obd.commands["O2_B1S1"],
         obd.commands["O2_B2S1"],
-        # Add other sensors as needed
     ]
 
     for sensor in sensor_list:
@@ -85,14 +99,13 @@ def data_collector():
                     if value is not None:
                         sensor_data = value.magnitude
                 SENSOR_DATA[sensor_id].append(sensor_data)
-                # Limit data length to last 500 points
+                # Limits data length to last 500 points
                 if len(SENSOR_DATA[sensor_id]) > 500:
                     SENSOR_DATA[sensor_id] = SENSOR_DATA[sensor_id][-500:]
-            # Append the timestamp
             timestamps.append(time.time())
             if len(timestamps) > 500:
                 timestamps[:] = timestamps[-500:]
-        time.sleep(0.2)  # Adjust the sleep time as needed
+        time.sleep(0.2)  # Adjusts the sleep time
 
 
 @app.route("/")
@@ -213,6 +226,17 @@ def index():
 
 @app.route("/data")
 def data():
+    """
+    Generates a JSON response containing sensor data and adjusted timestamps.
+
+    This function acquires a lock to safely access shared sensor data and constructs a JSON object with the following keys:
+        - "timestamps": A list of timestamps adjusted by subtracting the start time.
+        - "sensor_data": A dictionary mapping each sensor's ID (from sensors_info) to its corresponding data in SENSOR_DATA.
+        - "start_time": An indicator (set to 0) that the timestamps have already been adjusted.
+
+    Returns:
+        A Flask JSON response encapsulating the sensor data and adjusted timestamps.
+    """
     with data_lock:
         # Prepare sensor data for JSON
         sensor_data_json = {
@@ -230,7 +254,7 @@ def data():
 
 if __name__ == "__main__":
     start_datastream()
-    # Start the data collection thread
+    # Starts the data collection thread
     data_thread = threading.Thread(target=data_collector, daemon=True)
     data_thread.start()
     app.run(debug=False)
