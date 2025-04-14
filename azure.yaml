@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: az-auto-ai_v0.0.1
+name: auto_ai_v0.0.2
 metadata:
-  template: az-auto-ai_0.0.1
+  template: auto_ai_v0.0.2
 
 hooks:
     postprovision:
@@ -24,15 +24,14 @@ pipeline:
         - AZURE_OPENAI_RESOURCE_GROUP_LOCATION
         - AZURE_OPENAI_SKU_NAME
         - AZURE_OPENAI_API_VERSION
-        - CREATE_ROLE_FOR_USER
-        - AZURE_SPEECH_VOICE
-        - AZURE_SPEECH_REGION
-        - AZURE_SPEECH_KEY
+        - AZURE_OPENAI_DEPLOYMENT_1
+        - AZURE_OPENAI_DEPLOYMENT_2
+        - AZURE_OPENAI_API_KEY
         - GOOGLE_API_KEY
         - GOOGLE_CSE_ID
         - EMAIL_ADDRESS
-        - GRAPH_CLIENT_ID
-        - GRAPH_CLIENT_SECRET
+        - AUTH_CLIENT_ID
+        - AUTH_CLIENT_SECRET
         - AUTH_TENANT_ID
         - OPENAI_API_KEY
         - OPENAI_MODEL
