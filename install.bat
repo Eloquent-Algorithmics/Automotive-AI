@@ -1,23 +1,17 @@
 @echo off
 
-echo Creating a new Conda environment...
-call conda create -n auto_ai python=3.12 -y
+echo Creating a new virtual environment...
+call python -m venv .venv
 
-echo Activating the new Conda environment...
-call conda activate auto_ai
+echo Activating the virtual environment...
+call .venv\Scripts\activate
 
 echo Installing the Python requirements...
 call pip install -r requirements-dev.txt
 
-echo Downloading the SpaCy NLP model...
-call python -m spacy download en_core_web_md
-
 echo Installation completed.
 
-echo To continue, please activate the conda environment with the following command:
-echo conda activate auto_ai
-
-echo Then, run the following command to start the application:
-echo python automotive_ai/app.py
+echo Starting application...
+call python automotive_ai/app.py
 
 pause
