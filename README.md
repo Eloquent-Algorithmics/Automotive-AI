@@ -6,18 +6,13 @@ An experimental open-source application that integrates OpenAi gpt-4o or gpt-4o-
 
 
 ⚠️ ***This is a work in progress*** ⚠️
-01/21/2024: Updated dependencies and added CI/CD pipeline.
-
-10/18/2024: Updated to use Azure OpenAI gpt-4o models (Default 4o-mini).
-
-03/17/2024: Updated to use [OpenAI v1](https://github.com/openai/openai-python/releases/)
+04/15/2025 - 
 
 
 ## 🛠️ Built and tested using:
 
-- Windows 11, Ubuntu 22.04, Ubuntu 24.04
-- Python 3.12
-- Requires [Miniconda](https://docs.anaconda.com/free/miniconda/#latest-miniconda-installer-links)
+- Windows 11 24H2, Ubuntu 24.04
+- Python 3.13.2
 - [OBDlink MX+ Bluetooth ELM327](https://www.obdlink.com/products/obdlink-mxp/)
 - Desktop testing is possible using an [ELM327 emulator](https://github.com/Ircama/ELM327-emulator)
 
@@ -47,13 +42,13 @@ cp .env.template .env
 Without a vehicle communication interface:
 
 ```bash
-python -m app
+python automotive_ai/app.py
 ```
 
 With an ELM327 device connected:
 
 ```bash
-python -m app --device elm327
+python automotive_ai/app --device elm327
 ```
 
 </details>
@@ -77,13 +72,13 @@ copy .env.template .env
 Without a vehicle communication interface:
 
 ```bash
-python -m app
+python automotive_ai/app.py
 ```
 
 With an ELM327 device connected:
 
 ```bash
-python -m app --device elm327
+python automotive_ai/app.py --device elm327
 ```
 
 </details>
@@ -103,53 +98,14 @@ azd up
 Without a vehicle communication interface:
 
 ```bash
-python -m src/app
+python automotive_ai/app.py
 ```
 
 With an ELM327 device connected:
 
 ```bash
-python -m src/app --device elm327
+python automotive_ai/app.py --device elm327
 ```
-
-</details>
-
-## 🎙️ Voice Commands
-
-<details>
-
-<summary>Current voice commands include:</summary>
-
-- "engine rpm"
-- "intake air temperature"
-- "fuel tank level"
-- "time run with MIL on"
-- "engine coolant temperature"
-- "read trouble codes"
-- "freeze frame data"
-- "pending trouble codes"
-- "clear trouble codes"
-- "vehicle identification number"
-- "calibration id message count"
-- "calibration id"
-- "calibration verification numbers"
-- "start a diagnostic report"
-- "send a diagnostic report"
-- "next on my calendar"
-- "create a new appointment"
-- "check my email"
-- "send an email to"
-- "ask question"
-- "start a conversation"
-
-To start a conversation that uses JSON for conversation history, use the "start a conversation" command.
-
-After a conversation has been started you can use the following voice commands to manage the conversation history:
-
-- "clear all history"
-- "delete the last message"
-- "summarize the conversation history"
-- "end the conversation"
 
 </details>
 
@@ -166,12 +122,3 @@ elm -p COM6 -a 500000
 ```
 
 Set the COM port in the `.env` file to `COM7`.
-
-## 📈 Data Stream (Under Construction)
-
-```bash
-python air_fuel_datastream.py
-```
-
-Streams data from the OBD-II ELM327 device to the console, but there's currently no way to stop the stream other than closing the application.
-</details>
