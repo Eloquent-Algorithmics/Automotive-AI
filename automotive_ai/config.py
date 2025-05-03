@@ -136,10 +136,83 @@ def get_azure_credential():
 
         except Exception as e:
             console.print(f"Error obtaining Azure credential: {e}", style="bold red")
-            logger.error(f"Warning: Error obtaining Azure credential: {e}.")
+            logger.error("Warning: Error obtaining Azure credential: %s", e)
             _azure_credential = None
 
     return _azure_credential
+
+
+class AzureCredentialProvider:
+
+    """
+    AzureCredentialProvider is a utility class to manage and cache the retrieval of an Azure
+    credential for authentication. It leverages the DefaultAzureCredential to obtain the
+    credential and performs an initial check to validate it.
+
+        Attributes:
+        _credential: Caches the obtained Azure credential.
+        _initialized: A flag indicating whether an attempt to retrieve the credential has been made.
+
+    Methods:
+        get_credential():
+            Attempts to obtain and validate an Azure credential using DefaultAzureCredential.
+            On the first call, it tries to retrieve the credential and cache it.
+            Subsequent calls return the cached credential even if the initial attempt failed.
+            If an error occurs during retrieval, the function logs the error, prints a message,
+            and caches None, ensuring that further calls do not retry the retrieval.
+
+    Returns:
+                The Azure credential if successfully retrieved and validated; otherwise, None.
+
+    Example Usage:
+        credential_provider = AzureCredentialProvider()
+        # Get the credential (first call attempts to retrieve, subsequent calls return the cached value)
+        cred1 = credential_provider.get_credential()
+        cred2 = credential_provider.get_credential()
+        # cred1 and cred2 should refer to the same credential instance if retrieved successfully
+        print(f"Cred1 is Cred2: {cred1 is cred2}")
+    """
+    _credential = None
+    _initialized = False
+
+    def get_credential(self):
+        """
+        Retrieves the Azure credential for authentication, caching the result.
+        Uses DefaultAzureCredential. Returns None if unable to get credentials.
+        """
+        if not self._initialized:
+            try:
+                console.print("Attempting to get Azure credentials...", style="bold blue")
+                logger.info("Attempting to get Azure credentials...")
+                credential = DefaultAzureCredential(
+                    exclude_shared_token_cache_credential=True
+                )
+                # Perform a quick check to ensure the credential is valid
+                credential.get_token("https://management.azure.com/.default")
+                console.print("Azure credential obtained successfully.", style="bold green")
+                logger.info("Azure credential obtained successfully.")
+                self._credential = credential
+
+            except Exception as e:
+                console.print(f"Error obtaining Azure credential: {e}", style="bold red")
+                logger.error(f"Warning: Error obtaining Azure credential: {e}.")
+                self._credential = None # Explicitly set to None on error
+            finally:
+                # Mark as initialized even if it failed, so we don't retry indefinitely
+                # within the same provider instance.
+                self._initialized = True
+
+        return self._credential
+
+        # --- Example Usage ---
+        # Create a single instance of the provider (like a singleton)
+        # You could manage this instance creation within a module if needed.
+        # credential_provider = AzureCredentialProvider()
+
+        # Use the instance to get the credential
+        # cred1 = credential_provider.get_credential() # First call: attempts to get cred
+        # cred2 = credential_provider.get_credential() # Second call: returns cached value
+        # print(f"Cred1 is Cred2: {cred1 is cred2}") # Should print True if first call succeeded
 
 
 def get_openai_client_config():
